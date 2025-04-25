@@ -61,7 +61,7 @@ class SaleDetailScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 16),
                     _buildInfoRow('Item', sale.item?.name ?? 'Unknown'),
-                    _buildInfoRow('Fraction', sale.fractionName),
+                    _buildInfoRow('Fraction', sale.fractionId),
                     _buildInfoRow('Quantity', sale.quantity.toString()),
                   ],
                 ),

@@ -83,7 +83,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
       final saleData = {
         'itemId': _selectedItem!.id,
         'quantity': double.parse(_quantityController.text),
-        'fractionName': _selectedFraction!.name,
+        'fractionId': _selectedFraction!.id,
         'amount': double.parse(_amountController.text),
         'expectedAmount': _expectedAmount,
       };

@@ -1,8 +1,9 @@
 import 'package:inventory_frontend/models/item.dart';
+import 'package:inventory_frontend/models/fraction.dart';
 
-class ItemTransaction {
+class Bought {
   final String id;
-  final String fractionName;
+  final String fractionId;
   final double fractionPurchasePrice;
   final double fractionSoldPrice;
   final double quantity;
@@ -11,10 +12,11 @@ class ItemTransaction {
   final DateTime createdTime;
   final String itemId;
   final Item? item;
+  final Fraction? fraction;
   
-  ItemTransaction({
+  Bought({
     required this.id,
-    required this.fractionName,
+    required this.fractionId,
     required this.fractionPurchasePrice,
     required this.fractionSoldPrice,
     required this.quantity,
@@ -23,12 +25,13 @@ class ItemTransaction {
     required this.createdTime,
     required this.itemId,
     this.item,
+    this.fraction,
   });
   
-  factory ItemTransaction.fromJson(Map<String, dynamic> json) {
-    return ItemTransaction(
+  factory Bought.fromJson(Map<String, dynamic> json) {
+    return Bought(
       id: json['id'],
-      fractionName: json['fractionName'],
+      fractionId: json['fractionId'],
       fractionPurchasePrice: json['fractionPurchasePrice'].toDouble(),
       fractionSoldPrice: json['fractionSoldPrice'].toDouble(),
       quantity: json['quantity'].toDouble(),
@@ -37,13 +40,19 @@ class ItemTransaction {
       createdTime: DateTime.parse(json['createdTime']),
       itemId: json['itemId'],
       item: json['Item'] != null ? Item.fromJson(json['Item']) : null,
+      fraction: json['Item']?['Fractions'] != null && json['Item']?['Fractions'].isNotEmpty 
+          ? Fraction.fromJson(json['Item']['Fractions'].firstWhere(
+              (f) => f['id'] == json['fractionId'],
+              orElse: () => null,
+            ))
+          : null,
     );
   }
   
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'fractionName': fractionName,
+      'fractionId': fractionId,
       'fractionPurchasePrice': fractionPurchasePrice,
       'fractionSoldPrice': fractionSoldPrice,
       'quantity': quantity,
@@ -52,4 +61,4 @@ class ItemTransaction {
       'itemId': itemId,
     };
   }
-}
+} 

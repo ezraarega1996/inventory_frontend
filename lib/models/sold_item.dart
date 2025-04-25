@@ -5,7 +5,7 @@ class SoldItem {
   final String id;
   final DateTime soldTime;
   final double quantity;
-  final String fractionName;
+  final String fractionId;
   final double amount;
   final double expectedAmount;
   final bool existing;
@@ -20,7 +20,7 @@ class SoldItem {
     required this.id,
     required this.soldTime,
     required this.quantity,
-    required this.fractionName,
+    required this.fractionId,
     required this.amount,
     required this.expectedAmount,
     required this.existing,
@@ -37,7 +37,7 @@ class SoldItem {
       id: json['id'],
       soldTime: DateTime.parse(json['soldTime']),
       quantity: json['quantity'].toDouble(),
-      fractionName: json['fractionName'],
+      fractionId: json['fractionId'],
       amount: json['amount'].toDouble(),
       expectedAmount: json['expectedAmount'].toDouble(),
       existing: json['existing'],
@@ -54,7 +54,7 @@ class SoldItem {
     return {
       'id': id,
       'quantity': quantity,
-      'fractionName': fractionName,
+      'fractionId': fractionId,
       'amount': amount,
       'expectedAmount': expectedAmount,
       'status': status,

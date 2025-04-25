@@ -163,7 +163,7 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
         return Card(
           child: ListTile(
             title: Text(sale.item?.name ?? 'Unknown Item'),
-            subtitle: Text('${sale.fractionName} - Qty: ${sale.quantity}'),
+            subtitle: Text('${sale.fractionId} - Qty: ${sale.quantity}'),
             trailing: Text('\$${sale.amount}'),
           ),
         );

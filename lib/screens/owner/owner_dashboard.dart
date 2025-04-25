@@ -9,6 +9,7 @@ import 'package:inventory_frontend/screens/owner/items_screen.dart';
 import 'package:inventory_frontend/screens/owner/sales_screen.dart';
 import 'package:inventory_frontend/screens/owner/subscription_screen.dart';
 import 'package:inventory_frontend/screens/owner/users_screen.dart';
+import 'package:inventory_frontend/screens/owner/boughts_screen.dart';
 import 'package:inventory_frontend/widgets/dashboard_card.dart';
 import 'package:inventory_frontend/widgets/dashboard_chart.dart';
 
@@ -71,6 +72,8 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
         return const UsersScreen();
       case 5:
         return const SubscriptionScreen();
+      case 6:
+        return const BoughtsScreen();
       default:
         return _buildDashboard();
     }
@@ -253,6 +256,10 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
           BottomNavigationBarItem(
             icon: Icon(Icons.card_membership),
             label: 'Subscription',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(Icons.account_balance_wallet),
+            label: 'Boughts',
           ),
         ],
       ),
