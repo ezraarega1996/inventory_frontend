@@ -1,10 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:inventory_frontend/providers/business_provider.dart';
+import 'package:inventory_frontend/providers/auth_provider.dart';
+import 'package:inventory_frontend/providers/sales_provider.dart';
 import 'package:inventory_frontend/services/business_service.dart';
 import 'package:inventory_frontend/screens/business/business_list_screen.dart';
 import 'package:inventory_frontend/screens/business/business_register_screen.dart';
 import 'package:inventory_frontend/screens/business/business_detail_screen.dart';
+import 'package:inventory_frontend/screens/auth/login_screen.dart';
+import 'package:inventory_frontend/screens/splash_screen.dart';
 import 'package:inventory_frontend/models/business.dart';
 
 void main() {
@@ -31,6 +35,12 @@ class MyApp extends StatelessWidget {
             businessService,
           ),
         ),
+        ChangeNotifierProvider(
+          create: (_) => AuthProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => SalesProvider(),
+        ),
       ],
       child: MaterialApp(
         title: 'Inventory Management',
@@ -41,7 +51,8 @@ class MyApp extends StatelessWidget {
         ),
         initialRoute: '/',
         routes: {
-          '/': (context) => const BusinessListScreen(),
+          '/': (context) => const SplashScreen(),
+          '/login': (context) => const LoginScreen(),
           '/business/register': (context) => const BusinessRegisterScreen(),
           '/business/detail': (context) {
             final business = ModalRoute.of(context)!.settings.arguments as Business;

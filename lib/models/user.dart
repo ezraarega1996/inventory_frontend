@@ -26,14 +26,14 @@ class User {
   
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
-      id: json['id'],
-      name: json['name'],
-      phone: json['phone'],
-      location: json['location'],
-      username: json['username'],
-      email: json['email'],
-      role: json['role'],
-      businessId: json['businessId'],
+      id: json['id'] ?? '',
+      name: json['name'] ?? '',
+      phone: json['phone'] ?? '',
+      location: json['location'] ?? '',
+      username: json['username'] ?? '',
+      email: json['email'] ?? '',
+      role: json['role'] ?? '',
+      businessId: json['businessId'] ?? '',
       business: json['business'] != null ? Business.fromJson(json['business']) : null,
       isActive: json['isActive'] ?? true,
     );

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'dart:io';
+import 'package:http/http.dart' as http;
 import 'package:inventory_frontend/models/user.dart';
 import 'package:inventory_frontend/utils/api.dart';
 import 'package:inventory_frontend/utils/storage.dart';
@@ -16,18 +18,41 @@ class AuthProvider with ChangeNotifier {
   bool get isOwner => _user?.role == 'owner';
   bool get isAdmin => _user?.role == 'admin';
   
+  AuthProvider() {
+    _initialize();
+  }
+  
+  Future<void> _initialize() async {
+    await checkAuth();
+  }
+  
   Future<void> checkAuth() async {
-    final token = await Storage.getToken();
-    final userData = await Storage.getUser();
+    _isLoading = true;
+    notifyListeners();
     
-    if (token != null && userData != null) {
-      _user = User.fromJson(userData);
-      _isAuthenticated = true;
+    try {
+      final token = await Storage.getToken();
+      final userData = await Storage.getUser();
+      
+      if (token != null && userData != null) {
+        _user = User.fromJson(userData);
+        _isAuthenticated = true;
+      }
+    } catch (e) {
+      _error = e.toString();
+    } finally {
+      _isLoading = false;
       notifyListeners();
     }
   }
   
   Future<bool> login(String username, String password) async {
+    if (username.isEmpty || password.isEmpty) {
+      _error = 'Username and password are required';
+      notifyListeners();
+      return false;
+    }
+
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -37,25 +62,34 @@ class AuthProvider with ChangeNotifier {
         'username': username,
         'password': password,
       });
-      
+
+      if (response == null || response['token'] == null || response['user'] == null) {
+        _error = 'Invalid response from server';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
       final token = response['token'];
       final userData = response['user'];
-      
       await Storage.saveToken(token);
       await Storage.saveUser(userData);
-      
       _user = User.fromJson(userData);
       _isAuthenticated = true;
-      _isLoading = false;
-      notifyListeners();
-      
       return true;
+    } on FormatException {
+      _error = 'Invalid response format from server';
+    } on SocketException {
+      _error = 'No internet connection';
+    } on HttpException catch (e) {
+      _error = e.message;
     } catch (e) {
-      _error = e.toString();
+      _error = 'An unexpected error occurred';
+    } finally {
       _isLoading = false;
       notifyListeners();
-      return false;
     }
+    
+    return false;
   }
   
   Future<bool> register(Map<String, dynamic> userData) async {

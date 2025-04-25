@@ -31,14 +31,11 @@ class _LoginScreenState extends State<LoginScreen> {
   Future<void> _login() async {
     if (_formKey.currentState!.validate()) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      
       final success = await authProvider.login(
         _usernameController.text.trim(),
         _passwordController.text,
       );
-      
       if (!mounted) return;
-      
       if (success) {
         if (authProvider.isAdmin) {
           Navigator.of(context).pushReplacement(

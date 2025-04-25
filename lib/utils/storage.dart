@@ -1,4 +1,5 @@
 import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:convert';
 
 class Storage {
   static const String _tokenKey = 'auth_token';
@@ -18,15 +19,18 @@ class Storage {
   // User data methods
   static Future<void> saveUser(Map<String, dynamic> userData) async {
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setString(_userKey, userData.toString());
+    await prefs.setString(_userKey, jsonEncode(userData));
   }
   
   static Future<Map<String, dynamic>?> getUser() async {
     final prefs = await SharedPreferences.getInstance();
     final userString = prefs.getString(_userKey);
     if (userString != null) {
-      // Convert string back to map
-      return Map<String, dynamic>.from(userString as Map);
+      try {
+        return jsonDecode(userString) as Map<String, dynamic>;
+      } catch (e) {
+        return null;
+      }
     }
     return null;
   }

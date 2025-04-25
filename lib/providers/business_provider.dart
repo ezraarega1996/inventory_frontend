@@ -51,13 +51,13 @@ class BusinessProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  Future<void> createBusiness(Business business) async {
+  Future<void> createBusiness(Map<String, dynamic> businessData) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
 
     try {
-      final newBusiness = await _businessService.createBusiness(business);
+      final newBusiness = await _businessService.createBusiness(businessData);
       _businesses.add(newBusiness);
       _error = null;
     } catch (e) {

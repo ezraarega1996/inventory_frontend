@@ -18,9 +18,9 @@ class BusinessService {
   }
 
   // Create a new business
-  Future<Business> createBusiness(Business business) async {
+  Future<Business> createBusiness(Map<String, dynamic> businessData) async {
     try {
-      final response = await _dio.post('/api/businesses', data: business.toJson());
+      final response = await _dio.post('/api/businesses', data: businessData);
       return Business.fromJson(response.data);
     } catch (e) {
       throw Exception('Failed to create business: $e');
