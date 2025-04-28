@@ -23,6 +23,20 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
   final _nameController = TextEditingController();
   final _ratioController = TextEditingController();
   final _priceController = TextEditingController();
+  bool _isUnit = false;
+  bool _hasUnitFraction = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkUnitFraction();
+  }
+
+  void _checkUnitFraction() {
+    final itemProvider = Provider.of<ItemProvider>(context, listen: false);
+    final item = itemProvider.items.firstWhere((i) => i.id == widget.item.id);
+    _hasUnitFraction = item.fractions?.any((f) => f.isUnit) ?? false;
+  }
 
   @override
   void dispose() {
@@ -36,35 +50,56 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
     if (!_formKey.currentState!.validate()) return;
 
     final itemProvider = Provider.of<ItemProvider>(context, listen: false);
-    final success = await itemProvider.createFraction(
-      widget.item.id,
-      _nameController.text,
-      double.parse(_ratioController.text),
-      double.parse(_priceController.text),
-    );
+    try {
+      final success = await itemProvider.createFraction(
+        widget.item.id,
+        _nameController.text,
+        double.parse(_ratioController.text),
+        double.parse(_priceController.text),
+        isUnit: _isUnit,
+      );
 
-    if (success) {
-      _nameController.clear();
-      _ratioController.clear();
-      _priceController.clear();
+      if (success) {
+        _nameController.clear();
+        _ratioController.clear();
+        _priceController.clear();
+        setState(() => _isUnit = false);
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Fraction added successfully')),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Fraction added successfully')),
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
 
   Future<void> _updateFraction(Fraction fraction) async {
     final itemProvider = Provider.of<ItemProvider>(context, listen: false);
-    final success = await itemProvider.updateFraction(
-      fraction.id,
-      _nameController.text,
-      double.parse(_ratioController.text),
-      double.parse(_priceController.text),
-    );
+    try {
+      final success = await itemProvider.updateFraction(
+        fraction.id,
+        _nameController.text,
+        double.parse(_ratioController.text),
+        double.parse(_priceController.text),
+        isUnit: _isUnit,
+      );
 
-    if (success) {
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Fraction updated successfully')),
+        );
+      }
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Fraction updated successfully')),
+        SnackBar(
+          content: Text(e.toString()),
+          backgroundColor: Colors.red,
+        ),
       );
     }
   }
@@ -156,6 +191,19 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
+                  CheckboxListTile(
+                    title: const Text('Is Unit'),
+                    value: _isUnit,
+                    onChanged: _hasUnitFraction ? null : (value) {
+                      setState(() {
+                        _isUnit = value ?? false;
+                      });
+                    },
+                    subtitle: _hasUnitFraction 
+                      ? const Text('This item already has a unit fraction', style: TextStyle(color: Colors.red))
+                      : null,
+                  ),
+                  const SizedBox(height: 16),
                   CustomButton(
                     onPressed: _addFraction,
                     text: 'Add Fraction',
@@ -192,9 +240,7 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
                       return Card(
                         child: ListTile(
                           title: Text(fraction.name),
-                          subtitle: Text(
-                            'Ratio: ${fraction.ratio}, Price: \$${fraction.price}',
-                          ),
+                          subtitle: Text('Ratio: ${fraction.ratio}, Price: \$${fraction.price}${fraction.isUnit ? ' (Unit)' : ''}'),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -204,6 +250,10 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
                                   _nameController.text = fraction.name;
                                   _ratioController.text = fraction.ratio.toString();
                                   _priceController.text = fraction.price.toString();
+                                  setState(() {
+                                    _isUnit = fraction.isUnit;
+                                    _checkUnitFraction();
+                                  });
                                   _updateFraction(fraction);
                                 },
                               ),

@@ -82,6 +82,13 @@ class SalesProvider with ChangeNotifier {
     try {
       final response = await Api.post('sales', saleData);
       
+      if (response == null) {
+        _error = 'No response received from server';
+        _isLoading = false;
+        notifyListeners();
+        return false;
+      }
+      
       final newSale = SoldItem.fromJson(response);
       _sales.insert(0, newSale);
       

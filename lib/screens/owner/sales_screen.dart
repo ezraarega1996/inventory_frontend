@@ -94,7 +94,7 @@ class _SalesScreenState extends State<SalesScreen> {
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Fraction: ${sale.fractionId}'),
+                          Text('Fraction: ${sale.fraction?.name ?? 'Unknown'}'),
                           Text('Quantity: ${sale.quantity}'),
                           Text('Amount: \$${sale.amount}'),
                           Text('Sold by: ${sale.salesman?.name ?? 'Unknown'}'),

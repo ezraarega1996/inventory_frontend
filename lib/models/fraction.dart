@@ -4,6 +4,7 @@ class Fraction {
   final double ratio;
   final double price;
   final String itemId;
+  final bool isUnit;
   
   Fraction({
     required this.id,
@@ -11,6 +12,7 @@ class Fraction {
     required this.ratio,
     required this.price,
     required this.itemId,
+    this.isUnit = false,
   });
   
   factory Fraction.fromJson(Map<String, dynamic> json) {
@@ -20,6 +22,7 @@ class Fraction {
       ratio: json['ratio'].toDouble(),
       price: json['price'].toDouble(),
       itemId: json['itemId'],
+      isUnit: json['isUnit'] ?? false,
     );
   }
   
@@ -30,6 +33,7 @@ class Fraction {
       'ratio': ratio,
       'price': price,
       'itemId': itemId,
+      'isUnit': isUnit,
     };
   }
 }

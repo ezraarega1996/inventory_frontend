@@ -1,5 +1,6 @@
 import 'package:inventory_frontend/models/item.dart';
 import 'package:inventory_frontend/models/user.dart';
+import 'package:inventory_frontend/models/fraction.dart';
 
 class SoldItem {
   final String id;
@@ -15,6 +16,7 @@ class SoldItem {
   final String salesmanId;
   final Item? item;
   final User? salesman;
+  final Fraction? fraction;
   
   SoldItem({
     required this.id,
@@ -30,9 +32,23 @@ class SoldItem {
     required this.salesmanId,
     this.item,
     this.salesman,
+    this.fraction,
   });
   
   factory SoldItem.fromJson(Map<String, dynamic> json) {
+    Fraction? fraction;
+    if (json['Item']?['Fractions'] != null) {
+      final fractions = List<Fraction>.from(
+        json['Item']['Fractions'].map((x) => Fraction.fromJson(x))
+      );
+      fraction = fractions.firstWhere(
+        (f) => f.id == json['fractionId'],
+        orElse: () => fractions.first,
+      );
+    } else if (json['fraction'] != null) {
+      fraction = Fraction.fromJson(json['fraction']);
+    }
+    
     return SoldItem(
       id: json['id'],
       soldTime: DateTime.parse(json['soldTime']),
@@ -47,6 +63,7 @@ class SoldItem {
       salesmanId: json['salesmanId'],
       item: json['Item'] != null ? Item.fromJson(json['Item']) : null,
       salesman: json['salesman'] != null ? User.fromJson(json['salesman']) : null,
+      fraction: fraction,
     );
   }
   

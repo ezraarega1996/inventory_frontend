@@ -7,6 +7,7 @@ import 'package:inventory_frontend/providers/item_provider.dart';
 import 'package:inventory_frontend/providers/category_provider.dart';
 import 'package:inventory_frontend/providers/user_provider.dart';
 import 'package:inventory_frontend/providers/bought_provider.dart';
+import 'package:inventory_frontend/providers/available_item_provider.dart';
 import 'package:inventory_frontend/services/business_service.dart';
 import 'package:inventory_frontend/screens/business/business_list_screen.dart';
 import 'package:inventory_frontend/screens/business/business_register_screen.dart';
@@ -56,6 +57,9 @@ class MyApp extends StatelessWidget {
         ),
         ChangeNotifierProvider(
           create: (_) => BoughtProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => AvailableItemProvider(),
         ),
       ],
       child: MaterialApp(

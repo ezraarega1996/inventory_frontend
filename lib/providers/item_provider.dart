@@ -112,7 +112,7 @@ class ItemProvider with ChangeNotifier {
     }
   }
   
-  Future<bool> createFraction(String itemId, String name, double ratio, double price) async {
+  Future<bool> createFraction(String itemId, String name, double ratio, double price, {bool isUnit = false}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -123,6 +123,7 @@ class ItemProvider with ChangeNotifier {
         'name': name,
         'ratio': ratio,
         'price': price,
+        'isUnit': isUnit,
       });
       
       final newFraction = Fraction.fromJson(response);
@@ -154,7 +155,7 @@ class ItemProvider with ChangeNotifier {
     }
   }
   
-  Future<bool> updateFraction(String id, String name, double ratio, double price) async {
+  Future<bool> updateFraction(String id, String name, double ratio, double price, {bool isUnit = false}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -164,6 +165,7 @@ class ItemProvider with ChangeNotifier {
         'name': name,
         'ratio': ratio,
         'price': price,
+        'isUnit': isUnit,
       });
       
       final updatedFraction = Fraction.fromJson(response);

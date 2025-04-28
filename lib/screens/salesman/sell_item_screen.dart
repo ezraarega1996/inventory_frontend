@@ -79,7 +79,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
   Future<void> _sellItem() async {
     if (_formKey.currentState!.validate()) {
       final salesProvider = Provider.of<SalesProvider>(context, listen: false);
-      
+      print("one");
       final saleData = {
         'itemId': _selectedItem!.id,
         'quantity': double.parse(_quantityController.text),
@@ -87,16 +87,17 @@ class _SellItemScreenState extends State<SellItemScreen> {
         'amount': double.parse(_amountController.text),
         'expectedAmount': _expectedAmount,
       };
+      print("two");
       
       final success = await salesProvider.createSale(saleData);
-      
+      print("Three $success");
       if (!mounted) return;
-      
+      print("four");
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Sale completed successfully'))
         );
-        
+        print("five");
         // Reset form
         _quantityController.clear();
         _amountController.clear();
@@ -110,9 +111,15 @@ class _SellItemScreenState extends State<SellItemScreen> {
           _expectedAmount = 0;
         });
       } else {
+        print("six");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(salesProvider.error ?? 'An error occurred'))
+          SnackBar(
+            content: Text(salesProvider.error ?? 'An error occurred while creating the sale'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          )
         );
+        print("seven");
       }
     }
   }
