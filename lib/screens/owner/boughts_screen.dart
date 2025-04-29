@@ -55,10 +55,6 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
   Future<void> _loadItems() async {
     final itemProvider = Provider.of<ItemProvider>(context, listen: false);
     await itemProvider.fetchItems();
-    print('Loaded items: ${itemProvider.items.length}');
-    for (var item in itemProvider.items) {
-      print('Item: ${item.name}, Fractions: ${item.fractions?.length}');
-    }
   }
 
   void _showAddEditDialog({
@@ -139,9 +135,6 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                             fractions: [],
                           ),
                         );
-                        
-                        print('Selected Item: ${item.name}');
-                        print('Fractions: ${item.fractions?.length}');
                         
                         if (item.fractions == null || item.fractions!.isEmpty) {
                           return const Text(

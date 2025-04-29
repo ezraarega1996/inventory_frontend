@@ -17,7 +17,47 @@ import 'package:inventory_frontend/screens/splash_screen.dart';
 import 'package:inventory_frontend/models/business.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        Provider(
+          create: (_) => BusinessService(
+            baseUrl: 'http://localhost:5000', // Update with your backend URL
+          ),
+        ),
+        ChangeNotifierProxyProvider<BusinessService, BusinessProvider>(
+          create: (context) => BusinessProvider(
+            Provider.of<BusinessService>(context, listen: false),
+          ),
+          update: (context, businessService, previous) => BusinessProvider(
+            businessService,
+          ),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => AuthProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => SalesProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ItemProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => CategoryProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => UserProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => BoughtProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => AvailableItemProvider(),
+        ),
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
