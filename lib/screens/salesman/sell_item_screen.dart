@@ -115,7 +115,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
         'quantity': quantity,
         'amount': _expectedAmount,
       });
-
+      print("Sale created: $success");
       if (!mounted) return;
 
       if (success) {

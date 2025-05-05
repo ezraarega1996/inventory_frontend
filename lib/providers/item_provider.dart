@@ -23,7 +23,8 @@ class ItemProvider with ChangeNotifier {
       _items = List<Item>.from(
         response.map((x) => Item.fromJson(x))
       );
-      
+      print("response: $response");
+      print("Fetched items: $_items");
       _isLoading = false;
       notifyListeners();
     } catch (e) {

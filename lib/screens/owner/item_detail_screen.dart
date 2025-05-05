@@ -75,7 +75,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'Fractions',
+                  'fractions',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,

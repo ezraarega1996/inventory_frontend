@@ -13,6 +13,7 @@ class SoldItem {
   final DateTime createdAt;
   final Fraction? fraction;
   final Item? item;
+  final User? salesman;
 
   SoldItem({
     required this.id,
@@ -25,21 +26,37 @@ class SoldItem {
     required this.createdAt,
     this.fraction,
     this.item,
+    this.salesman,
   });
 
   factory SoldItem.fromJson(Map<String, dynamic> json) {
+    print("SoldItem.fromJson: $json");
     return SoldItem(
       id: json['id'],
       itemId: json['itemId'],
       fractionId: json['fractionId'],
 
-      quantity: (json['quantity'] is int) ? (json['quantity'] as int).toDouble() : json['quantity'],
-      soldPrice: (json['soldPrice'] is int) ? (json['soldPrice'] as int).toDouble() : json['soldPrice'],
+      quantity: (json['quantity'] == null)
+          ? 0.0
+          : (json['quantity'] is int)
+              ? (json['quantity'] as int).toDouble()
+              : json['quantity'],
+      soldPrice: (json['amount'] == null)
+          ? 0.0
+          : (json['amount'] is int)
+              ? (json['amount'] as int).toDouble()
+              : json['amount'],
       businessId: json['businessId'],
       salesmanId: json['salesmanId'],
       createdAt: DateTime.parse(json['createdAt']),
-      fraction: json['fraction'] != null ? Fraction.fromJson(json['fraction']) : null,
-      item: json['item'] != null ? Item.fromJson(json['item']) : null,
+      item: json['Item'] != null ? Item.fromJson(json['Item']) : null,
+      fraction: json['Item']?['fractions'] != null && json['Item']?['fractions'].isNotEmpty 
+          ? Fraction.fromJson(json['Item']['fractions'].firstWhere(
+              (f) => f['id'] == json['fractionId'],
+              orElse: () => null,
+            ))
+          : null,
+      salesman: json['salesman'] != null ? User.fromJson(json['salesman']) : null,
     );
   }
 
@@ -55,6 +72,7 @@ class SoldItem {
       'createdAt': createdAt.toIso8601String(),
       'fraction': fraction?.toJson(),
       'item': item?.toJson(),
+      'salesman': salesman?.toJson(),
     };
   }
 

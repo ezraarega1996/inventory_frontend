@@ -19,9 +19,9 @@ class Item {
   factory Item.fromJson(Map<String, dynamic> json) {
     List<Fraction>? fractionsList;
     
-    if (json['Fractions'] != null) {
+    if (json['fractions'] != null) {
       fractionsList = List<Fraction>.from(
-        json['Fractions'].map((x) => Fraction.fromJson(x))
+        json['fractions'].map((x) => Fraction.fromJson(x))
       );
     }
     

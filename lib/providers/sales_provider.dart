@@ -33,7 +33,8 @@ class SalesProvider with ChangeNotifier {
       _sales = List<SoldItem>.from(
         response.map((x) => SoldItem.fromJson(x))
       );
-      
+      print("response: $response");
+      print("Fetched sales: $_sales");
       _isLoading = false;
       notifyListeners();
     } catch (e) {
