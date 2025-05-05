@@ -15,6 +15,7 @@ import 'package:inventory_frontend/screens/business/business_detail_screen.dart'
 import 'package:inventory_frontend/screens/auth/login_screen.dart';
 import 'package:inventory_frontend/screens/splash_screen.dart';
 import 'package:inventory_frontend/models/business.dart';
+import 'package:inventory_frontend/screens/salesman/sell_item_screen.dart';
 
 void main() {
   runApp(
@@ -117,6 +118,13 @@ class MyApp extends StatelessWidget {
           '/business/detail': (context) {
             final business = ModalRoute.of(context)!.settings.arguments as Business;
             return BusinessDetailScreen(business: business);
+          },
+          '/sell-item': (context) {
+            final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+            return SellItemScreen(
+              preSelectedItem: args?['preSelectedItem'],
+              preSelectedFraction: args?['preSelectedFraction'],
+            );
           },
         },
       ),

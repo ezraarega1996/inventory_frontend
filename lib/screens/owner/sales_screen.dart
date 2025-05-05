@@ -96,9 +96,8 @@ class _SalesScreenState extends State<SalesScreen> {
                         children: [
                           Text('Fraction: ${sale.fraction?.name ?? 'Unknown'}'),
                           Text('Quantity: ${sale.quantity}'),
-                          Text('Amount: \$${sale.amount}'),
-                          Text('Sold by: ${sale.salesman?.name ?? 'Unknown'}'),
-                          Text('Date: ${dateFormat.format(sale.soldTime)}'),
+                          Text('Amount: \$${sale.soldPrice}'),
+                          Text('Date: ${dateFormat.format(sale.createdAt)}'),
                         ],
                       ),
                       trailing: Row(

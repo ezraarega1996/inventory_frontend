@@ -40,6 +40,7 @@ class BoughtProvider with ChangeNotifier {
     required double quantity,
     required String location,
     DateTime? expiryDate,
+    String? salesmanId,
   }) async {
     _isLoading = true;
     _error = null;
@@ -54,6 +55,7 @@ class BoughtProvider with ChangeNotifier {
         'quantity': quantity,
         'location': location,
         'expiryDate': expiryDate?.toIso8601String(),
+        'salesmanId': salesmanId,
       });
       
       final newBought = Bought.fromJson(response);
@@ -79,6 +81,7 @@ class BoughtProvider with ChangeNotifier {
     double? quantity,
     String? location,
     DateTime? expiryDate,
+    String? salesmanId,
   }) async {
     _isLoading = true;
     _error = null;
@@ -92,6 +95,7 @@ class BoughtProvider with ChangeNotifier {
         'quantity': quantity,
         'location': location,
         'expiryDate': expiryDate?.toIso8601String(),
+        'salesmanId': salesmanId,
       });
       
       final updatedBought = Bought.fromJson(response);

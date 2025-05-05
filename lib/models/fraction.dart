@@ -36,4 +36,9 @@ class Fraction {
       'isUnit': isUnit,
     };
   }
+
+  @override
+  String toString() {
+    return 'Fraction(id: $id, name: $name, ratio: $ratio, price: $price, itemId: $itemId, isUnit: $isUnit)';
+  }
 }

@@ -25,4 +25,9 @@ class SubscriptionPlan {
       limits: json['limits'],
     );
   }
+
+  @override
+  String toString() {
+    return 'SubscriptionPlan(name: $name, displayName: $displayName, price: $price, currency: $currency, features: $features, limits: $limits)';
+  }
 }

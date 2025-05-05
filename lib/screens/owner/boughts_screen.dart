@@ -3,8 +3,10 @@ import 'package:provider/provider.dart';
 import 'package:inventory_frontend/models/bought.dart';
 import 'package:inventory_frontend/models/item.dart';
 import 'package:inventory_frontend/models/fraction.dart';
+import 'package:inventory_frontend/models/user.dart';
 import 'package:inventory_frontend/providers/bought_provider.dart';
 import 'package:inventory_frontend/providers/item_provider.dart';
+import 'package:inventory_frontend/providers/user_provider.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
 import 'package:intl/intl.dart';
@@ -28,12 +30,14 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
   String? _editingBoughtId;
   String? _selectedItemId;
   String? _selectedFractionId;
+  String? _selectedSalesmanId;
 
   @override
   void initState() {
     super.initState();
     _loadBoughts();
     _loadItems();
+    _loadUsers();
   }
 
   @override
@@ -57,6 +61,11 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
     await itemProvider.fetchItems();
   }
 
+  Future<void> _loadUsers() async {
+    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    await userProvider.fetchUsers();
+  }
+
   void _showAddEditDialog({
     String? id,
     String? itemId,
@@ -66,11 +75,13 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
     double? quantity,
     String? location,
     DateTime? expiryDate,
+    String? salesmanId,
   }) {
     setState(() {
       _editingBoughtId = id;
       _selectedItemId = itemId;
       _selectedFractionId = fractionId;
+      _selectedSalesmanId = salesmanId;
       _fractionNameController.text = fractionId ?? '';
       _fractionPurchasePriceController.text = fractionPurchasePrice?.toString() ?? '';
       _fractionSoldPriceController.text = fractionSoldPrice?.toString() ?? '';
@@ -166,7 +177,6 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                                   value: _selectedFractionId,
                                   hint: const Text('Choose a fraction'),
                                   items: item.fractions?.map((fraction) {
-                                    print('Adding fraction: ${fraction.name}');
                                     return DropdownMenuItem<String>(
                                       value: fraction.id,
                                       child: Column(
@@ -212,6 +222,36 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                       'Please select a fraction to continue',
                       style: TextStyle(color: Colors.red),
                     ),
+                  const SizedBox(height: 16),
+                  Consumer<UserProvider>(
+                    builder: (context, userProvider, child) {
+                      final salesmen = userProvider.users.where((user) => user.role == 'salesman').toList();
+                      return DropdownButtonFormField<String>(
+                        value: _selectedSalesmanId,
+                        decoration: const InputDecoration(
+                          labelText: 'Select Salesman',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: salesmen.map((salesman) {
+                          return DropdownMenuItem<String>(
+                            value: salesman.id,
+                            child: Text(salesman.name),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {
+                            _selectedSalesmanId = value;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select a salesman';
+                          }
+                          return null;
+                        },
+                      );
+                    },
+                  ),
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _fractionPurchasePriceController,
@@ -340,6 +380,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
           quantity: double.parse(_quantityController.text),
           location: _locationController.text.trim(),
           expiryDate: _expiryDate,
+          salesmanId: _selectedSalesmanId,
         );
       } else {
         success = await boughtProvider.updateBought(
@@ -350,6 +391,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
           quantity: double.parse(_quantityController.text),
           location: _locationController.text.trim(),
           expiryDate: _expiryDate,
+          salesmanId: _selectedSalesmanId,
         );
       }
 
@@ -445,6 +487,8 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                               Text('Created: ${dateFormat.format(bought.createdTime)}'),
                               if (bought.expiryDate != null)
                                 Text('Expiry: ${dateFormat.format(bought.expiryDate!)}'),
+                              if (bought.salesman != null)
+                                Text('Salesman: ${bought.salesman?.name ?? 'Unknown'}'),
                             ],
                           ),
                           trailing: Row(
@@ -461,6 +505,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                                   quantity: bought.quantity,
                                   location: bought.location,
                                   expiryDate: bought.expiryDate,
+                                  salesmanId: bought.salesmanId,
                                 ),
                               ),
                               IconButton(

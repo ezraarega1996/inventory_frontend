@@ -52,4 +52,9 @@ class User {
       'isActive': isActive,
     };
   }
+
+  @override
+  String toString() {
+    return 'User(id: $id, name: $name, phone: $phone, location: $location, username: $username, email: $email, role: $role, businessId: $businessId, isActive: $isActive)';
+  }
 }

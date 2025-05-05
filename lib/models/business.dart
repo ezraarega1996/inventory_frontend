@@ -85,4 +85,9 @@ class Business {
       subscriptionEndsAt: subscriptionEndsAt ?? this.subscriptionEndsAt,
     );
   }
+
+  @override
+  String toString() {
+    return 'Business(id: $id, name: $name, address: $address, phone: $phone, email: $email, logo: $logo, isActive: $isActive, subscriptionStatus: $subscriptionStatus, subscriptionPlan: $subscriptionPlan, trialEndsAt: $trialEndsAt, subscriptionEndsAt: $subscriptionEndsAt)';
+  }
 }

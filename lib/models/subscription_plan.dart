@@ -19,4 +19,9 @@ class SubscriptionPlan {
       features: List<String>.from(json['features']),
     );
   }
+
+  @override
+  String toString() {
+    return 'SubscriptionPlan(displayName: $displayName, price: $price, currency: $currency, features: $features)';
+  }
 } 

@@ -20,4 +20,9 @@ class Category {
       'name': name,
     };
   }
+
+  @override
+  String toString() {
+    return 'Category(id: $id, name: $name)';
+  }
 }

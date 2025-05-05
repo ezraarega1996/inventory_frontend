@@ -59,8 +59,8 @@ class _ViewSalesScreenState extends State<ViewSalesScreen> {
                         children: [
                           Text('Fraction: ${sale.fractionId}'),
                           Text('Quantity: ${sale.quantity}'),
-                          Text('Amount: \$${sale.amount}'),
-                          Text('Date: ${dateFormat.format(sale.soldTime)}'),
+                          Text('Amount: \$${sale.soldPrice}'),
+                          Text('Date: ${dateFormat.format(sale.createdAt)}'),
                         ],
                       ),
                       trailing: const Icon(Icons.arrow_forward_ios),

@@ -41,4 +41,9 @@ class Item {
       'categoryId': categoryId,
     };
   }
+
+  @override
+  String toString() {
+    return 'Item(id: $id, name: $name, categoryId: $categoryId, category: $category, fractions: $fractions)';
+  }
 }

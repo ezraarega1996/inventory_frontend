@@ -49,7 +49,7 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                             children: [
                               Text('Quantity: ${availableItem.quantity}'),
                               Text('Sold Price: ${availableItem.soldPrice}'),
-                            ],
+                              Text('Salesman: ${availableItem.salesman?.name ?? 'Unknown Salesman'}'),]
                           ),
                         ),
                       );

@@ -4,78 +4,62 @@ import 'package:inventory_frontend/models/fraction.dart';
 
 class SoldItem {
   final String id;
-  final DateTime soldTime;
-  final double quantity;
-  final String fractionId;
-  final double amount;
-  final double expectedAmount;
-  final bool existing;
-  final String status;
-  final DateTime createdTime;
   final String itemId;
-  final String salesmanId;
-  final Item? item;
-  final User? salesman;
+  final String fractionId;
+  final double quantity;
+  final double soldPrice;
+  final String businessId;
+  final String? salesmanId;
+  final DateTime createdAt;
   final Fraction? fraction;
-  
+  final Item? item;
+
   SoldItem({
     required this.id,
-    required this.soldTime,
-    required this.quantity,
-    required this.fractionId,
-    required this.amount,
-    required this.expectedAmount,
-    required this.existing,
-    required this.status,
-    required this.createdTime,
     required this.itemId,
-    required this.salesmanId,
-    this.item,
-    this.salesman,
+    required this.fractionId,
+    required this.quantity,
+    required this.soldPrice,
+    required this.businessId,
+    this.salesmanId,
+    required this.createdAt,
     this.fraction,
+    this.item,
   });
-  
+
   factory SoldItem.fromJson(Map<String, dynamic> json) {
-    Fraction? fraction;
-    if (json['Item']?['Fractions'] != null) {
-      final fractions = List<Fraction>.from(
-        json['Item']['Fractions'].map((x) => Fraction.fromJson(x))
-      );
-      fraction = fractions.firstWhere(
-        (f) => f.id == json['fractionId'],
-        orElse: () => fractions.first,
-      );
-    } else if (json['fraction'] != null) {
-      fraction = Fraction.fromJson(json['fraction']);
-    }
-    
     return SoldItem(
       id: json['id'],
-      soldTime: DateTime.parse(json['soldTime']),
-      quantity: json['quantity'].toDouble(),
-      fractionId: json['fractionId'],
-      amount: json['amount'].toDouble(),
-      expectedAmount: json['expectedAmount'].toDouble(),
-      existing: json['existing'],
-      status: json['status'],
-      createdTime: DateTime.parse(json['createdTime']),
       itemId: json['itemId'],
+      fractionId: json['fractionId'],
+
+      quantity: (json['quantity'] is int) ? (json['quantity'] as int).toDouble() : json['quantity'],
+      soldPrice: (json['soldPrice'] is int) ? (json['soldPrice'] as int).toDouble() : json['soldPrice'],
+      businessId: json['businessId'],
       salesmanId: json['salesmanId'],
-      item: json['Item'] != null ? Item.fromJson(json['Item']) : null,
-      salesman: json['salesman'] != null ? User.fromJson(json['salesman']) : null,
-      fraction: fraction,
+      createdAt: DateTime.parse(json['createdAt']),
+      fraction: json['fraction'] != null ? Fraction.fromJson(json['fraction']) : null,
+      item: json['item'] != null ? Item.fromJson(json['item']) : null,
     );
   }
-  
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'quantity': quantity,
-      'fractionId': fractionId,
-      'amount': amount,
-      'expectedAmount': expectedAmount,
-      'status': status,
       'itemId': itemId,
+      'fractionId': fractionId,
+      'quantity': quantity,
+      'soldPrice': soldPrice,
+      'businessId': businessId,
+      'salesmanId': salesmanId,
+      'createdAt': createdAt.toIso8601String(),
+      'fraction': fraction?.toJson(),
+      'item': item?.toJson(),
     };
+  }
+
+  @override
+  String toString() {
+    return 'SoldItem(id: $id, itemId: $itemId, fractionId: $fractionId, quantity: $quantity, soldPrice: $soldPrice, businessId: $businessId, salesmanId: $salesmanId, createdAt: $createdAt, fraction: $fraction, item: $item)';
   }
 }

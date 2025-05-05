@@ -2,8 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:inventory_frontend/models/fraction.dart';
 import 'package:inventory_frontend/models/item.dart';
+import 'package:inventory_frontend/models/available_item.dart';
 import 'package:inventory_frontend/providers/item_provider.dart';
 import 'package:inventory_frontend/providers/sales_provider.dart';
+import 'package:inventory_frontend/providers/available_item_provider.dart';
+import 'package:inventory_frontend/providers/auth_provider.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
 
@@ -24,16 +27,16 @@ class SellItemScreen extends StatefulWidget {
 class _SellItemScreenState extends State<SellItemScreen> {
   final _formKey = GlobalKey<FormState>();
   final _quantityController = TextEditingController();
-  final _amountController = TextEditingController();
   
   Item? _selectedItem;
   Fraction? _selectedFraction;
   double _expectedAmount = 0;
+  double _availableQuantity = 0;
   
   @override
   void initState() {
     super.initState();
-    _loadItems();
+    _loadData();
     
     // Set pre-selected values if provided
     _selectedItem = widget.preSelectedItem;
@@ -41,85 +44,89 @@ class _SellItemScreenState extends State<SellItemScreen> {
     
     if (_selectedFraction != null) {
       _updateExpectedAmount();
+      _fetchAvailableQuantity();
     }
   }
   
   @override
   void dispose() {
     _quantityController.dispose();
-    _amountController.dispose();
     super.dispose();
   }
   
-  Future<void> _loadItems() async {
+  Future<void> _loadData() async {
     final itemProvider = Provider.of<ItemProvider>(context, listen: false);
-    await itemProvider.fetchItems();
+    final availableItemProvider = Provider.of<AvailableItemProvider>(context, listen: false);
+    await Future.wait([
+      itemProvider.fetchItems(),
+      availableItemProvider.fetchAvailableItems(),
+    ]);
   }
-  
+
+  Future<void> _fetchAvailableQuantity() async {
+    if (_selectedItem == null || _selectedFraction == null) return;
+
+    final salesProvider = Provider.of<SalesProvider>(context, listen: false);
+    final availableQuantity = await salesProvider.getAvailableQuantity(
+      _selectedItem!.id,
+      _selectedFraction!.id,
+    );
+
+    setState(() {
+      _availableQuantity = availableQuantity;
+    });
+  }
+
   void _updateExpectedAmount() {
-    if (_selectedFraction != null && _quantityController.text.isNotEmpty) {
-      try {
-        final quantity = double.parse(_quantityController.text);
-        setState(() {
-          _expectedAmount = _selectedFraction!.price * quantity;
-          _amountController.text = _expectedAmount.toString();
-        });
-      } catch (e) {
-        setState(() {
-          _expectedAmount = 0;
-        });
-      }
-    } else {
+    if (_selectedFraction == null || _quantityController.text.isEmpty) {
       setState(() {
         _expectedAmount = 0;
       });
+      return;
     }
+
+    final quantity = double.tryParse(_quantityController.text) ?? 0;
+    setState(() {
+      _expectedAmount = quantity * _selectedFraction!.price;
+    });
   }
-  
+
   Future<void> _sellItem() async {
     if (_formKey.currentState!.validate()) {
+      if (_selectedItem == null || _selectedFraction == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Please select an item and fraction')),
+        );
+        return;
+      }
+
+      final quantity = double.parse(_quantityController.text);
+      if (quantity > _availableQuantity) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Available quantity is $_availableQuantity')),
+        );
+        return;
+      }
+
       final salesProvider = Provider.of<SalesProvider>(context, listen: false);
-      print("one");
-      final saleData = {
+      final success = await salesProvider.createSale({
         'itemId': _selectedItem!.id,
-        'quantity': double.parse(_quantityController.text),
         'fractionId': _selectedFraction!.id,
-        'amount': double.parse(_amountController.text),
-        'expectedAmount': _expectedAmount,
-      };
-      print("two");
-      
-      final success = await salesProvider.createSale(saleData);
-      print("Three $success");
+        'quantity': quantity,
+        'amount': _expectedAmount,
+      });
+
       if (!mounted) return;
-      print("four");
+
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sale completed successfully'))
+          const SnackBar(content: Text('Item sold successfully')),
         );
-        print("five");
-        // Reset form
-        _quantityController.clear();
-        _amountController.clear();
-        setState(() {
-          if (widget.preSelectedItem == null) {
-            _selectedItem = null;
-          }
-          if (widget.preSelectedFraction == null) {
-            _selectedFraction = null;
-          }
-          _expectedAmount = 0;
-        });
+        Navigator.of(context).pop();
       } else {
-        print("six");
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(salesProvider.error ?? 'An error occurred while creating the sale'),
-            backgroundColor: Colors.red,
-            duration: const Duration(seconds: 3),
-          )
+          SnackBar(content: Text(salesProvider.error ?? 'An error occurred')),
         );
-        print("seven");
       }
     }
   }
@@ -127,8 +134,15 @@ class _SellItemScreenState extends State<SellItemScreen> {
   @override
   Widget build(BuildContext context) {
     final itemProvider = Provider.of<ItemProvider>(context);
-    final salesProvider = Provider.of<SalesProvider>(context);
-    
+    final authProvider = Provider.of<AuthProvider>(context);
+    final availableItemProvider = Provider.of<AvailableItemProvider>(context);
+
+    // Get items assigned to this salesman
+    final assignedItems = itemProvider.items.where((item) {
+      final availableItems = availableItemProvider.getAvailableItemsForSalesman(authProvider.user!.id);
+      return availableItems.any((availableItem) => availableItem.itemId == item.id);
+    }).toList();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sell Item'),
@@ -138,37 +152,37 @@ class _SellItemScreenState extends State<SellItemScreen> {
         child: Form(
           key: _formKey,
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              if (widget.preSelectedItem == null)
-                DropdownButtonFormField<Item>(
-                  value: _selectedItem,
-                  decoration: const InputDecoration(
-                    labelText: 'Select Item',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: itemProvider.items.map((item) {
-                    return DropdownMenuItem<Item>(
-                      value: item,
-                      child: Text(item.name),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setState(() {
-                      _selectedItem = value;
-                      _selectedFraction = null;
-                      _expectedAmount = 0;
-                    });
-                  },
-                  validator: (value) {
-                    if (value == null) {
-                      return 'Please select an item';
-                    }
-                    return null;
-                  },
+              DropdownButtonFormField<Item>(
+                value: _selectedItem,
+                decoration: const InputDecoration(
+                  labelText: 'Select Item',
+                  border: OutlineInputBorder(),
                 ),
-              if (widget.preSelectedItem == null)
-                const SizedBox(height: 16),
+                items: assignedItems.map((item) {
+                  return DropdownMenuItem<Item>(
+                    value: item,
+                    child: Text(item.name),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedItem = value;
+                    _selectedFraction = null;
+                    _quantityController.clear();
+                    _expectedAmount = 0;
+                    _availableQuantity = 0;
+                  });
+                },
+                validator: (value) {
+                  if (value == null) {
+                    return 'Please select an item';
+                  }
+                  return null;
+                },
+              ),
+              const SizedBox(height: 16),
               if (_selectedItem != null)
                 DropdownButtonFormField<Fraction>(
                   value: _selectedFraction,
@@ -176,7 +190,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
                     labelText: 'Select Fraction',
                     border: OutlineInputBorder(),
                   ),
-                  items: (_selectedItem?.fractions ?? []).map((fraction) {
+                  items: _selectedItem!.fractions?.map((fraction) {
                     return DropdownMenuItem<Fraction>(
                       value: fraction,
                       child: Text('${fraction.name} - \$${fraction.price}'),
@@ -186,6 +200,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
                     setState(() {
                       _selectedFraction = value;
                       _updateExpectedAmount();
+                      _fetchAvailableQuantity();
                     });
                   },
                   validator: (value) {
@@ -195,8 +210,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
                     return null;
                   },
                 ),
-              if (_selectedItem != null)
-                const SizedBox(height: 16),
+              const SizedBox(height: 16),
               CustomTextField(
                 controller: _quantityController,
                 labelText: 'Quantity',
@@ -206,64 +220,39 @@ class _SellItemScreenState extends State<SellItemScreen> {
                   if (value == null || value.isEmpty) {
                     return 'Please enter a quantity';
                   }
-                  if (double.tryParse(value) == null) {
+                  final quantity = double.tryParse(value);
+                  if (quantity == null) {
                     return 'Please enter a valid number';
                   }
-                  if (double.parse(value) <= 0) {
+                  if (quantity <= 0) {
                     return 'Quantity must be greater than 0';
+                  }
+                  if (quantity > _availableQuantity) {
+                    return 'Available quantity is $_availableQuantity';
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
-              CustomTextField(
-                controller: _amountController,
-                labelText: 'Amount Received',
-                keyboardType: TextInputType.number,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter an amount';
-                  }
-                  if (double.tryParse(value) == null) {
-                    return 'Please enter a valid number';
-                  }
-                  if (double.parse(value) <= 0) {
-                    return 'Amount must be greater than 0';
-                  }
-                  return null;
-                },
+              Text(
+                'Available Quantity: $_availableQuantity',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 16),
+              Text(
+                'Expected Amount: \$${_expectedAmount.toStringAsFixed(2)}',
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 24),
-              if (_expectedAmount > 0)
-                Card(
-                  child: Padding(
-                    padding: const EdgeInsets.all(16),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Expected Amount:',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        Text(
-                          '\$${_expectedAmount.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              const SizedBox(height: 24),
               CustomButton(
-                text: 'Complete Sale',
-                isLoading: salesProvider.isLoading,
                 onPressed: _sellItem,
+                text: 'Sell Item',
               ),
             ],
           ),
