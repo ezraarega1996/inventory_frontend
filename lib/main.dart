@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_frontend/screens/salesman/available_items_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:inventory_frontend/providers/business_provider.dart';
 import 'package:inventory_frontend/providers/auth_provider.dart';
@@ -126,6 +127,8 @@ class MyApp extends StatelessWidget {
               preSelectedFraction: args?['preSelectedFraction'],
             );
           },
+          '/available-items': (context) => AvailableItemsScreen(),
+          '/business/list': (context) => const BusinessListScreen(),
         },
       ),
     );

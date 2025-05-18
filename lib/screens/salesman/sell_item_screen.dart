@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_frontend/screens/salesman/salesman_dashboard.dart';
 import 'package:provider/provider.dart';
 import 'package:inventory_frontend/models/fraction.dart';
 import 'package:inventory_frontend/models/item.dart';
@@ -124,7 +125,15 @@ class _SellItemScreenState extends State<SellItemScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Item sold successfully')),
         );
-        Navigator.of(context).pop();
+
+        setState(() {
+          _quantityController.clear();
+          _expectedAmount = 0;
+          _availableQuantity = 0;
+          // Optionally reset selected item/fraction if needed:
+          _selectedItem = null;
+          _selectedFraction = null;
+        });
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(salesProvider.error ?? 'An error occurred')),
@@ -153,9 +162,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
         orElse: () => assignedItems.first,
       );
       _selectedItem = match;
-    } else if (assignedItems.isNotEmpty) {
-      _selectedItem = assignedItems.first;
-    }
+    } 
 
     // Ensure _selectedFraction is the same instance as in _selectedItem
     if (_selectedFraction != null && _selectedItem != null) {
@@ -164,8 +171,6 @@ class _SellItemScreenState extends State<SellItemScreen> {
         orElse: () => _selectedItem!.fractions!.first,
       );
       _selectedFraction = match;
-    } else if (_selectedItem != null && _selectedItem!.fractions != null) {
-      _selectedFraction = _selectedItem!.fractions!.first;
     }
 
     if (assignedItems.isEmpty) {
@@ -176,12 +181,12 @@ class _SellItemScreenState extends State<SellItemScreen> {
         ),
       );
     }
-    if (_selectedItem == null && assignedItems.isNotEmpty) {
-      _selectedItem = assignedItems.first;
-    }
-    if (_selectedFraction == null && _selectedItem != null) {
-      _selectedFraction = _selectedItem!.fractions?.first;
-    }
+    // if (_selectedItem == null && assignedItems.isNotEmpty) {
+    //   _selectedItem = assignedItems.first;
+    // }
+    // if (_selectedFraction == null && _selectedItem != null) {
+    //   _selectedFraction = _selectedItem!.fractions?.first;
+    // }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sell Item'),

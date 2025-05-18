@@ -101,6 +101,36 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
+                  Consumer<UserProvider>(
+                    builder: (context, userProvider, child) {
+                      final salesmen = userProvider.users.where((user) => user.role == 'salesman').toList();
+                      return DropdownButtonFormField<String>(
+                        value: _selectedSalesmanId,
+                        decoration: const InputDecoration(
+                          labelText: 'Select Salesman',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: salesmen.map((salesman) {
+                          return DropdownMenuItem<String>(
+                            value: salesman.id,
+                            child: Text(salesman.name),
+                          );
+                        }).toList(),
+                        onChanged: (value) {
+                          setState(() {                  
+                            _selectedSalesmanId = value;
+                          });
+                        },
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Please select a salesman';
+                          }
+                          return null;
+                        },
+                      );
+                    },
+                  ),
+                  const SizedBox(height: 16),
                   Consumer<ItemProvider>(
                     builder: (context, itemProvider, child) {
                       return DropdownButtonFormField<String>(
@@ -222,36 +252,6 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                       'Please select a fraction to continue',
                       style: TextStyle(color: Colors.red),
                     ),
-                  const SizedBox(height: 16),
-                  Consumer<UserProvider>(
-                    builder: (context, userProvider, child) {
-                      final salesmen = userProvider.users.where((user) => user.role == 'salesman').toList();
-                      return DropdownButtonFormField<String>(
-                        value: _selectedSalesmanId,
-                        decoration: const InputDecoration(
-                          labelText: 'Select Salesman',
-                          border: OutlineInputBorder(),
-                        ),
-                        items: salesmen.map((salesman) {
-                          return DropdownMenuItem<String>(
-                            value: salesman.id,
-                            child: Text(salesman.name),
-                          );
-                        }).toList(),
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedSalesmanId = value;
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Please select a salesman';
-                          }
-                          return null;
-                        },
-                      );
-                    },
-                  ),
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _fractionPurchasePriceController,
