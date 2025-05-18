@@ -41,6 +41,8 @@ class _SellItemScreenState extends State<SellItemScreen> {
     // Set pre-selected values if provided
     _selectedItem = widget.preSelectedItem;
     _selectedFraction = widget.preSelectedFraction;
+    print("Pre-selected item: ${widget.preSelectedItem}");
+    print("Pre-selected fraction: ${widget.preSelectedFraction}");
     
     if (_selectedFraction != null) {
       _updateExpectedAmount();
@@ -142,7 +144,44 @@ class _SellItemScreenState extends State<SellItemScreen> {
       final availableItems = availableItemProvider.getAvailableItemsForSalesman(authProvider.user!.id);
       return availableItems.any((availableItem) => availableItem.itemId == item.id);
     }).toList();
+    print("Assigned items: ${assignedItems}");
 
+    // Ensure _selectedItem is the same instance as in assignedItems
+    if (_selectedItem != null) {
+      final match = assignedItems.firstWhere(
+        (item) => item.id == _selectedItem!.id,
+        orElse: () => assignedItems.first,
+      );
+      _selectedItem = match;
+    } else if (assignedItems.isNotEmpty) {
+      _selectedItem = assignedItems.first;
+    }
+
+    // Ensure _selectedFraction is the same instance as in _selectedItem
+    if (_selectedFraction != null && _selectedItem != null) {
+      final match = _selectedItem!.fractions?.firstWhere(
+        (fraction) => fraction.id == _selectedFraction!.id,
+        orElse: () => _selectedItem!.fractions!.first,
+      );
+      _selectedFraction = match;
+    } else if (_selectedItem != null && _selectedItem!.fractions != null) {
+      _selectedFraction = _selectedItem!.fractions!.first;
+    }
+
+    if (assignedItems.isEmpty) {
+      return const Center(
+        child: Text(
+          'No items assigned to you',
+          style: TextStyle(fontSize: 18),
+        ),
+      );
+    }
+    if (_selectedItem == null && assignedItems.isNotEmpty) {
+      _selectedItem = assignedItems.first;
+    }
+    if (_selectedFraction == null && _selectedItem != null) {
+      _selectedFraction = _selectedItem!.fractions?.first;
+    }
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sell Item'),
