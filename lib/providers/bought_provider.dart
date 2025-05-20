@@ -47,16 +47,29 @@ class BoughtProvider with ChangeNotifier {
     notifyListeners();
     
     try {
-      final response = await Api.post('boughts', {
-        'itemId': itemId,
-        'fractionId': fractionId,
-        'fractionPurchasePrice': fractionPurchasePrice,
-        'fractionSoldPrice': fractionSoldPrice,
-        'quantity': quantity,
-        'location': location,
-        'expiryDate': expiryDate?.toIso8601String(),
-        'salesmanId': salesmanId,
-      });
+      Bought bought = Bought(
+        id: '',
+        fractionId: fractionId,
+        fractionPurchasePrice: fractionPurchasePrice,
+        fractionSoldPrice: fractionSoldPrice,
+        quantity: quantity,
+        location: location,
+        expiryDate: expiryDate,
+        createdTime: DateTime.now(),
+        itemId: itemId,
+      );
+      final response = await Api.post('boughts', 
+      bought.toJson(
+        itemId: itemId,
+        fractionId: fractionId,
+        fractionPurchasePrice: fractionPurchasePrice,
+        fractionSoldPrice: fractionSoldPrice,
+        quantity: quantity,
+        location: location,
+        expiryDate: expiryDate,
+        salesmanId: salesmanId,
+      )
+      );
       
       final newBought = Bought.fromJson(response);
       _boughts.insert(0, newBought);

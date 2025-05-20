@@ -13,7 +13,7 @@ class SalesProvider with ChangeNotifier {
   double? _totalSales;
   int? _totalItemsSold;
   double? _todaySales;
-  
+
   List<SoldItem> get sales => [..._sales];
   bool get isLoading => _isLoading;
   String? get error => _error;
@@ -21,18 +21,16 @@ class SalesProvider with ChangeNotifier {
   double? get totalSales => _totalSales;
   int? get totalItemsSold => _totalItemsSold;
   double? get todaySales => _todaySales;
-  
+
   Future<void> fetchSales() async {
     _isLoading = true;
     _error = null;
     notifyListeners();
-    
+
     try {
       final response = await Api.get('sales');
-      
-      _sales = List<SoldItem>.from(
-        response.map((x) => SoldItem.fromJson(x))
-      );
+
+      _sales = List<SoldItem>.from(response.map((x) => SoldItem.fromJson(x)));
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -41,19 +39,17 @@ class SalesProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
   Future<void> fetchUserSales() async {
     _isLoading = true;
     _error = null;
     notifyListeners();
-    
+
     try {
       final response = await Api.get('sales/user');
-      
-      _sales = List<SoldItem>.from(
-        response.map((x) => SoldItem.fromJson(x))
-      );
-      
+
+      _sales = List<SoldItem>.from(response.map((x) => SoldItem.fromJson(x)));
+
       _isLoading = false;
       notifyListeners();
     } catch (e) {
@@ -62,25 +58,33 @@ class SalesProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
   Future<void> fetchDashboardStats() async {
     _isLoading = true;
     _error = null;
     notifyListeners();
-    
-    try {
-      final response = await Api.get('sales/dashboard-stats');
 
+    try {
+
+      final response = await Api.get('sales/dashboard');
       if (response != null) {
         _totalSales = response['totalSales']?.toDouble();
         _totalItemsSold = response['salesCount'];
-        
+
+        _dashboardStats = response;
+        if (response['sales'] is List) {
+          _sales = List<SoldItem>.from(
+            (response['sales'] as List).map((x) => SoldItem.fromJson(x)),
+          );
+        } else {
+          _sales = [];
+        }
+        _sales.sort((a, b) => b.createdAt.compareTo(a.createdAt));
+
         // Calculate today's sales
         final today = DateTime.now();
         final todayStart = DateTime(today.year, today.month, today.day);
-        _todaySales = _sales
-          .where((sale) => sale.createdAt.isAfter(todayStart))
-          .fold(0.0, (double? sum, sale) => (sum ?? 0.0) + (sale.soldPrice ?? 0.0));
+        _todaySales = response['todaySales'];
       } else {
         _error = 'Failed to fetch dashboard stats';
       }
@@ -91,28 +95,28 @@ class SalesProvider with ChangeNotifier {
       notifyListeners();
     }
   }
-  
+
   Future<bool> createSale(Map<String, dynamic> saleData) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
-    
+
     try {
       final response = await Api.post('sales', saleData);
-      
+
       if (response == null) {
         _error = 'No response received from server';
         _isLoading = false;
         notifyListeners();
         return false;
       }
-      
+
       final newSale = SoldItem.fromJson(response);
       _sales.insert(0, newSale);
-      
+
       _isLoading = false;
       notifyListeners();
-      
+
       return true;
     } catch (e) {
       _error = e.toString();
@@ -121,25 +125,25 @@ class SalesProvider with ChangeNotifier {
       return false;
     }
   }
-  
+
   Future<bool> updateSale(String id, Map<String, dynamic> saleData) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
-    
+
     try {
       final response = await Api.put('sales/$id', saleData);
-      
+
       final updatedSale = SoldItem.fromJson(response);
       final index = _sales.indexWhere((sale) => sale.id == id);
-      
+
       if (index != -1) {
         _sales[index] = updatedSale;
       }
-      
+
       _isLoading = false;
       notifyListeners();
-      
+
       return true;
     } catch (e) {
       _error = e.toString();
@@ -148,20 +152,20 @@ class SalesProvider with ChangeNotifier {
       return false;
     }
   }
-  
+
   Future<bool> deleteSale(String id) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
-    
+
     try {
       await Api.delete('sales/$id');
-      
+
       _sales.removeWhere((sale) => sale.id == id);
-      
+
       _isLoading = false;
       notifyListeners();
-      
+
       return true;
     } catch (e) {
       _error = e.toString();
@@ -170,18 +174,20 @@ class SalesProvider with ChangeNotifier {
       return false;
     }
   }
-  
+
   Future<double> getAvailableQuantity(String itemId, String fractionId) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
-    
+
     try {
-      final response = await Api.get('sales/available-quantity?itemId=$itemId&fractionId=$fractionId');
-      
+      final response = await Api.get(
+        'sales/available-quantity?itemId=$itemId&fractionId=$fractionId',
+      );
+
       _isLoading = false;
       notifyListeners();
-      
+
       return response['availableQuantity'] ?? 0.0;
     } catch (e) {
       _error = e.toString();
@@ -190,7 +196,7 @@ class SalesProvider with ChangeNotifier {
       return 0.0;
     }
   }
-  
+
   void clearError() {
     _error = null;
     notifyListeners();
