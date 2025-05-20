@@ -15,7 +15,7 @@ class SoldItem {
   final Item? item;
   final User? salesman;
   final double? available_items_count;
-
+  final String? availableItemId;
 
   SoldItem({
     required this.id,
@@ -30,6 +30,7 @@ class SoldItem {
     this.item,
     this.salesman,
     this.available_items_count,
+    this.availableItemId,
   });
 
   factory SoldItem.fromJson(Map<String, dynamic> json) {
@@ -38,7 +39,6 @@ class SoldItem {
       id: json['id'],
       itemId: json['itemId'],
       fractionId: json['fractionId'],
-
       quantity: (json['quantity'] == null)
           ? 0.0
           : (json['quantity'] is int)
@@ -61,6 +61,7 @@ class SoldItem {
           : null,
       salesman: json['salesman'] != null ? User.fromJson(json['salesman']) : null,
       available_items_count: json['available_items_count'] != null ? double.tryParse(json['available_items_count'].toString()) : null,
+      availableItemId: json['availableItemId'],
     );
   }
 
@@ -77,11 +78,13 @@ class SoldItem {
       'fraction': fraction?.toJson(),
       'item': item?.toJson(),
       'salesman': salesman?.toJson(),
+      'available_items_count': available_items_count,
+      'availableItemId': availableItemId,
     };
   }
 
   @override
   String toString() {
-    return 'SoldItem(id: $id, itemId: $itemId, fractionId: $fractionId, quantity: $quantity, soldPrice: $soldPrice, businessId: $businessId, salesmanId: $salesmanId, createdAt: $createdAt, fraction: $fraction, item: $item)';
+    return 'SoldItem(id: $id, itemId: $itemId, fractionId: $fractionId, quantity: $quantity, soldPrice: $soldPrice, businessId: $businessId, salesmanId: $salesmanId, createdAt: $createdAt, fraction: $fraction, item: $item, available_items_count: $available_items_count, availableItemId: $availableItemId)';
   }
 }

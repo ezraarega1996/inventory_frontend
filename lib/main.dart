@@ -23,6 +23,7 @@ void main() {
   runApp(
     MultiProvider(
       providers: [
+        
         Provider(
           create: (_) => BusinessService(
             baseUrl: 'http://localhost:5000', // Update with your backend URL
