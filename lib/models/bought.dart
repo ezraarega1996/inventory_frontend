@@ -18,6 +18,7 @@ class Bought {
   final User? salesman;
   final double? available_items_count;
   
+  
   Bought({
     required this.id,
     required this.fractionId,
@@ -59,7 +60,7 @@ class Bought {
     );
   }
   
-  Map<String, dynamic> toJson() {
+  Map<String, dynamic> toJson({required String itemId, required String fractionId, required double fractionPurchasePrice, required double fractionSoldPrice, required double quantity, required String location, String? salesmanId, DateTime? expiryDate}) {
     return {
       'id': id,
       'fractionId': fractionId,

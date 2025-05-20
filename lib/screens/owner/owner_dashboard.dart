@@ -23,42 +23,47 @@ class OwnerDashboard extends StatefulWidget {
 
 class _OwnerDashboardState extends State<OwnerDashboard> {
   int _selectedIndex = 0;
-  
+
   @override
   void initState() {
     super.initState();
     _loadDashboardData();
   }
-  
+
   Future<void> _loadDashboardData() async {
     final salesProvider = Provider.of<SalesProvider>(context, listen: false);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final businessProvider = Provider.of<BusinessProvider>(context, listen: false);
-    
+    final businessProvider = Provider.of<BusinessProvider>(
+      context,
+      listen: false,
+    );
+
     await salesProvider.fetchDashboardStats();
-    
+
     if (authProvider.user?.businessId != null) {
-      await businessProvider.loadCurrentBusiness(authProvider.user!.businessId!);
+      await businessProvider.loadCurrentBusiness(
+        authProvider.user!.businessId!,
+      );
     }
   }
-  
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
   }
-  
+
   Future<void> _logout() async {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     await authProvider.logout();
-    
+
     if (!mounted) return;
-    
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const LoginScreen())
-    );
+
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
   }
-  
+
   Widget _getScreen() {
     switch (_selectedIndex) {
       case 0:
@@ -81,13 +86,13 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
         return _buildDashboard();
     }
   }
-  
+
   Widget _buildDashboard() {
     final salesProvider = Provider.of<SalesProvider>(context);
     final businessProvider = Provider.of<BusinessProvider>(context);
     final stats = salesProvider.dashboardStats;
     final business = businessProvider.currentBusiness;
-    
+
     return RefreshIndicator(
       onRefresh: _loadDashboardData,
       child: SingleChildScrollView(
@@ -98,10 +103,7 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
           children: [
             const Text(
               'Dashboard',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             if (business != null && business.subscriptionStatus == 'trial') ...[
               const SizedBox(height: 16),
@@ -167,25 +169,17 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                   const SizedBox(height: 24),
                   const Text(
                     'Sales Trend (Last 30 Days)',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
                   SizedBox(
                     height: 200,
-                    child: DashboardChart(
-                      data: stats['salesByDay'] ?? [],
-                    ),
+                    child: DashboardChart(data: stats['salesByDay'] ?? []),
                   ),
                   const SizedBox(height: 24),
                   const Text(
                     'Top Selling Items',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 16),
                   ListView.builder(
@@ -208,68 +202,144 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
       ),
     );
   }
-  
+
   String _formatDate(DateTime? date) {
     if (date == null) return 'N/A';
     return '${date.day}/${date.month}/${date.year}';
   }
 
+  // ...existing code...
+
   @override
   Widget build(BuildContext context) {
-    final authProvider = Provider.of<AuthProvider>(context);
     final businessProvider = Provider.of<BusinessProvider>(context);
     final business = businessProvider.currentBusiness;
-    
+
     return Scaffold(
       appBar: AppBar(
         title: Text(business?.name ?? 'Owner Dashboard'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _logout,
-          ),
+          IconButton(icon: const Icon(Icons.logout), onPressed: _logout),
         ],
       ),
+      drawer: _buildDrawer(),
       body: _getScreen(),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        currentIndex: _selectedIndex,
-        onTap: _onItemTapped,
-        items: const [
-          BottomNavigationBarItem(
-            icon: Icon(Icons.dashboard),
-            label: 'Dashboard',
+    );
+  }
+
+  Widget _buildDrawer() {
+    return Drawer(
+      child: ListView(
+        padding: EdgeInsets.zero,
+        children: [
+          DrawerHeader(
+            decoration: BoxDecoration(color: Colors.blue),
+            child: Text(
+              'Menu',
+              style: TextStyle(color: Colors.white, fontSize: 24),
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.shopping_cart),
-            label: 'Sales',
+          ListTile(
+            leading: Icon(Icons.dashboard),
+            title: Text('Dashboard'),
+            selected: _selectedIndex == 0,
+            onTap: () {
+              setState(() {
+                _selectedIndex = 0;
+              });
+              Navigator.pop(context);
+            },
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.inventory),
-            label: 'Items',
+          ListTile(
+            leading: Icon(Icons.shopping_cart),
+            title: Text('Sales'),
+            selected: _selectedIndex == 1,
+            onTap: () {
+              setState(() {
+                _selectedIndex = 1;
+              });
+              Navigator.pop(context);
+            },
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.category),
-            label: 'Categories',
+          ListTile(
+            leading: Icon(Icons.inventory),
+            title: Text('Items'),
+            selected: _selectedIndex == 2,
+            onTap: () {
+              setState(() {
+                _selectedIndex = 2;
+              });
+              Navigator.pop(context);
+            },
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Users',
+          ListTile(
+            leading: Icon(Icons.category),
+            title: Text('Categories'),
+            selected: _selectedIndex == 3,
+            onTap: () {
+              setState(() {
+                _selectedIndex = 3;
+              });
+              Navigator.pop(context);
+            },
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.card_membership),
-            label: 'Subscription',
+          ListTile(
+            leading: Icon(Icons.people),
+            title: Text('Users'),
+            selected: _selectedIndex == 4,
+            onTap: () {
+              setState(() {
+                _selectedIndex = 4;
+              });
+              Navigator.pop(context);
+            },
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.account_balance_wallet),
-            label: 'Boughts',
+          ListTile(
+            leading: Icon(Icons.card_membership),
+            title: Text('Subscription'),
+            selected: _selectedIndex == 5,
+            onTap: () {
+              setState(() {
+                _selectedIndex = 5;
+              });
+              Navigator.pop(context);
+            },
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.inventory_2),
-            label: 'Available',
+          ListTile(
+            leading: Icon(Icons.account_balance_wallet),
+            title: Text('Boughts'),
+            selected: _selectedIndex == 6,
+            onTap: () {
+              setState(() {
+                _selectedIndex = 6;
+              });
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.inventory_2),
+            title: Text('Available'),
+            selected: _selectedIndex == 7,
+            onTap: () {
+              setState(() {
+                _selectedIndex = 7;
+              });
+              Navigator.pop(context);
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: Icon(Icons.logout),
+            title: Text('Logout'),
+            onTap: () async {
+              Navigator.pop(context);
+              await _logout();
+            },
           ),
         ],
       ),
     );
   }
+
+  // ...existing code...
 }
