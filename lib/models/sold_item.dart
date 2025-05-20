@@ -14,6 +14,8 @@ class SoldItem {
   final Fraction? fraction;
   final Item? item;
   final User? salesman;
+  final double? available_items_count;
+
 
   SoldItem({
     required this.id,
@@ -27,6 +29,7 @@ class SoldItem {
     this.fraction,
     this.item,
     this.salesman,
+    this.available_items_count,
   });
 
   factory SoldItem.fromJson(Map<String, dynamic> json) {
@@ -57,6 +60,7 @@ class SoldItem {
             ))
           : null,
       salesman: json['salesman'] != null ? User.fromJson(json['salesman']) : null,
+      available_items_count: json['available_items_count'] != null ? double.tryParse(json['available_items_count'].toString()) : null,
     );
   }
 

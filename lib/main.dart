@@ -18,6 +18,7 @@ import 'package:inventory_frontend/screens/splash_screen.dart';
 import 'package:inventory_frontend/models/business.dart';
 import 'package:inventory_frontend/screens/salesman/sell_item_screen.dart';
 
+
 void main() {
   runApp(
     MultiProvider(

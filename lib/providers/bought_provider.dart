@@ -11,7 +11,7 @@ class BoughtProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get error => _error;
   
-  Future<void> fetchBoughts() async {
+  Future<void> fetchBoughts() async { 
     _isLoading = true;
     _error = null;
     notifyListeners();

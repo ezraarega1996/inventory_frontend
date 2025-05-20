@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:inventory_frontend/models/fraction.dart';
 import 'package:provider/provider.dart';
 import 'package:inventory_frontend/providers/sales_provider.dart';
 import 'package:inventory_frontend/screens/owner/sale_detail_screen.dart';
@@ -12,6 +13,9 @@ class SalesScreen extends StatefulWidget {
 }
 
 class _SalesScreenState extends State<SalesScreen> {
+
+  final Map<String, String> _selectedFractionIds = {}; // boughtId -> fractionId
+
   @override
   void initState() {
     super.initState();
@@ -84,38 +88,88 @@ class _SalesScreenState extends State<SalesScreen> {
           : salesProvider.sales.isEmpty
             ? const Center(child: Text('No sales found'))
             : ListView.builder(
-                itemCount: salesProvider.sales.length,
-                itemBuilder: (context, index) {
-                  final sale = salesProvider.sales[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: ListTile(
-                      title: Text(sale.item?.name ?? 'Unknown Item'),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Salesman: ${sale.salesman?.name ?? 'Unknown Salesman'}'),
-                          Text('Fraction: ${sale.fraction?.name ?? 'Unknown'}'),
-                          Text('Quantity: ${sale.quantity}'),
-                          Text('Amount: \$${sale.soldPrice}'),
-                          Text('Date: ${dateFormat.format(sale.createdAt)}'),
-                        ],
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () => _deleteSale(sale.id),
+              itemCount: salesProvider.sales.length,
+              itemBuilder: (context, index) {
+                final sale = salesProvider.sales[index];
+
+                // Get all fractions for this item
+                final itemFractions = sale.item?.fractions ?? [];
+                // // Track selected fraction per sale
+                // String selectedFractionId = _selectedFractionIds[sale.id] ?? sale.fraction?.id ?? '';
+                // Fraction selectedFraction = itemFractions.firstWhere(
+                //   (f) => f.id == selectedFractionId,
+                // );
+
+                // // Find the sale record for this fraction (if any)
+                // final fractionSale = salesProvider.sales.firstWhere(
+                //   (s) => s.itemId == sale.itemId && s.fractionId == selectedFractionId,
+                //   orElse: () => sale,
+                // );
+
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: StatefulBuilder(
+                    builder: (context, setState) {
+                      String selectedFractionId = _selectedFractionIds[sale.id] ?? sale.fraction?.id ?? '';
+                      Fraction? selectedFraction = sale.item?.fractions?.firstWhere(
+                      
+                        (f) => f.id == selectedFractionId, 
+                        );
+                      return ListTile(
+                        
+                        subtitle: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                          Expanded(
+                            child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Salesman: ${sale.salesman?.name ?? 'Unknown Salesman'}'),
+                              Text('Quantity: ${sale.quantity * sale.fraction!.ratio / selectedFraction!.ratio} ${selectedFraction.name}'),
+                              Text('Amount: \$${sale.soldPrice}'),
+                              if (sale.available_items_count != null)
+                              Text('Available items: ${sale.available_items_count! * sale.fraction!.ratio / selectedFraction.ratio} ${selectedFraction.name}'),
+                              Text('Date: ${dateFormat.format(sale.createdAt)}'),
+                            ],
+                            ),
                           ),
-                        ],
-                      ),
-                      onTap: () => _viewSaleDetails(index),
-                      isThreeLine: true,
-                    ),
-                  );
-                },
-              ),
+                          if (itemFractions.isNotEmpty)
+                            Padding(
+                            padding: const EdgeInsets.only(left: 8.0),
+                            child: DropdownButton<String>(
+                              value: selectedFractionId,
+                              items: itemFractions.map((fraction) {
+                              return DropdownMenuItem<String>(
+                                value: fraction.id,
+                                child: Text(fraction.name),
+                              );
+                              }).toList(),
+                              onChanged: (value) {
+                              setState(() {
+                                _selectedFractionIds[sale.id] = value!;
+                              });
+                              },
+                            ),
+                            ),
+                          ],
+                        ),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () => _deleteSale(sale.id),
+                            ),
+                          ],
+                        ),
+                        onTap: () => _viewSaleDetails(index),
+                        isThreeLine: true,
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
       ),
     );
   }

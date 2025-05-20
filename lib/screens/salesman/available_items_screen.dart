@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_frontend/models/fraction.dart';
 import 'package:provider/provider.dart';
 import 'package:inventory_frontend/providers/available_item_provider.dart';
 import 'package:inventory_frontend/providers/auth_provider.dart';
@@ -14,6 +15,7 @@ class AvailableItemsScreen extends StatefulWidget {
 
 class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
   bool _isLoading = true;
+  final Map<String, String> _selectedFractionIds = {}; // itemId -> fractionId
 
   @override
   void initState() {
@@ -88,58 +90,85 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                         margin: const EdgeInsets.only(bottom: 16),
                         child: Padding(
                           padding: const EdgeInsets.all(16),
-                          child: Column(
+                          child: Row(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                item.name,
-                                style: const TextStyle(
-                                  fontSize: 18,
-                                  fontWeight: FontWeight.bold,
+                              // Item details
+                              Expanded(
+                                flex: 2,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      item.name,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    const SizedBox(height: 8),
+                                    if (item.fractions != null && item.fractions!.isNotEmpty)
+                                      Builder(
+                                        builder: (context) {
+                                          String selectedFractionId = _selectedFractionIds[item.id] ?? item.fractions!.first.id;
+                                          Fraction selectedFraction = item.fractions!.firstWhere(
+                                            (f) => f.id == selectedFractionId,
+                                            orElse: () => item.fractions!.first,
+                                          );
+                                          double fractionQuantity = availableItem.quantity / selectedFraction.ratio;
+                                          return Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
+                                                'Quantity: ${fractionQuantity.toStringAsFixed(2)} ${selectedFraction.name}',
+                                                style: const TextStyle(fontSize: 16, color: Colors.green),
+                                              ),
+                                              Text(
+                                                'Price: \$${selectedFraction.price}',
+                                                style: const TextStyle(fontSize: 16),
+                                              ),
+                                            ],
+                                          );
+                                        },
+                                      ),
+                                    const SizedBox(height: 16),
+                                    CustomButton(
+                                      onPressed: () {
+                                        Navigator.pushNamed(
+                                          context,
+                                          '/sell-item',
+                                          arguments: {
+                                            'preSelectedItem': item,
+                                          },
+                                        );
+                                      },
+                                      text: 'Sell Item',
+                                    ),
+                                  ],
                                 ),
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Available Quantity: ${availableItem.quantity}',
-                                style: const TextStyle(
-                                  fontSize: 16,
-                                  color: Colors.green,
-                                ),
-                              ),
-                              if (item.fractions != null && item.fractions!.isNotEmpty) ...[
-                                const SizedBox(height: 8),
-                                const Text(
-                                  'Available Fractions:',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
+                              // Dropdown
+                              if (item.fractions != null && item.fractions!.isNotEmpty)
+                                Expanded(
+                                  flex: 1,
+                                  child: Align(
+                                    alignment: Alignment.topRight,
+                                    child: DropdownButton<String>(
+                                      value: _selectedFractionIds[item.id] ?? item.fractions!.first.id,
+                                      items: item.fractions!.map((fraction) {
+                                        return DropdownMenuItem<String>(
+                                          value: fraction.id,
+                                          child: Text(fraction.name),
+                                        );
+                                      }).toList(),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _selectedFractionIds[item.id] = value!;
+                                        });
+                                      },
+                                    ),
                                   ),
                                 ),
-                                const SizedBox(height: 4),
-                                ...item.fractions!.map((fraction) {
-                                  final fractionQuantity = availableItem.quantity / fraction.ratio;
-                                  return Padding(
-                                    padding: const EdgeInsets.only(left: 16, top: 4),
-                                    child: Text(
-                                      '${fraction.name}: ${fractionQuantity.toStringAsFixed(2)} (Price: \$${fraction.price})',
-                                      style: const TextStyle(fontSize: 14),
-                                    ),
-                                  );
-                                }).toList(),
-                              ],
-                              const SizedBox(height: 16),
-                              CustomButton(
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    '/sell-item',
-                                    arguments: {
-                                      'preSelectedItem': item,
-                                    },
-                                  );
-                                },
-                                text: 'Sell Item',
-                              ),
                             ],
                           ),
                         ),

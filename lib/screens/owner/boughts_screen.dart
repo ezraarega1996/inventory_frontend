@@ -3,11 +3,9 @@ import 'package:provider/provider.dart';
 import 'package:inventory_frontend/models/bought.dart';
 import 'package:inventory_frontend/models/item.dart';
 import 'package:inventory_frontend/models/fraction.dart';
-import 'package:inventory_frontend/models/user.dart';
 import 'package:inventory_frontend/providers/bought_provider.dart';
 import 'package:inventory_frontend/providers/item_provider.dart';
 import 'package:inventory_frontend/providers/user_provider.dart';
-import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
 import 'package:intl/intl.dart';
 
@@ -26,6 +24,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
   final _quantityController = TextEditingController();
   final _locationController = TextEditingController();
   final _fractionIdController = TextEditingController();
+  final Map<String, String> _selectedFractionIds = {}; // boughtId -> fractionId
   DateTime? _expiryDate;
   String? _editingBoughtId;
   String? _selectedItemId;
@@ -470,54 +469,99 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                 : ListView.builder(
                     itemCount: boughtProvider.boughts.length,
                     itemBuilder: (context, index) {
-                      final bought = boughtProvider.boughts[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: ListTile(
-                          title: Text(bought.item?.name ?? 'Unknown Item'),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Fraction: ${bought.fraction?.name ?? 'Unknown'}',
-                                style: const TextStyle(fontSize: 16),
-                              ),
-                              Text('Quantity: ${bought.quantity}'),
-                              Text('Location: ${bought.location}'),
-                              Text('Created: ${dateFormat.format(bought.createdTime)}'),
-                              if (bought.expiryDate != null)
-                                Text('Expiry: ${dateFormat.format(bought.expiryDate!)}'),
-                              if (bought.salesman != null)
-                                Text('Salesman: ${bought.salesman?.name ?? 'Unknown'}'),
-                            ],
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () => _showAddEditDialog(
-                                  id: bought.id,
-                                  itemId: bought.itemId,
-                                  fractionId: bought.fractionId,
-                                  fractionPurchasePrice: bought.fractionPurchasePrice,
-                                  fractionSoldPrice: bought.fractionSoldPrice,
-                                  quantity: bought.quantity,
-                                  location: bought.location,
-                                  expiryDate: bought.expiryDate,
-                                  salesmanId: bought.salesmanId,
-                                ),
-                              ),
-                              IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () => _deleteBought(bought.id),
-                              ),
-                            ],
-                          ),
-                        ),
+                    final bought = boughtProvider.boughts[index];
+
+  return Card(
+    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+    child: StatefulBuilder(
+      builder: (context, setState) {
+      // Use the map to track selected fraction per bought item
+      String selectedFractionId = _selectedFractionIds[bought.id] ?? bought.fraction?.id ?? '';
+      Fraction? selectedFraction = bought.item?.fractions?.firstWhere(
+        (f) => f.id == selectedFractionId,
+      );
+
+      // Find the bought record for this fraction (if any)
+      Bought? fractionBought = boughtProvider.boughts.firstWhere(
+        (b) => b.itemId == bought.itemId && b.fractionId == selectedFractionId,
+        orElse: () => bought,
+      );
+
+      return ListTile(
+        title: Text(bought.item?.name ?? 'Unknown Item'),
+        subtitle: Column(
+          children: [
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('salesman: ${bought.salesman?.name ?? 'Unknown Salesman'}'),
+                      Text(
+                        'Quantity: ${bought.quantity * bought.fraction!.ratio / selectedFraction!.ratio} ${selectedFraction?.name ?? ""}',
+                      ),
+                      Text(
+                        'Available items: ${bought.available_items_count! * bought.fraction!.ratio / selectedFraction.ratio} ${selectedFraction.name ?? ""}',
+                      ),
+                      Text('Location: ${bought.location}'),
+                      Text('Created: ${dateFormat.format(bought.createdTime)}'),
+                      if (bought.expiryDate != null)
+                        Text('Expiry: ${dateFormat.format(bought.expiryDate!)}'),
+                    ],
+                  ),
+                ),
+                if ((bought.item?.fractions ?? []).isNotEmpty)
+                  DropdownButton<String>(
+                    value: selectedFractionId,
+                    items: bought.item!.fractions!.map((fraction) {
+                      return DropdownMenuItem<String>(
+                        value: fraction.id,
+                        child: Text(fraction.name),
                       );
+                    }).toList(),
+                    onChanged: (value) {
+                      setState(() {
+                        _selectedFractionIds[bought.id] = value!;
+                      });
                     },
                   ),
+              ],
+            ),
+          ],
+        ),
+        trailing: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            IconButton(
+              icon: const Icon(Icons.edit),
+              onPressed: () => _showAddEditDialog(
+                id: fractionBought.id,
+                itemId: fractionBought.itemId,
+                fractionId: fractionBought.fractionId,
+                fractionPurchasePrice: fractionBought.fractionPurchasePrice,
+                fractionSoldPrice: fractionBought.fractionSoldPrice,
+                quantity: fractionBought.quantity,
+                location: fractionBought.location,
+                expiryDate: fractionBought.expiryDate,
+                salesmanId: fractionBought.salesmanId,
+              ),
+            ),
+            IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () => _deleteBought(fractionBought.id),
+            ),
+          ],
+        ),
+      );
+    },
+  ),
+);
+  },
+)
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddEditDialog(),

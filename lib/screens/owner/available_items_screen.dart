@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:inventory_frontend/models/fraction.dart';
 import 'package:provider/provider.dart';
 import 'package:inventory_frontend/providers/available_item_provider.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
@@ -11,6 +12,8 @@ class AvailableItemsScreen extends StatefulWidget {
 }
 
 class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
+  final Map<String, String> _selectedFractionIds = {}; // availableItemId -> fractionId
+
   @override
   void initState() {
     super.initState();
@@ -38,22 +41,67 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                 ? const Center(child: Text('No available items found'))
                 : ListView.builder(
                     itemCount: availableItemProvider.availableItems.length,
-                    itemBuilder: (context, index) {
-                      final availableItem = availableItemProvider.availableItems[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: ListTile(
-                          title: Text(availableItem.item?.name ?? 'Unknown Item'),
-                          subtitle: Column(
+                    // Add this at the top of your _AvailableItemsScreenState class
+              // Inside your ListView.builder:
+              itemBuilder: (context, index) {
+                final availableItem = availableItemProvider.availableItems[index];
+                final itemFractions = availableItem.item?.fractions ?? [];
+                String selectedFractionId = _selectedFractionIds[availableItem.id] ?? (itemFractions.isNotEmpty ? itemFractions.first.id : '');
+                Fraction? selectedFraction = itemFractions.firstWhere(
+                  (f) => f.id == selectedFractionId,
+                );
+
+                // Calculate displayed quantity if you want to convert based on fraction
+                final displayedQuantity = selectedFraction != null
+                    ? availableItem.quantity / selectedFraction.ratio
+                    : availableItem.quantity;
+
+                return Card(
+                  margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                  child: ListTile(
+                    title: Text(availableItem.item?.name ?? 'Unknown Item'),
+                    subtitle: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Item details
+                        Expanded(
+                          flex: 2,
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Quantity: ${availableItem.quantity}'),
+                              Text('Quantity: $displayedQuantity ${selectedFraction?.name ?? ""}'),
                               Text('Sold Price: ${availableItem.soldPrice}'),
-                              Text('Salesman: ${availableItem.salesman?.name ?? 'Unknown Salesman'}'),]
+                              Text('Salesman: ${availableItem.salesman?.name ?? 'Unknown Salesman'}'),
+                            ],
                           ),
                         ),
-                      );
-                    },
+                        // Dropdown
+                        if (itemFractions.isNotEmpty)
+                          Expanded(
+                            flex: 1,
+                            child: Align(
+                              alignment: Alignment.topRight,
+                              child: DropdownButton<String>(
+                                value: selectedFractionId,
+                                items: itemFractions.map((fraction) {
+                                  return DropdownMenuItem<String>(
+                                    value: fraction.id,
+                                    child: Text(fraction.name),
+                                  );
+                                }).toList(),
+                                onChanged: (value) {
+                                  setState(() {
+                                    _selectedFractionIds[availableItem.id] = value!;
+                                  });
+                                },
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  ),
+                );
+              }
                   ),
       ),
     );
