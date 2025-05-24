@@ -275,26 +275,39 @@ class _UsersScreenState extends State<UsersScreen> {
                           Text('Location: ${user.location}'),
                         ],
                       ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () => _showAddEditDialog(
-                              id: user.id,
-                              name: user.name,
-                              phone: user.phone,
-                              location: user.location,
-                              username: user.username,
-                              email: user.email,
-                            ),
+                        trailing: PopupMenuButton<String>(
+                        onSelected: (value) {
+                          if (value == 'edit') {
+                          _showAddEditDialog(
+                            id: user.id,
+                            name: user.name,
+                            phone: user.phone,
+                            location: user.location,
+                            username: user.username,
+                            email: user.email,
+                          );
+                          } else if (value == 'delete') {
+                          _deleteUser(user.id);
+                          }
+                        },
+                        itemBuilder: (context) => [
+                          const PopupMenuItem(
+                          value: 'edit',
+                          child: ListTile(
+                            leading: Icon(Icons.edit),
+                            title: Text('Edit'),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.delete),
-                            onPressed: () => _deleteUser(user.id),
+                          ),
+                          const PopupMenuItem(
+                          value: 'delete',
+                          child: ListTile(
+                            leading: Icon(Icons.delete),
+                            title: Text('Delete'),
+                          ),
                           ),
                         ],
-                      ),
+                        ),
+                      
                       isThreeLine: true,
                     ),
                   );

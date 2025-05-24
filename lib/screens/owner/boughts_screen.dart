@@ -551,121 +551,199 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Expanded(
-                                      child: Column(
+                                      child: Row(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          Text(
-                                            'salesman: ${bought.salesman?.name ?? 'Unknown Salesman'}',
-                                          ),
-                                          Text(
-                                            'Quantity: ${bought.quantity * bought.fraction!.ratio / selectedFraction!.ratio} ${selectedFraction?.name ?? ""}',
-                                          ),
-                                          Text(
-                                            'Available items: ${bought.available_items_count! * bought.fraction!.ratio / selectedFraction.ratio} ${selectedFraction.name ?? ""}',
-                                          ),
-                                          Text('Location: ${bought.location}'),
-                                          Text(
-                                            'Created: ${dateFormat.format(bought.createdTime)}',
-                                          ),
-                                          if (bought.expiryDate != null)
-                                            Text(
-                                              'Expiry: ${dateFormat.format(bought.expiryDate!)}',
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'salesman: ${bought.salesman?.name ?? 'Unknown Salesman'}',
+                                                ),
+                                                Text(
+                                                  'Quantity: ${bought.quantity * bought.fraction!.ratio / selectedFraction!.ratio} ${selectedFraction?.name ?? ""}',
+                                                ),
+                                                Text(
+                                                  'Available items: ${bought.available_items_count! * bought.fraction!.ratio / selectedFraction.ratio} ${selectedFraction.name ?? ""}',
+                                                ),
+                                              ],
                                             ),
+                                          ),
+                                          const SizedBox(width: 16),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment:
+                                                  CrossAxisAlignment.start,
+                                              children: [
+                                                Text(
+                                                  'Location: ${bought.location}',
+                                                ),
+                                                Text(
+                                                  'Created: ${dateFormat.format(bought.createdTime)}',
+                                                ),
+                                                if (bought.expiryDate != null)
+                                                  Text(
+                                                    'Expiry: ${dateFormat.format(bought.expiryDate!)}',
+                                                  ),
+                                              ],
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),
-                                    if ((bought.item?.fractions ?? [])
-                                        .isNotEmpty)
-                                      DropdownButton<String>(
-                                        value: selectedFractionId,
-                                        items:
-                                            bought.item!.fractions!.map((
-                                              fraction,
-                                            ) {
-                                              return DropdownMenuItem<String>(
-                                                value: fraction.id,
-                                                child: Text(fraction.name),
+                                    Column(
+                                      mainAxisSize: MainAxisSize.min,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.end,
+                                      children: [
+                                        PopupMenuButton<String>(
+                                          onSelected: (value) {
+                                            if (value == 'edit') {
+                                              _showAddEditDialog(
+                                                id: fractionBought.id,
+                                                itemId: fractionBought.itemId,
+                                                fractionId:
+                                                    fractionBought.fractionId,
+                                                fractionPurchasePrice:
+                                                    fractionBought
+                                                        .fractionPurchasePrice,
+                                                fractionSoldPrice:
+                                                    fractionBought
+                                                        .fractionSoldPrice,
+                                                quantity:
+                                                    fractionBought.quantity,
+                                                location:
+                                                    fractionBought.location,
+                                                expiryDate:
+                                                    fractionBought.expiryDate,
+                                                salesmanId:
+                                                    fractionBought.salesmanId,
                                               );
-                                            }).toList(),
-                                        onChanged: (value) {
-                                          setState(() {
-                                            _selectedFractionIds[bought.id] =
-                                                value!;
-                                          });
-                                        },
-                                      ),
+                                            } else if (value == 'delete') {
+                                              _deleteBought(fractionBought.id);
+                                            }
+                                          },
+                                          itemBuilder:
+                                              (context) => [
+                                                const PopupMenuItem(
+                                                  value: 'edit',
+                                                  child: ListTile(
+                                                    leading: Icon(
+                                                      Icons.edit,
+                                                      color: Colors.blue,
+                                                    ),
+                                                    title: Text(
+                                                      'Edit',
+                                                      style: TextStyle(
+                                                        color: Colors.blue,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                                const PopupMenuItem(
+                                                  value: 'delete',
+                                                  child: ListTile(
+                                                    leading: Icon(
+                                                      Icons.delete,
+                                                      color: Colors.red,
+                                                    ),
+                                                    title: Text(
+                                                      'Delete',
+                                                      style: TextStyle(
+                                                        color: Colors.red,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                        ),
+                                        if ((bought.item?.fractions ?? [])
+                                            .isNotEmpty)
+                                          Padding(
+                                            padding: const EdgeInsets.only(
+                                              top: 4.0,
+                                            ),
+                                            child: Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.grey[100],
+                                                borderRadius:
+                                                    BorderRadius.circular(8),
+                                                border: Border.all(
+                                                  color: Colors.grey.shade300,
+                                                ),
+                                              ),
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    horizontal: 12,
+                                                    vertical: 2,
+                                                  ),
+                                              child: Row(
+                                                mainAxisSize: MainAxisSize.min,
+                                                children: [
+                                                  const Icon(
+                                                    Icons.swap_horiz,
+                                                    size: 18,
+                                                    color: Colors.blueGrey,
+                                                  ),
+                                                  DropdownButtonHideUnderline(
+                                                    child: DropdownButton<
+                                                      String
+                                                    >(
+                                                      value: selectedFractionId,
+                                                      style: const TextStyle(
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        color: Colors.black87,
+                                                      ),
+                                                      items:
+                                                          bought.item!.fractions!.map((
+                                                            fraction,
+                                                          ) {
+                                                            return DropdownMenuItem<
+                                                              String
+                                                            >(
+                                                              value:
+                                                                  fraction.id,
+                                                              child: Row(
+                                                                children: [
+                                                                  Text(
+                                                                    fraction
+                                                                        .name,
+                                                                    style: const TextStyle(
+                                                                      fontWeight:
+                                                                          FontWeight
+                                                                              .bold,
+                                                                    ),
+                                                                  ),
+                                                                  const SizedBox(
+                                                                    width: 8,
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            );
+                                                          }).toList(),
+                                                      onChanged: (value) {
+                                                        setState(() {
+                                                          _selectedFractionIds[bought
+                                                                  .id] =
+                                                              value!;
+                                                        });
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                      ],
+                                    ),
                                   ],
                                 ),
                               ],
                             ),
-                            trailing: PopupMenuButton<String>(
-                              onSelected: (value) {
-                                if (value == 'edit') {
-                                  _showAddEditDialog(
-                                    id: fractionBought.id,
-                                    itemId: fractionBought.itemId,
-                                    fractionId: fractionBought.fractionId,
-                                    fractionPurchasePrice:
-                                        fractionBought.fractionPurchasePrice,
-                                    fractionSoldPrice:
-                                        fractionBought.fractionSoldPrice,
-                                    quantity: fractionBought.quantity,
-                                    location: fractionBought.location,
-                                    expiryDate: fractionBought.expiryDate,
-                                    salesmanId: fractionBought.salesmanId,
-                                  );
-                                } else if (value == 'delete') {
-                                  _deleteBought(fractionBought.id);
-                                }
-                              },
-                              itemBuilder:
-                                  (context) => [
-                                    const PopupMenuItem(
-                                      value: 'edit',
-                                      child: ListTile(
-                                        leading: Icon(Icons.edit),
-                                        title: Text('Edit'),
-                                      ),
-                                    ),
-                                    const PopupMenuItem(
-                                      value: 'delete',
-                                      child: ListTile(
-                                        leading: Icon(Icons.delete),
-                                        title: Text('Delete'),
-                                      ),
-                                    ),
-                                  ],
-                            ),
-
-                            // trailing: Row(
-                            //   mainAxisSize: MainAxisSize.min,
-                            //   children: [
-                            //     IconButton(
-                            //       icon: const Icon(Icons.edit),
-                            //       onPressed:
-                            //           () => _showAddEditDialog(
-                            //             id: fractionBought.id,
-                            //             itemId: fractionBought.itemId,
-                            //             fractionId: fractionBought.fractionId,
-                            //             fractionPurchasePrice:
-                            //                 fractionBought
-                            //                     .fractionPurchasePrice,
-                            //             fractionSoldPrice:
-                            //                 fractionBought.fractionSoldPrice,
-                            //             quantity: fractionBought.quantity,
-                            //             location: fractionBought.location,
-                            //             expiryDate: fractionBought.expiryDate,
-                            //             salesmanId: fractionBought.salesmanId,
-                            //           ),
-                            //     ),
-                            //     IconButton(
-                            //       icon: const Icon(Icons.delete),
-                            //       onPressed:
-                            //           () => _deleteBought(fractionBought.id),
-                            //     ),
-                            //   ],
-                            // ),
                           );
                         },
                       ),

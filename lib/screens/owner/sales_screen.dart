@@ -120,48 +120,87 @@ class _SalesScreenState extends State<SalesScreen> {
                         subtitle: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                          Expanded(
+                            Expanded(
                             child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Salesman: ${sale.salesman?.name ?? 'Unknown Salesman'}'),
-                              Text('Quantity: ${sale.quantity * sale.fraction!.ratio / selectedFraction!.ratio} ${selectedFraction.name}'),
-                              Text('Amount: \$${sale.soldPrice}'),
-                              if (sale.available_items_count != null)
-                              Text('Available items: ${sale.available_items_count! * sale.fraction!.ratio / selectedFraction.ratio} ${selectedFraction.name}'),
-                              Text('Date: ${dateFormat.format(sale.createdAt)}'),
-                            ],
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                              Row(
+                                children: [
+                                Expanded(
+                                  child: Text('Salesman: ${sale.salesman?.name ?? 'Unknown Salesman'}'),
+                                ),
+                                Expanded(
+                                  child: Text('Quantity: ${sale.quantity * sale.fraction!.ratio / selectedFraction!.ratio} ${selectedFraction.name}'),
+                                ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                Expanded(
+                                  child: Text('Amount: \$${sale.soldPrice}'),
+                                ),
+                                Expanded(
+                                  child: sale.available_items_count != null
+                                    ? Text('Available: ${sale.available_items_count! * sale.fraction!.ratio / selectedFraction.ratio} ${selectedFraction.name}')
+                                    : const SizedBox(),
+                                ),
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                Expanded(
+                                  child: Text('Date: ${dateFormat.format(sale.createdAt)}'),
+                                ),
+                                ],
+                              ),
+                              ],
                             ),
-                          ),
-                          if (itemFractions.isNotEmpty)
+                            ),
+                          
+                            if (itemFractions.isNotEmpty)
                             Padding(
-                            padding: const EdgeInsets.only(left: 8.0),
-                            child: DropdownButton<String>(
-                              value: selectedFractionId,
-                              items: itemFractions.map((fraction) {
-                              return DropdownMenuItem<String>(
-                                value: fraction.id,
-                                child: Text(fraction.name),
-                              );
-                              }).toList(),
-                              onChanged: (value) {
-                              setState(() {
-                                _selectedFractionIds[sale.id] = value!;
-                              });
+                              padding: const EdgeInsets.only(left: 8.0),
+                              child: PopupMenuButton<String>(
+                              icon: const Icon(Icons.more_vert),
+                              onSelected: (value) {
+                                if (value == 'delete') {
+                                _deleteSale(sale.id);
+                                } else {
+                                setState(() {
+                                  _selectedFractionIds[sale.id] = value;
+                                });
+                                }
                               },
-                            ),
+                              itemBuilder: (context) => [
+                                ...itemFractions.map((fraction) => PopupMenuItem<String>(
+                                  value: fraction.id,
+                                  child: Text('View as ${fraction.name}'),
+                                  )),
+                                const PopupMenuDivider(),
+                                const PopupMenuItem<String>(
+                                value: 'delete',
+                                child: Row(
+                                  children: [
+                                  Icon(Icons.delete, color: Colors.red),
+                                  SizedBox(width: 8),
+                                  Text('Delete', style: TextStyle(color: Colors.red)),
+                                  ],
+                                ),
+                                ),
+                              ],
+                              ),
                             ),
                           ],
                         ),
-                        trailing: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            IconButton(
-                              icon: const Icon(Icons.delete),
-                              onPressed: () => _deleteSale(sale.id),
-                            ),
-                          ],
-                        ),
+                        // trailing: Row(
+                        //   mainAxisSize: MainAxisSize.min,
+                        //   children: [
+                        //     IconButton(
+                        //       icon: const Icon(Icons.delete),
+                        //       onPressed: () => _deleteSale(sale.id),
+                        //     ),
+                        //   ],
+                        // ),
                         onTap: () => _viewSaleDetails(index),
                         isThreeLine: true,
                       );
