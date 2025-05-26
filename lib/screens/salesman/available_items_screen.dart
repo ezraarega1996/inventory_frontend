@@ -32,7 +32,10 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
     });
 
     final itemProvider = Provider.of<ItemProvider>(context, listen: false);
-    final availableItemProvider = Provider.of<AvailableItemProvider>(context, listen: false);
+    final availableItemProvider = Provider.of<AvailableItemProvider>(
+      context,
+      listen: false,
+    );
 
     await Future.wait([
       itemProvider.fetchItems(),
@@ -46,7 +49,7 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
 
   List<Map<String, dynamic>> _getCombinedTransactions(dynamic availableItem) {
     final List<Map<String, dynamic>> transactions = [];
-    
+
     // Add bought transactions
     if (availableItem.boughtTransactions != null) {
       for (var transaction in availableItem.boughtTransactions!) {
@@ -57,7 +60,7 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
         });
       }
     }
-    
+
     // Add sold transactions
     if (availableItem.soldTransactions != null) {
       for (var transaction in availableItem.soldTransactions!) {
@@ -68,10 +71,10 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
         });
       }
     }
-    
+
     // Sort by date in descending order (most recent first)
     transactions.sort((a, b) => b['date'].compareTo(a['date']));
-    
+
     return transactions;
   }
 
@@ -83,158 +86,201 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
     final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
 
     // Get items assigned to this salesman
-    final assignedItems = itemProvider.items.where((item) {
-      final availableItems = availableItemProvider.getAvailableItemsForSalesman(authProvider.user!.id);
-      return availableItems.any((availableItem) => availableItem.itemId == item.id);
-    }).toList();
+    final assignedItems =
+        itemProvider.items.where((item) {
+          final availableItems = availableItemProvider
+              .getAvailableItemsForSalesman(authProvider.user!.id);
+          return availableItems.any(
+            (availableItem) => availableItem.itemId == item.id,
+          );
+        }).toList();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text('Available Items'),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadData,
-          ),
+          IconButton(icon: const Icon(Icons.refresh), onPressed: _loadData),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : assignedItems.isEmpty
+      body:
+          _isLoading
+              ? const Center(child: CircularProgressIndicator())
+              : assignedItems.isEmpty
               ? const Center(
-                  child: Text(
-                    'No items assigned to you',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                )
+                child: Text(
+                  'No items assigned to you',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
+              )
               : RefreshIndicator(
-                  onRefresh: _loadData,
-                  child: ListView.builder(
-                    padding: const EdgeInsets.all(16),
-                    itemCount: assignedItems.length,
-                    itemBuilder: (context, index) {
-                      final item = assignedItems[index];
-                      final availableItem = availableItemProvider
-                          .getAvailableItemsForSalesman(authProvider.user!.id)
-                          .firstWhere((ai) => ai.itemId == item.id);
+                onRefresh: _loadData,
+                child: ListView.builder(
+                  padding: const EdgeInsets.all(16),
+                  itemCount: assignedItems.length,
+                  itemBuilder: (context, index) {
+                    final item = assignedItems[index];
+                    final availableItem = availableItemProvider
+                        .getAvailableItemsForSalesman(authProvider.user!.id)
+                        .firstWhere((ai) => ai.itemId == item.id);
 
-                      final transactions = _getCombinedTransactions(availableItem);
+                    final transactions = _getCombinedTransactions(
+                      availableItem,
+                    );
 
-                      return Card(
-                        margin: const EdgeInsets.only(bottom: 16),
-                        child: ExpansionTile(
-                          title: Text(
-                            item.name,
-                            style: const TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 16),
+                      child: ExpansionTile(
+                        title: Text(
+                          item.name,
+                          style: const TextStyle(
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
                           ),
-                          subtitle: Text('Available Quantity: ${availableItem.quantity}'),
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(16),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Item details
-                                  Text('Item: ${item.name}'),
-                                  Text('Available Quantity: ${availableItem.quantity}'),
-                                  Text('Sold Price: \$${availableItem.soldPrice.toStringAsFixed(2)}'),
-                                  
-                                  const SizedBox(height: 16),
-                                  const Text(
-                                    'Transaction History',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
-                                    ),
-                                  ),
-                                  if (transactions.isEmpty)
-                                    const Text('No transactions found')
-                                  else
-                                    ListView.builder(
-                                      shrinkWrap: true,
-                                      physics: const NeverScrollableScrollPhysics(),
-                                      itemCount: transactions.length,
-                                      itemBuilder: (context, index) {
-                                        final transaction = transactions[index];
-                                        final isBought = transaction['type'] == 'bought';
-                                        final dynamic trans = transaction['transaction'];
-                                        
-                                        return Card(
-                                          color: isBought ? Colors.blue.shade50 : Colors.green.shade50,
-                                          child: ListTile(
-                                            leading: Icon(
-                                              isBought ? Icons.shopping_cart : Icons.point_of_sale,
-                                              color: isBought ? Colors.blue : Colors.green,
-                                            ),
-                                            title: Text(
-                                              isBought ? 'Bought' : 'Sold',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: isBought ? Colors.blue : Colors.green,
-                                              ),
-                                            ),
-                                            subtitle: Column(
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text('Quantity: ${trans.quantity}'),
-                                                Text('Fraction: ${trans.fraction?.name ?? 'Unknown'}'),
-                                                Text('Price: \$${(isBought ? trans.fractionSoldPrice : trans.soldPrice).toStringAsFixed(2)}'),
-                                                Text('Date: ${dateFormat.format(trans.createdAt)}'),
-                                              ],
-                                            ),
-                                          ),
-                                        );
-                                      },
-                                    ),
+                        ),
+                        subtitle: Text(
+                          'Available Quantity: ${availableItem.quantity}',
+                        ),
+                        children: [
+                          Padding(
+                            padding: const EdgeInsets.all(16),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Item details
+                                Text('Item: ${item.name}'),
+                                Text(
+                                  'Available Quantity: ${availableItem.quantity}',
+                                ),
+                                Text(
+                                  'Sold Price: \$${availableItem.soldPrice.toStringAsFixed(2)}',
+                                ),
 
-                                  const SizedBox(height: 16),
-                                  if (item.fractions != null && item.fractions!.isNotEmpty)
-                                    DropdownButton<String>(
-                                      value: _selectedFractionIds[item.id] ?? item.fractions!.first.id,
-                                      items: item.fractions!.map((fraction) {
-                                        return DropdownMenuItem<String>(
-                                          value: fraction.id,
-                                          child: Text(fraction.name),
-                                        );
-                                      }).toList(),
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _selectedFractionIds[item.id] = value!;
-                                        });
-                                      },
-                                    ),
-                                  const SizedBox(height: 8),
-                                  CustomButton(
-                                    onPressed: () {
-                                      Navigator.pushNamed(
-                                        context,
-                                        '/sell-item',
-                                        arguments: {
-                                          'preSelectedItem': item,
-                                          'preSelectedFraction': item.fractions?.firstWhere(
-                                            (f) => f.id == _selectedFractionIds[item.id],
-                                            orElse: () => item.fractions!.first,
+                                const SizedBox(height: 16),
+                                const Text(
+                                  'Transaction History',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                                if (transactions.isEmpty)
+                                  const Text('No transactions found')
+                                else
+                                  ListView.builder(
+                                    shrinkWrap: true,
+                                    physics:
+                                        const NeverScrollableScrollPhysics(),
+                                    itemCount: transactions.length,
+                                    itemBuilder: (context, index) {
+                                      final transaction = transactions[index];
+                                      final isBought =
+                                          transaction['type'] == 'bought';
+                                      final dynamic trans =
+                                          transaction['transaction'];
+
+                                      return Card(
+                                        color:
+                                            isBought
+                                                ? Colors.blue.shade50
+                                                : Colors.green.shade50,
+                                        child: ListTile(
+                                          leading: Icon(
+                                            isBought
+                                                ? Icons.shopping_cart
+                                                : Icons.point_of_sale,
+                                            color:
+                                                isBought
+                                                    ? Colors.blue
+                                                    : Colors.green,
                                           ),
-                                        },
+                                          title: Text(
+                                            isBought ? 'Bought' : 'Sold',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color:
+                                                  isBought
+                                                      ? Colors.blue
+                                                      : Colors.green,
+                                            ),
+                                          ),
+                                          subtitle: Column(
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.start,
+                                            children: [
+                                              Row(
+                                                children: [
+                                                  Text(
+                                                    'Quantity: ${trans.quantity}',
+                                                  ),
+                                                  const SizedBox(width: 1),
+                                                  Text(
+                                                    '${trans.fraction?.name ?? (availableItem.item?.fractions?.firstWhere((f) => f.id == trans.fractionId, orElse: () => Fraction(id: '', name: 'Unknown', ratio: 1, price: 0, itemId: '')).name ?? 'Unknown')}',
+                                                  ),
+                                                ],
+                                              ),
+                                              Text(
+                                                'Price: \$${(isBought ? trans.fractionSoldPrice : trans.soldPrice).toStringAsFixed(2)}',
+                                              ),
+                                              Text(
+                                                'Date: ${dateFormat.format(trans.createdAt)}',
+                                              ),
+                                            ],
+                                          ),
+                                        ),
                                       );
                                     },
-                                    text: 'Sell Item',
                                   ),
-                                ],
-                              ),
+
+                                const SizedBox(height: 16),
+                                if (item.fractions != null &&
+                                    item.fractions!.isNotEmpty)
+                                  DropdownButton<String>(
+                                    value:
+                                        _selectedFractionIds[item.id] ??
+                                        item.fractions!.first.id,
+                                    items:
+                                        item.fractions!.map((fraction) {
+                                          return DropdownMenuItem<String>(
+                                            value: fraction.id,
+                                            child: Text(fraction.name),
+                                          );
+                                        }).toList(),
+                                    onChanged: (value) {
+                                      setState(() {
+                                        _selectedFractionIds[item.id] = value!;
+                                      });
+                                    },
+                                  ),
+                                const SizedBox(height: 8),
+                                CustomButton(
+                                  onPressed: () {
+                                    Navigator.pushNamed(
+                                      context,
+                                      '/sell-item',
+                                      arguments: {
+                                        'preSelectedItem': item,
+                                        'preSelectedFraction': item.fractions
+                                            ?.firstWhere(
+                                              (f) =>
+                                                  f.id ==
+                                                  _selectedFractionIds[item.id],
+                                              orElse:
+                                                  () => item.fractions!.first,
+                                            ),
+                                      },
+                                    );
+                                  },
+                                  text: 'Sell Item',
+                                ),
+                              ],
                             ),
-                          ],
-                        ),
-                      );
-                    },
-                  ),
+                          ),
+                        ],
+                      ),
+                    );
+                  },
                 ),
+              ),
     );
   }
-} 
+}

@@ -53,6 +53,10 @@ class AvailableItem {
     );
   }
 
+  get fraction => null;
+
+  Object? get fractionId => null;
+
   Map<String, dynamic> toJson() {
     return {
       'id': id,
