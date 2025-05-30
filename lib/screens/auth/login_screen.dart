@@ -74,17 +74,18 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   Image.asset(
-                    'assets/logo.png',
-                    width: 120,
-                    height: 120,
+                    'images/logo.png',
+                    width: MediaQuery.of(context).size.width,
+                    height: 300,
                   ),
                   const SizedBox(height: 24),
                   const Text(
-                    'Inventory Management',
+                    'Manage your shop!',
                     textAlign: TextAlign.center,
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
+                      color: Colors.green,
                     ),
                   ),
                   const SizedBox(height: 48),
