@@ -7,6 +7,7 @@ class CustomButton extends StatelessWidget {
   final bool isLoading;
   final IconData? icon;
   final Color? color;
+  final Color? textColor;
   final bool isOutlined;
   
   const CustomButton({
@@ -16,6 +17,7 @@ class CustomButton extends StatelessWidget {
     this.isLoading = false,
     this.icon,
     this.color,
+    this.textColor,
     this.isOutlined = false,
   }) : super(key: key);
 
@@ -40,11 +42,12 @@ class CustomButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: isLoading ? null : onPressed,
       style: ElevatedButton.styleFrom(
-        backgroundColor: buttonColor,
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8),
-        ),
+      backgroundColor: buttonColor,
+      foregroundColor: textColor ?? Colors.white,
+      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
       ),
       child: _buildButtonContent(),
     );

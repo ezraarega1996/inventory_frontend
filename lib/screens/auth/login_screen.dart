@@ -73,19 +73,27 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
+                  const Text(
+                    'Manage your shop!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 26,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green,
+                    ),
+                  ),
                   Image.asset(
-                    'images/logo.png',
+                    'assets/images/logo.png',
                     width: MediaQuery.of(context).size.width,
                     height: 300,
                   ),
                   const SizedBox(height: 24),
                   const Text(
-                    'Manage your shop!',
+                    'Login!',
                     textAlign: TextAlign.center,
                     style: TextStyle(
-                      fontSize: 24,
+                      fontSize: 22,
                       fontWeight: FontWeight.bold,
-                      color: Colors.green,
                     ),
                   ),
                   const SizedBox(height: 48),
@@ -100,7 +108,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       return null;
                     },
                   ),
-                  const SizedBox(height: 16),
+                  const SizedBox(height: 8),
                   CustomTextField(
                     controller: _passwordController,
                     labelText: 'Password',
@@ -124,10 +132,11 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                   ),
                   const SizedBox(height: 24),
-                  CustomButton(
+                    CustomButton(
                     text: 'Login',
                     isLoading: authProvider.isLoading,
                     onPressed: _login,
+                    textColor: Colors.white,
                   ),
                   const SizedBox(height: 16),
                   TextButton(

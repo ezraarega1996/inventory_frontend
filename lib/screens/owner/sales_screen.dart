@@ -124,11 +124,9 @@ class _SalesScreenState extends State<SalesScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
+                                 Text('${sale.item?.name}(${sale.salesman?.name ?? 'Unknown Salesman'})'),
                               Row(
                                 children: [
-                                Expanded(
-                                  child: Text('Salesman: ${sale.salesman?.name ?? 'Unknown Salesman'}'),
-                                ),
                                 Expanded(
                                   child: Text('Quantity: ${sale.quantity * sale.fraction!.ratio / selectedFraction!.ratio} ${selectedFraction.name}'),
                                 ),
