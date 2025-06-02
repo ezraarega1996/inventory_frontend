@@ -79,8 +79,50 @@ class _SalesScreenState extends State<SalesScreen> {
   Widget build(BuildContext context) {
     final salesProvider = Provider.of<SalesProvider>(context);
     final dateFormat = DateFormat('MMM dd, yyyy HH:mm');
-    
+      // Calculate today's sales amount
+  final today = DateTime.now();
+  final todaySales = salesProvider.sales.where((sale) {
+    final saleDate = sale.createdAt;
+    return saleDate.year == today.year &&
+        saleDate.month == today.month &&
+        saleDate.day == today.day;
+  }).toList();
+  final todayAmount = todaySales.fold<double>(
+    0.0,
+    (sum, sale) => sum + (sale.soldPrice ?? 0),
+  );
+  
+  final todayAmountWidget = Padding(
+    padding: const EdgeInsets.all(16.0),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        const Text(
+          'Today\'s Sales:',
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+        Text(
+          '\$${todayAmount.toStringAsFixed(2)}',
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+        ),
+      ],
+    ),
+  );
     return Scaffold(
+      appBar: AppBar(
+        title: const Text('Sales'),
+      ),
+      drawer: Drawer(
+        child: ListView(
+          children: const [
+            DrawerHeader(
+              child: Text('Menu'),
+            ),
+            // Add more drawer items here if needed
+          ],
+        ),
+      ),
+      bottomNavigationBar: todayAmountWidget,
       body: RefreshIndicator(
         onRefresh: _loadSales,
         child: salesProvider.isLoading
@@ -92,19 +134,7 @@ class _SalesScreenState extends State<SalesScreen> {
               itemBuilder: (context, index) {
                 final sale = salesProvider.sales[index];
 
-                // Get all fractions for this item
                 final itemFractions = sale.item?.fractions ?? [];
-                // // Track selected fraction per sale
-                // String selectedFractionId = _selectedFractionIds[sale.id] ?? sale.fraction?.id ?? '';
-                // Fraction selectedFraction = itemFractions.firstWhere(
-                //   (f) => f.id == selectedFractionId,
-                // );
-
-                // // Find the sale record for this fraction (if any)
-                // final fractionSale = salesProvider.sales.firstWhere(
-                //   (s) => s.itemId == sale.itemId && s.fractionId == selectedFractionId,
-                //   orElse: () => sale,
-                // );
 
                 return Card(
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),

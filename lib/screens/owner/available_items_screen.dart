@@ -129,13 +129,6 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                // Item details
-                                Text(
-                                  'Item: ${availableItem.item?.name ?? 'Unknown'}',
-                                ),
-                                Text(
-                                  'Available Quantity: $displayedQuantity ${selectedFraction?.name ?? ""}',
-                                ),
                                 Text(
                                   'Sold Price: \$${availableItem.soldPrice.toStringAsFixed(2)}',
                                 ),
@@ -196,11 +189,9 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                                                 CrossAxisAlignment.start,
                                             children: [
                                               Text(
-                                                'Quantity: ${trans.quantity}',
+                                                'Quantity: ${trans.quantity}  ${trans.fraction?.name ?? (availableItem.item?.fractions?.firstWhere((f) => f.id == trans.fractionId, orElse: () => Fraction(id: '', name: 'Unknown', ratio: 1, price: 0, itemId: '')).name ?? 'Unknown')}',
                                               ),
-                                              Text(
-                                                'Fraction: ${trans.fraction?.name ?? (availableItem.item?.fractions?.firstWhere((f) => f.id == trans.fractionId, orElse: () => Fraction(id: '', name: 'Unknown', ratio: 1, price: 0, itemId: '')).name ?? 'Unknown')}',
-                                              ),
+        
                                               Text(
                                                 'Price: \$${(isBought ? trans.fractionSoldPrice : trans.soldPrice).toStringAsFixed(2)}',
                                               ),

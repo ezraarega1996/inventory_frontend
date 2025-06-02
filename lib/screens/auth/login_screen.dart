@@ -96,7 +96,7 @@ class _LoginScreenState extends State<LoginScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
-                  const SizedBox(height: 48),
+                  const SizedBox(height: 24),
                   CustomTextField(
                     controller: _usernameController,
                     labelText: 'Username',
