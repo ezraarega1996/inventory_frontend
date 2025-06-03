@@ -4,7 +4,7 @@ import 'package:http/http.dart' as http;
 import 'package:inventory_frontend/utils/storage.dart';
 
 class Api {
-  static String baseUrl = 'http://localhost:5000/api';
+  static String baseUrl = 'https://inventory-backend-2phf.onrender.com/api';
   
   static Future<Map<String, String>> _getHeaders() async {
     final token = await Storage.getToken();
