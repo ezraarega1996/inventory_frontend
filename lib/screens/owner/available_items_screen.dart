@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_frontend/models/fraction.dart';
+import 'package:inventory_frontend/widgets/fraction_dropdown.dart';
 import 'package:provider/provider.dart';
 import 'package:inventory_frontend/providers/available_item_provider.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
@@ -137,125 +138,84 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                                 ),
 
                                 const SizedBox(height: 16),
-                                const Text(
-                                  'Transaction History',
-                                  style: TextStyle(
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                  const Text(
+                                    'Transaction History',
+                                    style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
+                                    ),
                                   ),
+                                  if (itemFractions.isNotEmpty)
+                                    FractionDropdown(
+                                      fractions: itemFractions,
+                                      selectedFractionId: selectedFractionId,
+                                      onChanged: (value) {
+                                        setState(() {
+                                      _selectedFractionIds[availableItem.id] = value!;
+                                        });
+                                      },
+                                    ),
+                                  ],
                                 ),
+
                                 if (transactions.isEmpty)
                                   const Text('No transactions found')
-                                else
-                                  ListView.builder(
-                                    shrinkWrap: true,
-                                    physics:
-                                        const NeverScrollableScrollPhysics(),
-                                    itemCount: transactions.length,
-                                    itemBuilder: (context, index) {
-                                      final transaction = transactions[index];
-                                      final isBought =
-                                          transaction['type'] == 'bought';
-                                      final dynamic trans =
-                                          transaction['transaction'];
+                                else                              // ...existing code...
+                                ListView.builder(
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  itemCount: transactions.length,
+                                  itemBuilder: (context, index) {
+                                    final transaction = transactions[index];
+                                    final isBought = transaction['type'] == 'bought';
+                                    final dynamic trans = transaction['transaction'];
 
-                                      return Card(
-                                        color:
-                                            isBought
-                                                ? Colors.blue.shade50
-                                                : Colors.green.shade50,
-                                        child: ListTile(
-                                          leading: Icon(
-                                            isBought
-                                                ? Icons.shopping_cart
-                                                : Icons.point_of_sale,
-                                            color:
-                                                isBought
-                                                    ? Colors.blue
-                                                    : Colors.green,
-                                          ),
-                                          title: Text(
-                                            isBought ? 'Bought' : 'Sold',
-                                            style: TextStyle(
-                                              fontWeight: FontWeight.bold,
-                                              color:
-                                                  isBought
-                                                      ? Colors.blue
-                                                      : Colors.green,
-                                            ),
-                                          ),
-                                          subtitle: Column(
-                                            crossAxisAlignment:
-                                                CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                                                'Quantity: ${trans.quantity}  ${trans.fraction?.name ?? (availableItem.item?.fractions?.firstWhere((f) => f.id == trans.fractionId, orElse: () => Fraction(id: '', name: 'Unknown', ratio: 1, price: 0, itemId: '')).name ?? 'Unknown')}',
-                                              ),
-        
-                                              Text(
-                                                'Price: \$${(isBought ? trans.fractionSoldPrice : trans.soldPrice).toStringAsFixed(2)}',
-                                              ),
-                                              Text(
-                                                'Date: ${dateFormat.format(trans.createdAt)}',
-                                              ),
-                                            ],
+                                    // Get the original fraction of the transaction
+                                    final Fraction? transactionFraction = itemFractions.firstWhere(
+                                      (f) => f.id == trans.fractionId,
+                                      orElse: () => itemFractions.first,
+                                    );
+
+                                    // Convert quantity to selected fraction
+                                    double convertedQuantity = trans.quantity;
+                                    if (transactionFraction != null && selectedFraction != null) {
+                                      convertedQuantity = trans.quantity * transactionFraction.ratio / selectedFraction.ratio;
+                                    }
+
+                                    return Card(
+                                      color: isBought ? Colors.blue.shade50 : Colors.green.shade50,
+                                      child: ListTile(
+                                        leading: Icon(
+                                          isBought ? Icons.shopping_cart : Icons.point_of_sale,
+                                          color: isBought ? Colors.blue : Colors.green,
+                                        ),
+                                        title: Text(
+                                          isBought ? 'Bought' : 'Sold',
+                                          style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: isBought ? Colors.blue : Colors.green,
                                           ),
                                         ),
-                                      );
-                                    },
-                                  ),
-
-                                const SizedBox(height: 16),
-                                if (itemFractions.isNotEmpty)
-                                  DropdownButton<String>(
-                                    value: selectedFractionId,
-                                    items:
-                                        itemFractions.map((fraction) {
-                                          return DropdownMenuItem<String>(
-                                            value: fraction.id,
-                                            child: Text(fraction.name),
-                                          );
-                                        }).toList(),
-                                    onChanged: (value) {
-                                      setState(() {
-                                        _selectedFractionIds[availableItem.id] =
-                                            value!;
-                                      });
-                                    },
-                                  ),
-                                // Show converted quantity and price for each fraction
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children:
-                                      itemFractions.map((fraction) {
-                                        // Calculate quantity and price for this fraction
-                                        final convertedQuantity =
-                                            availableItem.quantity /
-                                            fraction.ratio;
-                                        final convertedPrice =
-                                            availableItem.soldPrice *
-                                            fraction.ratio;
-                                        return Padding(
-                                          padding: const EdgeInsets.only(
-                                            top: 4.0,
-                                          ),
-                                          child: Text(
-                                            'As ${fraction.name}: ${convertedQuantity.toStringAsFixed(2)} @ \$${convertedPrice.toStringAsFixed(2)}',
-                                            style: TextStyle(
-                                              color:
-                                                  fraction.id ==
-                                                          selectedFractionId
-                                                      ? Colors.blue
-                                                      : Colors.black,
-                                              fontWeight:
-                                                  fraction.id ==
-                                                          selectedFractionId
-                                                      ? FontWeight.bold
-                                                      : FontWeight.normal,
+                                        subtitle: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(
+                                              'Quantity: ${convertedQuantity.toStringAsFixed(2)} ${selectedFraction?.name ?? ''}',
                                             ),
-                                          ),
-                                        );
-                                      }).toList(),
+                                            Text(
+                                              'Price: \$${(isBought ? trans.fractionSoldPrice : trans.soldPrice).toStringAsFixed(2)}',
+                                            ),
+                                            Text(
+                                              'Date: ${dateFormat.format(trans.createdAt)}',
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    );
+                                  },
                                 ),
                               ],
                             ),

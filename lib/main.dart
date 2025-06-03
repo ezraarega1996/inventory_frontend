@@ -73,7 +73,7 @@ class MyApp extends StatelessWidget {
       providers: [
         Provider(
           create: (_) => BusinessService(
-            baseUrl: 'http://localhost:5000', // Update with your backend URL
+            baseUrl: 'https://inventory-backend-2phf.onrender.com/api', // Update with your backend URL
           ),
         ),
         ChangeNotifierProxyProvider<BusinessService, BusinessProvider>(

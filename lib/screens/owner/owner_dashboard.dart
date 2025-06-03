@@ -250,6 +250,18 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
               Navigator.pop(context);
             },
           ),
+
+          ListTile(
+            leading: Icon(Icons.inventory_2),
+            title: Text('Available'),
+            selected: _selectedIndex == 7,
+            onTap: () {
+              setState(() {
+                _selectedIndex = 7;
+              });
+              Navigator.pop(context);
+            },
+          ),
           ListTile(
             leading: Icon(Icons.shopping_cart),
             title: Text('Sales'),
@@ -257,6 +269,17 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
             onTap: () {
               setState(() {
                 _selectedIndex = 1;
+              });
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.account_balance_wallet),
+            title: Text('Boughts'),
+            selected: _selectedIndex == 6,
+            onTap: () {
+              setState(() {
+                _selectedIndex = 6;
               });
               Navigator.pop(context);
             },
@@ -301,28 +324,6 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
             onTap: () {
               setState(() {
                 _selectedIndex = 5;
-              });
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.account_balance_wallet),
-            title: Text('Boughts'),
-            selected: _selectedIndex == 6,
-            onTap: () {
-              setState(() {
-                _selectedIndex = 6;
-              });
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.inventory_2),
-            title: Text('Available'),
-            selected: _selectedIndex == 7,
-            onTap: () {
-              setState(() {
-                _selectedIndex = 7;
               });
               Navigator.pop(context);
             },
