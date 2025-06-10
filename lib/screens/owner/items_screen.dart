@@ -19,6 +19,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
   final _nameController = TextEditingController();
   String? _selectedCategoryId;
   String? _editingItemId;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -33,16 +34,18 @@ class _ItemsScreenState extends State<ItemsScreen> {
   }
 
   Future<void> _loadData() async {
-    final itemProvider = Provider.of<ItemProvider>(context, listen: false);
-    final categoryProvider = Provider.of<CategoryProvider>(
-      context,
-      listen: false,
-    );
+    if (!mounted) return;
+    setState(() { _isLoading = true; });
+    final itemProvider = context.read<ItemProvider>();
+    final categoryProvider = context.read<CategoryProvider>();
 
     await Future.wait([
       itemProvider.fetchItems(),
       categoryProvider.fetchCategories(),
     ]);
+    if (mounted) {
+      setState(() { _isLoading = false; });
+    }
   }
 
   void _showAddEditDialog({String? id, String? name, String? categoryId}) {
@@ -50,10 +53,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
     _nameController.text = name ?? '';
     _selectedCategoryId = categoryId;
 
-    final categoryProvider = Provider.of<CategoryProvider>(
-      context,
-      listen: false,
-    );
+    final categoryProvider = context.read<CategoryProvider>();
 
     showDialog(
       context: context,
@@ -117,7 +117,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
 
   Future<void> _saveItem() async {
     if (_formKey.currentState!.validate()) {
-      final itemProvider = Provider.of<ItemProvider>(context, listen: false);
+      final itemProvider = context.read<ItemProvider>();
       bool success;
 
       if (_editingItemId == null) {
@@ -146,6 +146,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
             ),
           ),
         );
+        await _loadData();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(itemProvider.error ?? 'An error occurred')),
@@ -177,7 +178,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
     );
 
     if (confirm == true) {
-      final itemProvider = Provider.of<ItemProvider>(context, listen: false);
+      final itemProvider = context.read<ItemProvider>();
       final success = await itemProvider.deleteItem(id);
 
       if (!mounted) return;
@@ -186,6 +187,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Item deleted successfully')),
         );
+        await _loadData();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(itemProvider.error ?? 'An error occurred')),
@@ -202,58 +204,69 @@ class _ItemsScreenState extends State<ItemsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final itemProvider = Provider.of<ItemProvider>(context);
-
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: _loadData,
-        child:
-            itemProvider.isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : itemProvider.items.isEmpty
-                ? const Center(child: Text('No items found'))
-                : ListView.builder(
-                  itemCount: itemProvider.items.length,
-                  itemBuilder: (context, index) {
-                    final item = itemProvider.items[index];
-                    return ListTile(
-                      title: Text(item.name),
-                      subtitle: Text(item.category?.name ?? 'No category'),
-                      trailing: PopupMenuButton<String>(
-                        onSelected: (value) {
-                          if (value == 'edit') {
-                            _showAddEditDialog(
-                              id: item.id,
-                              name: item.name,
-                              categoryId: item.categoryId,
-                            );
-                          } else if (value == 'delete') {
-                            _deleteItem(item.id);
-                          }
-                        },
-                        itemBuilder:
-                            (context) => [
-                              const PopupMenuItem(
-                                value: 'edit',
-                                child: ListTile(
-                                  leading: Icon(Icons.edit),
-                                  title: Text('Edit'),
-                                ),
-                              ),
-                              const PopupMenuItem(
-                                value: 'delete',
-                                child: ListTile(
-                                  leading: Icon(Icons.delete),
-                                  title: Text('Delete'),
-                                ),
-                              ),
-                            ],
-                      ),
-                      onTap: () => _viewItemDetails(item),
-                    );
-                  },
-                ),
+      appBar: AppBar(
+        title: const Text('Items'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadData,
+          ),
+        ],
       ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Consumer<ItemProvider>(
+              builder: (context, itemProvider, child) {
+                if (itemProvider.items.isEmpty) {
+                  return const Center(child: Text('No items found'));
+                }
+                return RefreshIndicator(
+                  onRefresh: _loadData,
+                  child: ListView.builder(
+                    itemCount: itemProvider.items.length,
+                    itemBuilder: (context, index) {
+                      final item = itemProvider.items[index];
+                      return ListTile(
+                        title: Text(item.name),
+                        subtitle: Text(item.category?.name ?? 'No category'),
+                        trailing: PopupMenuButton<String>(
+                          onSelected: (value) {
+                            if (value == 'edit') {
+                              _showAddEditDialog(
+                                id: item.id,
+                                name: item.name,
+                                categoryId: item.categoryId,
+                              );
+                            } else if (value == 'delete') {
+                              _deleteItem(item.id);
+                            }
+                          },
+                          itemBuilder:
+                              (context) => [
+                                const PopupMenuItem(
+                                  value: 'edit',
+                                  child: ListTile(
+                                    leading: Icon(Icons.edit),
+                                    title: Text('Edit'),
+                                  ),
+                                ),
+                                const PopupMenuItem(
+                                  value: 'delete',
+                                  child: ListTile(
+                                    leading: Icon(Icons.delete),
+                                    title: Text('Delete'),
+                                  ),
+                                ),
+                              ],
+                        ),
+                        onTap: () => _viewItemDetails(item),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddEditDialog(),
         child: const Icon(Icons.add),

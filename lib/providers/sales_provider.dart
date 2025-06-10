@@ -60,6 +60,7 @@ class SalesProvider with ChangeNotifier {
   }
 
   Future<void> fetchDashboardStats() async {
+    print('Fetching dashboard stats...');
     _isLoading = true;
     _error = null;
     notifyListeners();

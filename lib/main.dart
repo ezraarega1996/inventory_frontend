@@ -18,15 +18,13 @@ import 'package:inventory_frontend/screens/splash_screen.dart';
 import 'package:inventory_frontend/models/business.dart';
 import 'package:inventory_frontend/screens/salesman/sell_item_screen.dart';
 
-
 void main() {
   runApp(
     MultiProvider(
       providers: [
-        
         Provider(
           create: (_) => BusinessService(
-            baseUrl: 'https://inventory-backend-2phf.onrender.com', // Update with your backend URL
+            baseUrl: 'https://inventory-backend-2phf.onrender.com/api',
           ),
         ),
         ChangeNotifierProxyProvider<BusinessService, BusinessProvider>(
@@ -69,70 +67,32 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        Provider(
-          create: (_) => BusinessService(
-            baseUrl: 'https://inventory-backend-2phf.onrender.com/api', // Update with your backend URL
-          ),
-        ),
-        ChangeNotifierProxyProvider<BusinessService, BusinessProvider>(
-          create: (context) => BusinessProvider(
-            Provider.of<BusinessService>(context, listen: false),
-          ),
-          update: (context, businessService, previous) => BusinessProvider(
-            businessService,
-          ),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => AuthProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => SalesProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => ItemProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => CategoryProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => UserProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => BoughtProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => AvailableItemProvider(),
-        ),
-      ],
-      child: MaterialApp(
-        title: 'Inventory Management',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-        initialRoute: '/',
-        routes: {
-          '/': (context) => const SplashScreen(),
-          '/login': (context) => const LoginScreen(),
-          '/business/register': (context) => const BusinessRegisterScreen(),
-          '/business/detail': (context) {
-            final business = ModalRoute.of(context)!.settings.arguments as Business;
-            return BusinessDetailScreen(business: business);
-          },
-          '/sell-item': (context) {
-            final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
-            return SellItemScreen(
-              preSelectedItem: args?['preSelectedItem'],
-              preSelectedFraction: args?['preSelectedFraction'],
-            );
-          },
-          '/available-items': (context) => AvailableItemsScreen(),
-          '/business/list': (context) => const BusinessListScreen(),
-        },
+    return MaterialApp(
+      title: 'Inventory Management',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        useMaterial3: true,
       ),
+      initialRoute: '/',
+      routes: {
+        '/': (context) => const SplashScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/business/register': (context) => const BusinessRegisterScreen(),
+        '/business/detail': (context) {
+          final business = ModalRoute.of(context)!.settings.arguments as Business;
+          return BusinessDetailScreen(business: business);
+        },
+        '/sell-item': (context) {
+          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          return SellItemScreen(
+            preSelectedItem: args?['preSelectedItem'],
+            preSelectedFraction: args?['preSelectedFraction'],
+          );
+        },
+        '/available-items': (context) => AvailableItemsScreen(),
+        '/business/list': (context) => const BusinessListScreen(),
+      },
     );
   }
 }

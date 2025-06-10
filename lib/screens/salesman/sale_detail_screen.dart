@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:inventory_frontend/models/sold_item.dart';
 
-class SaleDetailScreen extends StatelessWidget {
+class SaleDetailScreen extends StatefulWidget {
   final SoldItem sale;
   
   const SaleDetailScreen({
@@ -11,83 +11,109 @@ class SaleDetailScreen extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<SaleDetailScreen> createState() => _SaleDetailScreenState();
+}
+
+class _SaleDetailScreenState extends State<SaleDetailScreen> {
+  bool _isLoading = false;
+  final dateFormat = DateFormat('MMM dd, yyyy HH:mm');
+
+  @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('MMM dd, yyyy HH:mm');
-    
     return Scaffold(
       appBar: AppBar(
         title: const Text('Sale Details'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _isLoading ? null : () {
+              setState(() {
+                _isLoading = true;
+              });
+              // Simulate refresh
+              Future.delayed(const Duration(milliseconds: 500), () {
+                if (mounted) {
+                  setState(() {
+                    _isLoading = false;
+                  });
+                }
+              });
+            },
+          ),
+        ],
       ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Sale Information',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : SingleChildScrollView(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Sale Information',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          _buildInfoRow('Sale ID', widget.sale.id),
+                          _buildInfoRow('Date', dateFormat.format(widget.sale.createdAt)),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    _buildInfoRow('Sale ID', sale.id),
-                    _buildInfoRow('Date', dateFormat.format(sale.createdAt)),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Item Information',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                  ),
+                  const SizedBox(height: 16),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Item Information',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          _buildInfoRow('Item', widget.sale.item?.name ?? 'Unknown'),
+                          _buildInfoRow('Fraction', widget.sale.fractionId),
+                          _buildInfoRow('Quantity', widget.sale.quantity.toString()),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    _buildInfoRow('Item', sale.item?.name ?? 'Unknown'),
-                    _buildInfoRow('Fraction', sale.fractionId),
-                    _buildInfoRow('Quantity', sale.quantity.toString()),
-                  ],
-                ),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Financial Information',
-                      style: TextStyle(
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
+                  ),
+                  const SizedBox(height: 16),
+                  Card(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const Text(
+                            'Financial Information',
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          _buildInfoRow('Amount', '\$${widget.sale.soldPrice}'),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    _buildInfoRow('Amount', '\$${sale.soldPrice}'),
-                  ],
-                ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
   

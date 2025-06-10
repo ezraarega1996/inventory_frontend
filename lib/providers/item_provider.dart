@@ -43,18 +43,15 @@ class ItemProvider with ChangeNotifier {
         'categoryId': categoryId,
         'fractions': fractions,
       });
-      print("item response: $response");
       
       final newItem = Item.fromJson(response);
       _items.add(newItem);
       
-      print("created Item: $newItem");
       _isLoading = false;
       notifyListeners();
       
       return true;
     } catch (e) {
-      print("errorrrrsdf $e");
       _error = e.toString();
       _isLoading = false;
       notifyListeners();

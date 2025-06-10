@@ -21,6 +21,7 @@ class _UsersScreenState extends State<UsersScreen> {
   final _emailController = TextEditingController();
   String? _editingUserId;
   bool _obscurePassword = true;
+  bool _isLoading = true;
   
   @override
   void initState() {
@@ -40,10 +41,22 @@ class _UsersScreenState extends State<UsersScreen> {
   }
   
   Future<void> _loadUsers() async {
-    final userProvider = Provider.of<UserProvider>(context, listen: false);
+    if (!mounted) return;
+    
+    setState(() {
+      _isLoading = true;
+    });
+
+    final userProvider = context.read<UserProvider>();
     await userProvider.fetchUsers();
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
-  
+
   void _showAddEditDialog({
     String? id,
     String? name,
@@ -52,13 +65,15 @@ class _UsersScreenState extends State<UsersScreen> {
     String? username,
     String? email,
   }) {
-    _editingUserId = id;
-    _nameController.text = name ?? '';
-    _phoneController.text = phone ?? '';
-    _locationController.text = location ?? '';
-    _usernameController.text = username ?? '';
-    _passwordController.text = '';
-    _emailController.text = email ?? '';
+    setState(() {
+      _editingUserId = id;
+      _nameController.text = name ?? '';
+      _phoneController.text = phone ?? '';
+      _locationController.text = location ?? '';
+      _usernameController.text = username ?? '';
+      _passwordController.text = '';
+      _emailController.text = email ?? '';
+    });
     
     showDialog(
       context: context,
@@ -107,7 +122,7 @@ class _UsersScreenState extends State<UsersScreen> {
                 CustomTextField(
                   controller: _usernameController,
                   labelText: 'Username',
-                  enabled: _editingUserId == null, // Only allow editing username when adding new user
+                  enabled: _editingUserId == null,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a username';
@@ -171,42 +186,43 @@ class _UsersScreenState extends State<UsersScreen> {
   }
   
   Future<void> _saveUser() async {
-    if (_formKey.currentState!.validate()) {
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
-      bool success;
-      
-      final userData = {
-        'name': _nameController.text.trim(),
-        'phone': _phoneController.text.trim(),
-        'location': _locationController.text.trim(),
-        'email': _emailController.text.trim(),
-        'role': 'salesman',
-      };
-      
-      if (_editingUserId == null) {
-        userData['username'] = _usernameController.text.trim();
+    if (!_formKey.currentState!.validate()) return;
+    
+    final userProvider = context.read<UserProvider>();
+    bool success;
+    
+    final userData = {
+      'name': _nameController.text.trim(),
+      'phone': _phoneController.text.trim(),
+      'location': _locationController.text.trim(),
+      'email': _emailController.text.trim(),
+      'role': 'salesman',
+    };
+    
+    if (_editingUserId == null) {
+      userData['username'] = _usernameController.text.trim();
+      userData['password'] = _passwordController.text;
+      success = await userProvider.createUser(userData);
+    } else {
+      if (_passwordController.text.isNotEmpty) {
         userData['password'] = _passwordController.text;
-        success = await userProvider.createUser(userData);
-      } else {
-        if (_passwordController.text.isNotEmpty) {
-          userData['password'] = _passwordController.text;
-        }
-        success = await userProvider.updateUser(_editingUserId!, userData);
       }
-      
-      if (!mounted) return;
-      
-      Navigator.of(context).pop();
-      
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Salesperson ${_editingUserId == null ? 'added' : 'updated'} successfully'))
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userProvider.error ?? 'An error occurred'))
-        );
-      }
+      success = await userProvider.updateUser(_editingUserId!, userData);
+    }
+    
+    if (!mounted) return;
+    
+    Navigator.of(context).pop();
+    
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Salesperson ${_editingUserId == null ? 'added' : 'updated'} successfully'))
+      );
+      _loadUsers(); // Reload users after successful save
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(userProvider.error ?? 'An error occurred'))
+      );
     }
   }
   
@@ -230,7 +246,7 @@ class _UsersScreenState extends State<UsersScreen> {
     );
     
     if (confirm == true) {
-      final userProvider = Provider.of<UserProvider>(context, listen: false);
+      final userProvider = context.read<UserProvider>();
       final success = await userProvider.deleteUser(id);
       
       if (!mounted) return;
@@ -239,6 +255,7 @@ class _UsersScreenState extends State<UsersScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Salesperson deleted successfully'))
         );
+        _loadUsers(); // Reload users after successful deletion
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(userProvider.error ?? 'An error occurred'))
@@ -249,71 +266,84 @@ class _UsersScreenState extends State<UsersScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final userProvider = Provider.of<UserProvider>(context);
-    
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: _loadUsers,
-        child: userProvider.isLoading
+      appBar: AppBar(
+        title: const Text('Salespeople'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadUsers,
+          ),
+        ],
+      ),
+      body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : userProvider.users.isEmpty
-            ? const Center(child: Text('No salespeople found'))
-            : ListView.builder(
-                itemCount: userProvider.users.length,
-                itemBuilder: (context, index) {
-                  final user = userProvider.users[index];
-                  return Card(
-                    margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                    child: ListTile(
-                      title: Text(user.name),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Username: ${user.username}'),
-                          Text('Email: ${user.email}'),
-                          Text('Phone: ${user.phone}'),
-                          Text('Location: ${user.location}'),
-                        ],
-                      ),
-                        trailing: PopupMenuButton<String>(
-                        onSelected: (value) {
-                          if (value == 'edit') {
-                          _showAddEditDialog(
-                            id: user.id,
-                            name: user.name,
-                            phone: user.phone,
-                            location: user.location,
-                            username: user.username,
-                            email: user.email,
-                          );
-                          } else if (value == 'delete') {
-                          _deleteUser(user.id);
-                          }
-                        },
-                        itemBuilder: (context) => [
-                          const PopupMenuItem(
-                          value: 'edit',
-                          child: ListTile(
-                            leading: Icon(Icons.edit),
-                            title: Text('Edit'),
-                          ),
-                          ),
-                          const PopupMenuItem(
-                          value: 'delete',
-                          child: ListTile(
-                            leading: Icon(Icons.delete),
-                            title: Text('Delete'),
-                          ),
-                          ),
-                        ],
-                        ),
-                      
-                      isThreeLine: true,
+          : Consumer<UserProvider>(
+              builder: (context, userProvider, child) {
+                final users = userProvider.users.where((user) => user.role == 'salesman').toList();
+                
+                if (users.isEmpty) {
+                  return const Center(
+                    child: Text(
+                      'No salespeople found',
+                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   );
-                },
-              ),
-      ),
+                }
+
+                return RefreshIndicator(
+                  onRefresh: _loadUsers,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: users.length,
+                    itemBuilder: (context, index) {
+                      final user = users[index];
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 16),
+                        child: ListTile(
+                          title: Text(
+                            user.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Username: ${user.username}'),
+                              Text('Phone: ${user.phone}'),
+                              Text('Location: ${user.location}'),
+                              Text('Email: ${user.email}'),
+                            ],
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () => _showAddEditDialog(
+                                  id: user.id,
+                                  name: user.name,
+                                  phone: user.phone,
+                                  location: user.location,
+                                  username: user.username,
+                                  email: user.email,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () => _deleteUser(user.id),
+                              ),
+                            ],
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddEditDialog(),
         child: const Icon(Icons.add),

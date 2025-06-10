@@ -28,6 +28,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
   String? _editingBoughtId;
   String? _selectedItemId;
   String? _selectedFractionId;
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -48,13 +49,17 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
   }
 
   Future<void> _loadBoughts() async {
-    final boughtProvider = Provider.of<BoughtProvider>(context, listen: false);
-    await boughtProvider.fetchBoughts();
+    if (!mounted) return;
+    setState(() { _isLoading = true; });
+    await context.read<BoughtProvider>().fetchBoughts();
+    if (mounted) {
+      setState(() { _isLoading = false; });
+    }
   }
 
   Future<void> _loadItems() async {
-    final itemProvider = Provider.of<ItemProvider>(context, listen: false);
-    await itemProvider.fetchItems();
+    if (!mounted) return;
+    await context.read<ItemProvider>().fetchItems();
   }
 
   void _showAddEditDialog({
@@ -271,63 +276,60 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
   }
 
   Future<void> _saveBought() async {
-    if (_formKey.currentState!.validate()) {
-      final boughtProvider = Provider.of<BoughtProvider>(context, listen: false);
-      final itemProvider = Provider.of<ItemProvider>(context, listen: false);
-      
-      final item = itemProvider.items.firstWhere((item) => item.id == _selectedItemId);
-      final fraction = item.fractions?.firstWhere((f) => f.id == _selectedFractionId);
-      
-      bool success;
+    if (!_formKey.currentState!.validate()) return;
+    final boughtProvider = context.read<BoughtProvider>();
+    bool success;
 
-      if (_editingBoughtId == null) {
-        success = await boughtProvider.createBought(
-          itemId: _selectedItemId!,
-          fractionId: _selectedFractionId!,
-          fractionPurchasePrice: double.parse(_fractionPurchasePriceController.text),
-          fractionSoldPrice: double.parse(_fractionSoldPriceController.text),
-          quantity: double.parse(_quantityController.text),
-          location: _locationController.text.trim(),
-          expiryDate: _expiryDate,
-        );
-      } else {
-        success = await boughtProvider.updateBought(
-          id: _editingBoughtId!,
-          fractionId: _selectedFractionId!,
-          fractionPurchasePrice: double.parse(_fractionPurchasePriceController.text),
-          fractionSoldPrice: double.parse(_fractionSoldPriceController.text),
-          quantity: double.parse(_quantityController.text),
-          location: _locationController.text.trim(),
-          expiryDate: _expiryDate,
-        );
-      }
+    if (_editingBoughtId == null) {
+      success = await boughtProvider.createBought(
+        itemId: _selectedItemId!,
+        fractionId: _selectedFractionId!,
+        fractionPurchasePrice: double.parse(_fractionPurchasePriceController.text),
+        fractionSoldPrice: double.parse(_fractionSoldPriceController.text),
+        quantity: double.parse(_quantityController.text),
+        location: _locationController.text,
+        expiryDate: _expiryDate,
+      );
+    } else {
+      success = await boughtProvider.updateBought(
+        id: _editingBoughtId!,
+        fractionId: _selectedFractionId,
+        fractionPurchasePrice: double.parse(_fractionPurchasePriceController.text),
+        fractionSoldPrice: double.parse(_fractionSoldPriceController.text),
+        quantity: double.parse(_quantityController.text),
+        location: _locationController.text,
+        expiryDate: _expiryDate,
+      );
+    }
 
-      if (!mounted) return;
+    if (!mounted) return;
 
-      Navigator.of(context).pop();
+    Navigator.of(context).pop();
 
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Bought item ${_editingBoughtId == null ? 'added' : 'updated'} successfully'),
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            'Bought item ${_editingBoughtId == null ? 'added' : 'updated'} successfully',
           ),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(boughtProvider.error ?? 'An error occurred'),
-          ),
-        );
-      }
+        ),
+      );
+      await _loadBoughts();
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(boughtProvider.error ?? 'An error occurred')),
+      );
     }
   }
 
   Future<void> _deleteBought(String id) async {
-    final confirmed = await showDialog<bool>(
+    final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
         title: const Text('Delete Bought Item'),
-        content: const Text('Are you sure you want to delete this bought item?'),
+        content: const Text(
+          'Are you sure you want to delete this bought item? This action cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
@@ -341,8 +343,8 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
       ),
     );
 
-    if (confirmed == true) {
-      final boughtProvider = Provider.of<BoughtProvider>(context, listen: false);
+    if (confirm == true) {
+      final boughtProvider = context.read<BoughtProvider>();
       final success = await boughtProvider.deleteBought(id);
 
       if (!mounted) return;
@@ -351,6 +353,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Bought item deleted successfully')),
         );
+        await _loadBoughts();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(boughtProvider.error ?? 'An error occurred')),
@@ -361,65 +364,74 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final boughtProvider = Provider.of<BoughtProvider>(context);
-    final dateFormat = DateFormat('MMM dd, yyyy HH:mm');
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Bought Items'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadBoughts,
+          ),
+        ],
       ),
-      body: RefreshIndicator(
-        onRefresh: _loadBoughts,
-        child: boughtProvider.isLoading
-            ? const Center(child: CircularProgressIndicator())
-            : boughtProvider.boughts.isEmpty
-                ? const Center(child: Text('No bought items found'))
-                : ListView.builder(
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Consumer<BoughtProvider>(
+              builder: (context, boughtProvider, child) {
+                if (boughtProvider.boughts.isEmpty) {
+                  return const Center(child: Text('No bought items found'));
+                }
+                return RefreshIndicator(
+                  onRefresh: _loadBoughts,
+                  child: ListView.builder(
                     itemCount: boughtProvider.boughts.length,
                     itemBuilder: (context, index) {
                       final bought = boughtProvider.boughts[index];
-                      return Card(
-                        margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: ListTile(
-                          title: Text(bought.item?.name ?? 'Unknown Item'),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Fraction: ${bought.fractionId}'),
-                              Text('Quantity: ${bought.quantity}'),
-                              Text('Location: ${bought.location}'),
-                              Text('Created: ${dateFormat.format(bought.createdTime)}'),
-                              if (bought.expiryDate != null)
-                                Text('Expiry: ${dateFormat.format(bought.expiryDate!)}'),
-                            ],
-                          ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              IconButton(
-                                icon: const Icon(Icons.edit),
-                                onPressed: () => _showAddEditDialog(
-                                  id: bought.id,
-                                  itemId: bought.itemId,
-                                  fractionId: bought.fractionId,
-                                  fractionPurchasePrice: bought.fractionPurchasePrice,
-                                  fractionSoldPrice: bought.fractionSoldPrice,
-                                  quantity: bought.quantity,
-                                  location: bought.location,
-                                  expiryDate: bought.expiryDate,
-                                ),
+                      return ListTile(
+                        title: Text(bought.item?.name ?? 'Unknown Item'),
+                        subtitle: Text(
+                          'Quantity: ${bought.quantity}, Location: ${bought.location}',
+                        ),
+                        trailing: PopupMenuButton<String>(
+                          onSelected: (value) {
+                            if (value == 'edit') {
+                              _showAddEditDialog(
+                                id: bought.id,
+                                itemId: bought.itemId,
+                                fractionId: bought.fractionId,
+                                fractionPurchasePrice: bought.fractionPurchasePrice,
+                                fractionSoldPrice: bought.fractionSoldPrice,
+                                quantity: bought.quantity,
+                                location: bought.location,
+                                expiryDate: bought.expiryDate,
+                              );
+                            } else if (value == 'delete') {
+                              _deleteBought(bought.id);
+                            }
+                          },
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: 'edit',
+                              child: ListTile(
+                                leading: Icon(Icons.edit),
+                                title: Text('Edit'),
                               ),
-                              IconButton(
-                                icon: const Icon(Icons.delete),
-                                onPressed: () => _deleteBought(bought.id),
+                            ),
+                            const PopupMenuItem(
+                              value: 'delete',
+                              child: ListTile(
+                                leading: Icon(Icons.delete),
+                                title: Text('Delete'),
                               ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
                       );
                     },
                   ),
-      ),
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddEditDialog(),
         child: const Icon(Icons.add),

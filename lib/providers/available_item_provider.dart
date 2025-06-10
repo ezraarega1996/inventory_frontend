@@ -25,18 +25,48 @@ class AvailableItemProvider with ChangeNotifier {
     notifyListeners();
     
     try {
+      // First, get the available items
       final response = await Api.get('available-items');
-      // await http.get(
-      //   Uri.parse('$baseUrl/available-items'),
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      // );
+      print('API Response: $response'); // Debug log
+      
+      if (response == null) {
+        throw Exception('No response from server');
+      }
+      
       _availableItems = List<AvailableItem>.from(
-        response.map((x) => AvailableItem.fromJson(x))
+        response.map((x) {
+          print('Parsing available item: $x'); // Debug log
+          return AvailableItem.fromJson(x);
+        })
       );
+      
+      // Then, fetch transactions for each item
+      for (var item in _availableItems) {
+        try {
+          final transactionsResponse = await Api.get('available-items/${item.id}/transactions');
+          print('Transactions for item ${item.id}: $transactionsResponse'); // Debug log
+          
+          if (transactionsResponse != null) {
+            final updatedItem = AvailableItem.fromJson({
+              ...item.toJson(),
+              'boughtTransactions': transactionsResponse['boughtTransactions'],
+              'soldTransactions': transactionsResponse['soldTransactions'],
+            });
+            
+            final index = _availableItems.indexWhere((i) => i.id == item.id);
+            if (index != -1) {
+              _availableItems[index] = updatedItem;
+            }
+          }
+        } catch (e) {
+          print('Error fetching transactions for item ${item.id}: $e'); // Debug log
+        }
+      }
+      
+      notifyListeners();
     } catch (e) {
       _error = e.toString();
+      print('Error fetching available items: $e'); // Debug log
     } finally {
       _isLoading = false;
       notifyListeners();

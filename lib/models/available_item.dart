@@ -29,27 +29,43 @@ class AvailableItem {
   });
 
   factory AvailableItem.fromJson(Map<String, dynamic> json) {
+    print('Parsing AvailableItem: $json'); // Debug log
+    
+    // Handle bought transactions
+    List<ItemBought>? boughtTransactions;
+    if (json['boughtTransactions'] != null) {
+      print('Found bought transactions: ${json['boughtTransactions']}'); // Debug log
+      boughtTransactions = (json['boughtTransactions'] as List)
+          .map((transaction) {
+            print('Parsing bought transaction: $transaction'); // Debug log
+            return ItemBought.fromJson(transaction);
+          })
+          .toList();
+    }
+    
+    // Handle sold transactions
+    List<SoldItem>? soldTransactions;
+    if (json['soldTransactions'] != null) {
+      print('Found sold transactions: ${json['soldTransactions']}'); // Debug log
+      soldTransactions = (json['soldTransactions'] as List)
+          .map((transaction) {
+            print('Parsing sold transaction: $transaction'); // Debug log
+            return SoldItem.fromJson(transaction);
+          })
+          .toList();
+    }
+    
     return AvailableItem(
       id: json['id'],
       itemId: json['itemId'],
       businessId: json['businessId'],
-
       quantity: double.tryParse(json['quantity'].toString()) ?? 0.0,
       soldPrice: double.tryParse(json['soldPrice'].toString()) ?? 0.0,
       salesmanId: json['salesmanId'],
       item: json['item'] != null ? Item.fromJson(json['item']) : null,
       salesman: json['salesman'] != null ? User.fromJson(json['salesman']) : null,
-      boughtTransactions: json['boughtTransactions'] != null
-          ? (json['boughtTransactions'] as List)
-              .map((transaction) => ItemBought.fromJson(transaction))
-              .toList()
-          : null,
-      soldTransactions: json['soldTransactions'] != null
-          ? (json['soldTransactions'] as List)
-              .map((transaction) => SoldItem.fromJson(transaction))
-              .toList()
-          : null,
-      
+      boughtTransactions: boughtTransactions,
+      soldTransactions: soldTransactions,
     );
   }
 

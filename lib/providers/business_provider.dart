@@ -26,6 +26,7 @@ class BusinessProvider with ChangeNotifier {
 
     try {
       _currentBusiness = await _businessService.getBusinessById(id);
+      print("Current Business: ${_currentBusiness?.name}");
       _error = null;
     } catch (e) {
       _error = e.toString();

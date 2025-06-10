@@ -12,20 +12,29 @@ class UserProvider with ChangeNotifier {
   String? get error => _error;
   
   Future<void> fetchUsers() async {
+    print('Fetching users...');
     _isLoading = true;
     _error = null;
     notifyListeners();
     
     try {
       final response = await Api.get('users');
-      
-      _users = List<User>.from(
-        response.map((x) => User.fromJson(x))
-      );
-      
+      print('Users fetched successfully');
+      // Ensure response is a List<dynamic> and parse each item explicitly
+      final List<User> loadedUsers = [];
+      if (response is List) {
+        for (var item in response) {
+          loadedUsers.add(User.fromJson(item as Map<String, dynamic>));
+        }
+      }
+      _users = loadedUsers;
+      print('Users loaded: \\${_users.length}');
       _isLoading = false;
+      print("loading ended");
       notifyListeners();
+      print("isLoadingProvider: $_isLoading");
     } catch (e) {
+      print('Error fetching users: $e');
       _error = e.toString();
       _isLoading = false;
       notifyListeners();

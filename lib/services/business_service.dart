@@ -30,8 +30,8 @@ class BusinessService {
   // Get all businesses (admin only)
   Future<List<Business>> getAllBusinesses() async {
     try {
-      final response = await _dio.get('/api/businesses');
-      return (response.data as List)
+      final response = await Api.get('businesses');
+      return (response as List)
           .map((json) => Business.fromJson(json))
           .toList();
     } catch (e) {
@@ -42,9 +42,11 @@ class BusinessService {
   // Get business by ID
   Future<Business> getBusinessById(String id) async {
     try {
-      final response = await _dio.get('/api/businesses/$id');
-      return Business.fromJson(response.data);
+      final response = await Api.get('businesses/$id');
+      print("Business response: ${response}");
+      return Business.fromJson(response);
     } catch (e) {
+      print("Error getting business by ID: $e");
       throw Exception('Failed to get business: $e');
     }
   }
@@ -87,8 +89,8 @@ class BusinessService {
   // Get business stats
   Future<Map<String, dynamic>> getBusinessStats(String id) async {
     try {
-      final response = await _dio.get('/api/businesses/$id/stats');
-      return response.data;
+      final response = await Api.get('businesses/$id/stats');
+      return response;
     } catch (e) {
       throw Exception('Failed to get business stats: $e');
     }

@@ -15,6 +15,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   String? _editingCategoryId;
+  bool _isLoading = true;
   
   @override
   void initState() {
@@ -29,8 +30,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
   
   Future<void> _loadCategories() async {
-    final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
-    await categoryProvider.fetchCategories();
+    if (!mounted) return;
+    setState(() { _isLoading = true; });
+    await context.read<CategoryProvider>().fetchCategories();
+    if (mounted) {
+      setState(() { _isLoading = false; });
+    }
   }
   
   void _showAddEditDialog({String? id, String? name}) {
@@ -60,7 +65,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: _saveCategory,
+            onPressed: () async {
+              await _saveCategory();
+              await _loadCategories();
+            },
             child: const Text('Save'),
           ),
         ],
@@ -69,29 +77,28 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
   
   Future<void> _saveCategory() async {
-    if (_formKey.currentState!.validate()) {
-      final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
-      bool success;
-      
-      if (_editingCategoryId == null) {
-        success = await categoryProvider.createCategory(_nameController.text.trim());
-      } else {
-        success = await categoryProvider.updateCategory(_editingCategoryId!, _nameController.text.trim());
-      }
-      
-      if (!mounted) return;
-      
-      Navigator.of(context).pop();
-      
-      if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Category ${_editingCategoryId == null ? 'added' : 'updated'} successfully'))
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(categoryProvider.error ?? 'An error occurred'))
-        );
-      }
+    if (!_formKey.currentState!.validate()) return;
+    final categoryProvider = context.read<CategoryProvider>();
+    bool success;
+    
+    if (_editingCategoryId == null) {
+      success = await categoryProvider.createCategory(_nameController.text.trim());
+    } else {
+      success = await categoryProvider.updateCategory(_editingCategoryId!, _nameController.text.trim());
+    }
+    
+    if (!mounted) return;
+    
+    Navigator.of(context).pop();
+    
+    if (success) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Category ${_editingCategoryId == null ? 'added' : 'updated'} successfully'))
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(categoryProvider.error ?? 'An error occurred'))
+      );
     }
   }
   
@@ -115,7 +122,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     );
     
     if (confirm == true) {
-      final categoryProvider = Provider.of<CategoryProvider>(context, listen: false);
+      final categoryProvider = context.read<CategoryProvider>();
       final success = await categoryProvider.deleteCategory(id);
       
       if (!mounted) return;
@@ -124,6 +131,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Category deleted successfully'))
         );
+        await _loadCategories();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(categoryProvider.error ?? 'An error occurred'))
@@ -134,41 +142,53 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final categoryProvider = Provider.of<CategoryProvider>(context);
-    
     return Scaffold(
-      body: RefreshIndicator(
-        onRefresh: _loadCategories,
-        child: categoryProvider.isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : categoryProvider.categories.isEmpty
-            ? const Center(child: Text('No categories found'))
-            : ListView.builder(
-                itemCount: categoryProvider.categories.length,
-                itemBuilder: (context, index) {
-                  final category = categoryProvider.categories[index];
-                  return ListTile(
-                    title: Text(category.name),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        IconButton(
-                          icon: const Icon(Icons.edit),
-                          onPressed: () => _showAddEditDialog(
-                            id: category.id,
-                            name: category.name,
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.delete),
-                          onPressed: () => _deleteCategory(category.id),
-                        ),
-                      ],
-                    ),
-                  );
-                },
-              ),
+      appBar: AppBar(
+        title: const Text('Categories'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadCategories,
+          ),
+        ],
       ),
+      body: _isLoading
+          ? const Center(child: CircularProgressIndicator())
+          : Consumer<CategoryProvider>(
+              builder: (context, categoryProvider, child) {
+                if (categoryProvider.categories.isEmpty) {
+                  return const Center(child: Text('No categories found'));
+                }
+                return RefreshIndicator(
+                  onRefresh: _loadCategories,
+                  child: ListView.builder(
+                    itemCount: categoryProvider.categories.length,
+                    itemBuilder: (context, index) {
+                      final category = categoryProvider.categories[index];
+                      return ListTile(
+                        title: Text(category.name),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () => _showAddEditDialog(
+                                id: category.id,
+                                name: category.name,
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () => _deleteCategory(category.id),
+                            ),
+                          ],
+                        ),
+                      );
+                    },
+                  ),
+                );
+              },
+            ),
       floatingActionButton: FloatingActionButton(
         onPressed: () => _showAddEditDialog(),
         child: const Icon(Icons.add),

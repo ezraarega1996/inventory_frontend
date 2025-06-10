@@ -34,7 +34,7 @@ class SoldItem {
   });
 
   factory SoldItem.fromJson(Map<String, dynamic> json) {
-    print("SoldItem.fromJson: $json");
+    print('Parsing SoldItem: $json'); // Debug log
     return SoldItem(
       id: json['id'],
       itemId: json['itemId'],
@@ -44,11 +44,11 @@ class SoldItem {
           : (json['quantity'] is int)
               ? (json['quantity'] as int).toDouble()
               : json['quantity'],
-      soldPrice: (json['amount'] == null)
+      soldPrice: (json['soldPrice'] == null)
           ? 0.0
-          : (json['amount'] is int)
-              ? (json['amount'] as int).toDouble()
-              : json['amount'],
+          : (json['soldPrice'] is int)
+              ? (json['soldPrice'] as int).toDouble()
+              : json['soldPrice'],
       businessId: json['businessId'],
       salesmanId: json['salesmanId'],
       createdAt: DateTime.parse(json['createdAt']),

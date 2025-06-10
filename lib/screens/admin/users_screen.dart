@@ -23,14 +23,15 @@ class _UsersScreenState extends State<UsersScreen> {
   }
   
   Future<void> _loadUsers() async {
+    print('Loading users...');
     setState(() {
       _isLoading = true;
       _error = null;
     });
-    
+    print("one");
     try {
       final response = await Api.get('users');
-      
+      print("two");
       setState(() {
         _users = List<User>.from(
           response.map((x) => User.fromJson(x))
@@ -38,6 +39,7 @@ class _UsersScreenState extends State<UsersScreen> {
         _isLoading = false;
       });
     } catch (e) {
+      print("Error loading users: $e");
       setState(() {
         _error = e.toString();
         _isLoading = false;
