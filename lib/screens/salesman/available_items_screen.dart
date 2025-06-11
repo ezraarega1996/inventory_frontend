@@ -7,8 +7,6 @@ import 'package:inventory_frontend/providers/auth_provider.dart';
 import 'package:inventory_frontend/providers/item_provider.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:intl/intl.dart';
-import 'package:inventory_frontend/models/item_bought.dart';
-import 'package:inventory_frontend/models/sold_item.dart';
 
 class AvailableItemsScreen extends StatefulWidget {
   const AvailableItemsScreen({Key? key}) : super(key: key);

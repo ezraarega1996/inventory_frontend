@@ -92,7 +92,7 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
 
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Fraction updated successfully')),
+          const SnackBar(content: Text('Unit updated successfully')),
         );
       }
     } catch (e) {
@@ -109,8 +109,8 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Fraction'),
-        content: const Text('Are you sure you want to delete this fraction?'),
+        title: const Text('Delete unit'),
+        content: const Text('Are you sure you want to delete this unit?'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
@@ -130,7 +130,7 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
 
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Fraction deleted successfully')),
+          const SnackBar(content: Text('Unit deleted successfully')),
         );
       }
     }
@@ -140,7 +140,7 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Manage Fractions - ${widget.item.name}'),
+        title: Text('Manage Units - ${widget.item.name}'),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -159,7 +159,7 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
                 children: [
                   CustomTextField(
                     controller: _nameController,
-                    labelText: 'Fraction Name',
+                    labelText: 'Unit Name',
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a name';
@@ -198,29 +198,17 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  CheckboxListTile(
-                    title: const Text('Is Unit'),
-                    value: _isUnit,
-                    onChanged: _hasUnitFraction ? null : (value) {
-                      setState(() {
-                        _isUnit = value ?? false;
-                      });
-                    },
-                    subtitle: _hasUnitFraction 
-                      ? const Text('This item already has a unit fraction', style: TextStyle(color: Colors.red))
-                      : null,
-                  ),
                   const SizedBox(height: 16),
                   CustomButton(
                     onPressed: _addFraction,
-                    text: 'Add Fraction',
+                    text: 'Add Unit',
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
             const Text(
-              'Existing Fractions',
+              'Existing Units',
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
@@ -236,7 +224,7 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
 
                   if (fractions.isEmpty) {
                     return const Center(
-                      child: Text('No fractions added yet'),
+                      child: Text('No units added yet'),
                     );
                   }
 
@@ -247,7 +235,7 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
                       return Card(
                         child: ListTile(
                           title: Text(fraction.name),
-                          subtitle: Text('Ratio: ${fraction.ratio}, Price: \$${fraction.price}${fraction.isUnit ? ' (Unit)' : ''}'),
+                          subtitle: Text('Ratio: ${fraction.ratio}, Price: \$${fraction.price}'),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:inventory_frontend/utils/api.dart';
 import 'dart:convert';
 import '../models/available_item.dart';
 import '../models/item.dart';
@@ -41,10 +42,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
   Future<void> _loadData() async {
     setState(() => isLoading = true);
     try {
-      final availableItemsResponse = await http.get(
-        Uri.parse('$baseUrl/available-items'),
-        headers: {'Authorization': 'Bearer ${widget.token}'},
-      );
+      final availableItemsResponse = await Api.get("available-items");
       if (availableItemsResponse.statusCode == 200) {
         final List<dynamic> data = jsonDecode(availableItemsResponse.body);
         setState(() {

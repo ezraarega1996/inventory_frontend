@@ -92,39 +92,6 @@ class _SalesScreenState extends State<SalesScreen> {
           ),
         ],
       ),
-      bottomNavigationBar: Consumer<SalesProvider>(
-        builder: (context, salesProvider, child) {
-          final dateFormat = DateFormat('MMM dd, yyyy HH:mm');
-          final today = DateTime.now();
-          final todaySales = salesProvider.sales.where((sale) {
-            final saleDate = sale.createdAt;
-            return saleDate.year == today.year &&
-                saleDate.month == today.month &&
-                saleDate.day == today.day;
-          }).toList();
-          final todayAmount = todaySales.fold<double>(
-            0.0,
-            (sum, sale) => sum + (sale.soldPrice ?? 0),
-          );
-          
-          return Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Today\'s Sales:',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                Text(
-                  '\$${todayAmount.toStringAsFixed(2)}',
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-          );
-        },
-      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Consumer<SalesProvider>(

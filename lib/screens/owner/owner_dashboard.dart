@@ -282,28 +282,17 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.shopping_cart),
-            title: Text('Sales'),
-            selected: _selectedIndex == 1,
+            leading: Icon(Icons.people),
+            title: Text('Users'),
+            selected: _selectedIndex == 4,
             onTap: () {
               setState(() {
-                _selectedIndex = 1;
+                _selectedIndex = 4;
               });
               Navigator.pop(context);
             },
           ),
-          ListTile(
-            leading: Icon(Icons.inventory),
-            title: Text('Items'),
-            selected: _selectedIndex == 2,
-            onTap: () {
-              setState(() {
-                _selectedIndex = 2;
-              });
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
+                    ListTile(
             leading: Icon(Icons.category),
             title: Text('Categories'),
             selected: _selectedIndex == 3,
@@ -315,23 +304,12 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
             },
           ),
           ListTile(
-            leading: Icon(Icons.people),
-            title: Text('Users'),
-            selected: _selectedIndex == 4,
+            leading: Icon(Icons.inventory),
+            title: Text('Items'),
+            selected: _selectedIndex == 2,
             onTap: () {
               setState(() {
-                _selectedIndex = 4;
-              });
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.card_membership),
-            title: Text('Subscription'),
-            selected: _selectedIndex == 5,
-            onTap: () {
-              setState(() {
-                _selectedIndex = 5;
+                _selectedIndex = 2;
               });
               Navigator.pop(context);
             },
@@ -358,6 +336,29 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
               Navigator.pop(context);
             },
           ),
+          ListTile(
+            leading: Icon(Icons.shopping_cart),
+            title: Text('Sales'),
+            selected: _selectedIndex == 1,
+            onTap: () {
+              setState(() {
+                _selectedIndex = 1;
+              });
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.card_membership),
+            title: Text('Subscription'),
+            selected: _selectedIndex == 5,
+            onTap: () {
+              setState(() {
+                _selectedIndex = 5;
+              });
+              Navigator.pop(context);
+            },
+          ),
+          
         ],
       ),
     );

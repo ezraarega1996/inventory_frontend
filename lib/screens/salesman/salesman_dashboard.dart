@@ -199,22 +199,22 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
                   },
                 ),
                 ListTile(
-                  leading: const Icon(Icons.inventory_2, color: Colors.green),
-                  title: const Text('Available Items'),
-                  selected: _selectedIndex == 1,
-                  selectedColor: Colors.green,
-                  onTap: () {
-                    setState(() => _selectedIndex = 1);
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
                   leading: const Icon(Icons.add_shopping_cart, color: Colors.orange),
                   title: const Text('Sell Item'),
                   selected: _selectedIndex == 2,
                   selectedColor: Colors.orange,
                   onTap: () {
                     setState(() => _selectedIndex = 2);
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.inventory_2, color: Colors.green),
+                  title: const Text('Available Items'),
+                  selected: _selectedIndex == 1,
+                  selectedColor: Colors.green,
+                  onTap: () {
+                    setState(() => _selectedIndex = 1);
                     Navigator.pop(context);
                   },
                 ),

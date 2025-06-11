@@ -75,7 +75,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 const Text(
-                  'fractions',
+                  'Units',
                   style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -90,14 +90,14 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                     );
                   },
                   icon: const Icon(Icons.add),
-                  label: const Text('Manage Fractions'),
+                  label: const Text('Manage Units'),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             if (item.fractions == null || item.fractions!.isEmpty)
               const Center(
-                child: Text('No fractions added yet'),
+                child: Text('No Units added yet'),
               )
             else
               ListView.builder(

@@ -79,34 +79,6 @@ class _ViewSalesScreenState extends State<ViewSalesScreen> {
                 final dateFormat = DateFormat('MMM dd, yyyy HH:mm');
                 final today = DateTime.now();
 
-                final todaySales = salesProvider.sales.where((sale) {
-                  final saleDate = sale.createdAt;
-                  return saleDate.year == today.year &&
-                      saleDate.month == today.month &&
-                      saleDate.day == today.day;
-                }).toList();
-
-                final todayAmount = todaySales.fold<double>(
-                  0.0,
-                  (sum, sale) => sum + (sale.soldPrice ?? 0),
-                );
-
-                final todayAmountWidget = Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      const Text(
-                        'Today\'s Sales:',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        '\$${todayAmount.toStringAsFixed(2)}',
-                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                );
 
                 return Stack(
                   children: [
@@ -176,12 +148,6 @@ class _ViewSalesScreenState extends State<ViewSalesScreen> {
                                 );
                               },
                             ),
-                    ),
-                    Positioned(
-                      left: 0,
-                      right: 0,
-                      bottom: 0,
-                      child: todayAmountWidget,
                     ),
                   ],
                 );
