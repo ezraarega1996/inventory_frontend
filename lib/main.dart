@@ -24,7 +24,7 @@ void main() {
       providers: [
         Provider(
           create: (_) => BusinessService(
-            baseUrl: 'https://inventory-backend-2phf.onrender.com/api',
+            baseUrl: 'https://18.116.170.87: 5000/api',
           ),
         ),
         ChangeNotifierProxyProvider<BusinessService, BusinessProvider>(

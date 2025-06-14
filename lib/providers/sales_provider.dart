@@ -4,6 +4,9 @@ import 'package:inventory_frontend/models/sold_item.dart';
 import 'package:inventory_frontend/utils/api.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:inventory_frontend/config.dart';
+import 'package:inventory_frontend/models/user.dart';
+import 'package:inventory_frontend/models/sales_data.dart';
 
 class SalesProvider with ChangeNotifier {
   List<SoldItem> _sales = [];
@@ -13,6 +16,7 @@ class SalesProvider with ChangeNotifier {
   double? _totalSales;
   int? _totalItemsSold;
   double? _todaySales;
+  List<SalesData> _todaySalesData = [];
 
   List<SoldItem> get sales => [..._sales];
   bool get isLoading => _isLoading;
@@ -21,6 +25,7 @@ class SalesProvider with ChangeNotifier {
   double? get totalSales => _totalSales;
   int? get totalItemsSold => _totalItemsSold;
   double? get todaySales => _todaySales;
+  List<SalesData> get todaySalesData => _todaySalesData;
 
   Future<void> fetchSales() async {
     _isLoading = true;
@@ -28,13 +33,54 @@ class SalesProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final response = await Api.get('sales');
+      final response = await Api.get("sales");
 
-      _sales = List<SoldItem>.from(response.map((x) => SoldItem.fromJson(x)));
-      _isLoading = false;
-      notifyListeners();
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        _sales = data.map((json) => SoldItem.fromJson(json)).toList();
+        _totalItemsSold = _sales.length;
+        _todaySales = _sales.fold<double>(0.0, (sum, item) => sum + item.soldPrice);
+      } else {
+        _error = 'Failed to fetch sales';
+      }
     } catch (e) {
       _error = e.toString();
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  Future<void> fetchTodaySales() async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+
+    try {
+      final response = await Api.get('available-items/today-sales');
+      print('Today sales response: $response'); // Debug print
+      
+      if (response != null && response is Map<String, dynamic>) {
+        _todaySales = (response['totalSales'] ?? 0).toDouble();
+        print('Total sales: $_todaySales'); // Debug print
+        
+        if (response['salesBySalesman'] != null) {
+          _todaySalesData = (response['salesBySalesman'] as List)
+              .map((json) => SalesData.fromJson(json))
+              .toList();
+          print('Sales by salesman: $_todaySalesData'); // Debug print
+        } else {
+          _todaySalesData = [];
+        }
+      } else {
+        _error = 'Invalid response format';
+        _todaySalesData = [];
+      }
+    } catch (e) {
+      print('Error in fetchTodaySales: $e'); // Debug print
+      _error = e.toString();
+      _todaySalesData = [];
+    } finally {
       _isLoading = false;
       notifyListeners();
     }
@@ -186,11 +232,24 @@ class SalesProvider with ChangeNotifier {
         'sales/available-quantity?itemId=$itemId&fractionId=$fractionId',
       );
 
-      _isLoading = false;
-      notifyListeners();
+      print('Available quantity response: $response'); // Debug log
 
-      return response['availableQuantity'] ?? 0.0;
+      if (response == null) {
+        throw Exception('No response from server');
+      }
+
+      if (response is Map<String, dynamic> && response.containsKey('availableQuantity')) {
+        final quantity = response['availableQuantity'];
+        if (quantity is num) {
+          _isLoading = false;
+          notifyListeners();
+          return quantity.toDouble();
+        }
+      }
+
+      throw Exception('Invalid response format');
     } catch (e) {
+      print('Error in getAvailableQuantity: $e'); // Debug log
       _error = e.toString();
       _isLoading = false;
       notifyListeners();

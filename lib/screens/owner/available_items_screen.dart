@@ -101,27 +101,26 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                 }
 
                 return RefreshIndicator(
-                  onRefresh: _loadAvailableItems,
+        onRefresh: _loadAvailableItems,
                   child: ListView.builder(
                     padding: const EdgeInsets.all(16),
                     itemCount: availableItemProvider.availableItems.length,
-                    itemBuilder: (context, index) {
-                      final availableItem = availableItemProvider.availableItems[index];
-                      final itemFractions = availableItem.item?.fractions ?? [];
+              itemBuilder: (context, index) {
+                final availableItem = availableItemProvider.availableItems[index];
+                final itemFractions = availableItem.item?.fractions ?? [];
                       final selectedFractionId = _selectedFractionIds[availableItem.id] ?? 
                           (itemFractions.isNotEmpty ? itemFractions.first.id : '');
                       final selectedFraction = itemFractions.firstWhere(
-                        (f) => f.id == selectedFractionId,
+                  (f) => f.id == selectedFractionId,
                         orElse: () => itemFractions.first,
-                      );
+                );
 
-                      final displayedQuantity = selectedFraction != null
-                          ? availableItem.quantity / selectedFraction.ratio
-                          : availableItem.quantity;
+                final displayedQuantity = selectedFraction != null
+                    ? availableItem.quantity / selectedFraction.ratio
+                    : availableItem.quantity;
 
                       final transactions = _getCombinedTransactions(availableItem);
-
-                      return Card(
+                return Card(
                         margin: const EdgeInsets.only(bottom: 16),
                         child: ExpansionTile(
                           title: Text(
@@ -163,7 +162,7 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                                           fontSize: 16,
                                         ),
                                       ),
-                                      if (itemFractions.isNotEmpty)
+                        if (itemFractions.isNotEmpty)
                                         FractionDropdown(
                                           fractions: itemFractions,
                                           selectedFractionId: selectedFractionId,
@@ -194,6 +193,11 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                                         if (transactionFraction != null && selectedFraction != null) {
                                           convertedQuantity = trans.quantity * transactionFraction.ratio / selectedFraction.ratio;
                                         }
+                                        double convertedAvailableQty = trans.available_items_count;
+                                        if (transactionFraction != null && selectedFraction != null) {
+                                          convertedAvailableQty = trans.available_items_count * transactionFraction.ratio / selectedFraction.ratio;
+                                        }
+
 
                                         return Card(
                                           color: isBought ? Colors.blue.shade50 : Colors.green.shade50,
@@ -216,9 +220,13 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                                                 Text(
                                                   'Quantity: ${convertedQuantity.toStringAsFixed(2)} ${selectedFraction?.name ?? ''}',
                                                 ),
+
                                                 Text(
                                                   'Price: \$${(isBought ? trans.fractionSoldPrice : trans.soldPrice).toStringAsFixed(2)}',
                                                 ),
+                                                  Text(
+                                                    'Available Quantity: ${convertedAvailableQty.toStringAsFixed(2)} ${selectedFraction?.name ?? ''}',
+                                                  ),
                                                 Text(
                                                   'Date: ${dateFormat.format(trans.createdAt)}',
                                                 ),
@@ -229,16 +237,16 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                                       },
                                     ),
                                 ],
-                              ),
                             ),
-                          ],
-                        ),
+                          ),
+                      ],
+                    ),
                       );
                     },
                   ),
                 );
               },
-            ),
+      ),
     );
   }
-}
+} 

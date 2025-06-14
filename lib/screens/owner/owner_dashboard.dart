@@ -31,30 +31,31 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
     _loadDashboardData();
   }
 
-  Future<void> _loadDashboardData() async {
-    if (!mounted) return;
-    
-    setState(() {
-      _isLoading = true;
-    });
+Future<void> _loadDashboardData() async {
+  if (!mounted) return;
+  
+  setState(() {
+    _isLoading = true;
+  });
 
-    final salesProvider = context.read<SalesProvider>();
-    final authProvider = context.read<AuthProvider>();
-    final businessProvider = context.read<BusinessProvider>();
+  final salesProvider = context.read<SalesProvider>();
+  final authProvider = context.read<AuthProvider>();
+  final businessProvider = context.read<BusinessProvider>();
 
-    await salesProvider.fetchDashboardStats();
-    if (authProvider.user?.businessId != null) {
-      await businessProvider.loadCurrentBusiness(
-        authProvider.user!.businessId!,
-      );
-    }
-
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-      });
-    }
+  await salesProvider.fetchDashboardStats();
+  await salesProvider.fetchTodaySales(); // <-- Add this line
+  if (authProvider.user?.businessId != null) {
+    await businessProvider.loadCurrentBusiness(
+      authProvider.user!.businessId!,
+    );
   }
+
+  if (mounted) {
+    setState(() {
+      _isLoading = false;
+    });
+  }
+}
 
   void _onItemTapped(int index) {
     setState(() {
@@ -148,6 +149,29 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
                     ),
                   ),
                 ],
+                const SizedBox(height: 24),
+
+            // Add this section for today's sales by salesman
+            const Text(
+              "Today's Sales by Salesman",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            ),
+            const SizedBox(height: 16),
+            if (salesProvider.todaySalesData.isEmpty)
+              const Text('No sales recorded today.'),
+            ...salesProvider.todaySalesData.map((salesData) => Card(
+                  child: ListTile(
+                    title: Text(salesData.salesmanName ?? 'Unknown'),
+                    trailing: Text(
+                      '₹${salesData.totalAmount.toStringAsFixed(2)}',
+                      style: const TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  ),
+                )),
+                
                 const SizedBox(height: 24),
                 if (_isLoading)
                   const Center(child: CircularProgressIndicator())
@@ -358,7 +382,12 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
               Navigator.pop(context);
             },
           ),
-          
+          const Divider(),
+                ListTile(
+                  leading: const Icon(Icons.logout, color: Colors.red),
+                  title: const Text('Logout'),
+                  onTap: _logout,
+                ),
         ],
       ),
     );

@@ -133,7 +133,7 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
           return availableItems.any(
             (availableItem) => availableItem.itemId == item.id,
           );
-        }).toList();
+    }).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -144,41 +144,41 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
       ),
       body:
           _isLoading
-              ? const Center(child: CircularProgressIndicator())
-              : assignedItems.isEmpty
+          ? const Center(child: CircularProgressIndicator())
+          : assignedItems.isEmpty
               ? const Center(
-                child: Text(
-                  'No items assigned to you',
+                  child: Text(
+                    'No items assigned to you',
                   style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                ),
-              )
+                  ),
+                )
               : RefreshIndicator(
-                onRefresh: _loadData,
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: assignedItems.length,
-                  itemBuilder: (context, index) {
-                    final item = assignedItems[index];
-                    final availableItem = availableItemProvider
-                        .getAvailableItemsForSalesman(authProvider.user!.id)
-                        .firstWhere((ai) => ai.itemId == item.id);
+                  onRefresh: _loadData,
+                  child: ListView.builder(
+                    padding: const EdgeInsets.all(16),
+                    itemCount: assignedItems.length,
+                    itemBuilder: (context, index) {
+                      final item = assignedItems[index];
+                      final availableItem = availableItemProvider
+                          .getAvailableItemsForSalesman(authProvider.user!.id)
+                          .firstWhere((ai) => ai.itemId == item.id);
 
                     final transactions = _getCombinedTransactions(
                       availableItem,
                     );
 
-                    return Card(
-                      margin: const EdgeInsets.only(bottom: 16),
+                      return Card(
+                        margin: const EdgeInsets.only(bottom: 16),
                       child: ExpansionTile(
                         title: Text(
-                          item.name,
-                          style: const TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                                      item.name,
+                                      style: const TextStyle(
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
                         subtitle: Builder(
-                          builder: (context) {
+                                        builder: (context) {
                           final selectedFractionId = _selectedFractionIds[item.id] ?? item.fractions!.first.id;
                           final selectedFraction = item.fractions!.firstWhere((f) => f.id == selectedFractionId);
 
@@ -197,24 +197,24 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                             'Sold Price: \$${availableItem.soldPrice.toStringAsFixed(2)}',
                             );
 
-                            return Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
+                                          return Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(
                               'Available Quantity: ${convertedAvailableQty.toStringAsFixed(2)} ${selectedFraction.name}',
-                              ),
+                                              ),
                               soldPriceText,
-                            ],
-                            );
-                          },
-                        ),
+                                            ],
+                                          );
+                                        },
+                                      ),
                         children: [
                           Padding(
                             padding: const EdgeInsets.all(16),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                const SizedBox(height: 16),
+                                    const SizedBox(height: 16),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
@@ -236,13 +236,13 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                                       },
                                     ),
 
-                                CustomButton(
-                                  onPressed: () {
-                                    Navigator.pushNamed(
-                                      context,
-                                      '/sell-item',
-                                      arguments: {
-                                        'preSelectedItem': item,
+                                    CustomButton(
+                                      onPressed: () {
+                                        Navigator.pushNamed(
+                                          context,
+                                          '/sell-item',
+                                          arguments: {
+                                            'preSelectedItem': item,
                                         'preSelectedFraction': item.fractions
                                             ?.firstWhere(
                                               (f) =>
@@ -251,11 +251,11 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                                               orElse:
                                                   () => item.fractions!.first,
                                             ),
+                                          },
+                                        );
                                       },
-                                    );
-                                  },
-                                  text: 'Sell Item',
-                                ),
+                                      text: 'Sell Item',
+                                    ),
                                   ],
                                 ),
                                 if (transactions.isEmpty)
@@ -346,14 +346,14 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                                       },
                                     ),
                               ],
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
+                                  ),
+                                ),
+                            ],
+                        ),
+                      );
+                    },
+                  ),
                 ),
-              ),
     );
   }
-}
+} 

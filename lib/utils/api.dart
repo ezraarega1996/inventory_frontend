@@ -1,10 +1,9 @@
 import 'dart:convert';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 import 'package:inventory_frontend/utils/storage.dart';
 
 class Api {
-  static String baseUrl = 'http://18.116.170.87:5000/api';
+  static String baseUrl = 'http://18.116.170.87: 5000/api';
   
   static Future<Map<String, String>> _getHeaders() async {
     final token = await Storage.getToken();

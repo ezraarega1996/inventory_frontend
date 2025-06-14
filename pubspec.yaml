@@ -1,4 +1,4 @@
-name: inventory_frontend
+name: "inventory_frontend"
 description: "A new Flutter project."
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -83,7 +83,7 @@ dev_dependencies:
 
 flutter_launcher_icons:
   android: true
-  ios: false # set to true if you're building for iOS too
+  ios: true # set to true if you're building for iOS too
   image_path: "assets/images/logo.png"
 
 # For information on the generic Dart part of this file, see the

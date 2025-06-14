@@ -43,10 +43,8 @@ class BusinessService {
   Future<Business> getBusinessById(String id) async {
     try {
       final response = await Api.get('businesses/$id');
-      print("Business response: ${response}");
       return Business.fromJson(response);
     } catch (e) {
-      print("Error getting business by ID: $e");
       throw Exception('Failed to get business: $e');
     }
   }
