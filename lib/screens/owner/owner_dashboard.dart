@@ -339,7 +339,7 @@ Future<void> _loadDashboardData() async {
           ),
           ListTile(
             leading: Icon(Icons.shopping_basket),
-            title: Text('Bought Items'),
+            title: Text('Stored Items'),
             selected: _selectedIndex == 6,
             onTap: () {
               setState(() {
