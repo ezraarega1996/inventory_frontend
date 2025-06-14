@@ -140,10 +140,6 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
             icon: const Icon(Icons.refresh),
             onPressed: _loadDashboardData,
           ),
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: _logout,
-          ),
         ],
       ),
       drawer: Consumer<AuthProvider>(
@@ -159,6 +155,19 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Dashboard',
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.refresh),
+                            onPressed: _loadDashboardData,
+                          ),
+                        ],
+                      ),
                       CircleAvatar(
                         radius: 30,
                         backgroundColor: Colors.white,

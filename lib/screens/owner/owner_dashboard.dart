@@ -111,9 +111,18 @@ Future<void> _loadDashboardData() async {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Text(
-                  'Dashboard',
-                  style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    const Text(
+                      'Dashboard',
+                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.refresh),
+                      onPressed: _loadDashboardData,
+                    ),
+                  ],
                 ),
                 if (business != null && business.subscriptionStatus == 'trial') ...[
                   const SizedBox(height: 16),
@@ -264,16 +273,6 @@ Future<void> _loadDashboardData() async {
         return Scaffold(
           appBar: AppBar(
             title: Text(business?.name ?? 'Owner Dashboard'),
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: _loadDashboardData,
-              ),
-              IconButton(
-                icon: const Icon(Icons.logout),
-                onPressed: _logout,
-              ),
-            ],
           ),
           drawer: _buildDrawer(),
           body: _getScreen(),
