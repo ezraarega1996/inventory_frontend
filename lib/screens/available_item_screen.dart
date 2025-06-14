@@ -7,6 +7,7 @@ import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
 import 'package:intl/intl.dart';
 import 'package:inventory_frontend/providers/user_provider.dart';
+import 'package:inventory_frontend/screens/available_item_detail_screen.dart';
 
 class AvailableItemScreen extends StatefulWidget {
   const AvailableItemScreen({Key? key}) : super(key: key);
@@ -119,281 +120,22 @@ class _AvailableItemScreenState extends State<AvailableItemScreen> {
                       horizontal: 16,
                       vertical: 8,
                     ),
-                    child: ExpansionTile(
+                    child: ListTile(
                       title: Text(
                         "${availableItem.item?.name ?? 'Unknown Item'} (${availableItem.salesman?.name ?? 'Unknown Salesman'})",
                       ),
                       subtitle: Text('Quantity: ${availableItem.quantity}'),
-                      children: [
-                        Padding(
-                          padding: const EdgeInsets.all(16),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Item: ${availableItem.item?.name ?? 'Unknown'}',
-                              ),
-                              Text(
-                                'Available Quantity: ${availableItem.quantity}',
-                              ),
-                              Text(
-                                'Sold Price: \$${availableItem.soldPrice.toStringAsFixed(2)}',
-                              ),
-                              if (availableItem.salesman != null)
-                                Text(
-                                  'Assigned to: ${availableItem.salesman?.name ?? 'Unknown'}',
+                      trailing: const Icon(Icons.arrow_forward_ios),
+                      onTap: () {
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder:
+                                (_) => AvailableItemDetailScreen(
+                                  availableItem: availableItem,
                                 ),
-
-                              const SizedBox(height: 16),
-                              const Text(
-                                'Bought Transactions',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              if (availableItem.boughtTransactions?.isEmpty ??
-                                  true)
-                                const Text('No bought transactions')
-                              else
-                                ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount:
-                                      availableItem
-                                          .boughtTransactions
-                                          ?.length ??
-                                      0,
-                                  itemBuilder: (context, index) {
-                                    final transaction =
-                                        availableItem
-                                            .boughtTransactions![index];
-                                    return ListTile(
-                                      title: Text(
-                                        'Quantity: ${transaction.quantity}',
-                                      ),
-                                      subtitle: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Fraction: ${transaction.fraction?.name ?? 'Unknown'}',
-                                          ),
-                                          Text(
-                                            'Price: \$${transaction.fractionSoldPrice.toStringAsFixed(2)}',
-                                          ),
-                                          Text(
-                                            'Date: ${DateFormat('yyyy-MM-dd HH:mm').format(transaction.createdAt)}',
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                ),
-
-                              const SizedBox(height: 16),
-                              const Text(
-                                'Sold Transactions',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 16,
-                                ),
-                              ),
-                              if (availableItem.soldTransactions?.isEmpty ??
-                                  true)
-                                const Text('No sold transactions')
-                              else
-                                ListView.builder(
-                                  shrinkWrap: true,
-                                  physics: const NeverScrollableScrollPhysics(),
-                                  itemCount:
-                                      availableItem.soldTransactions?.length ??
-                                      0,
-                                  itemBuilder: (context, index) {
-                                    final transaction =
-                                        availableItem.soldTransactions![index];
-                                    return ListTile(
-                                      title: Text(
-                                        'Quantity: ${transaction.quantity}',
-                                      ),
-                                      subtitle: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          Text(
-                                            'Fraction: ${transaction.fraction?.name ?? 'Unknown'}',
-                                          ),
-                                          Text(
-                                            'Price: \$${transaction.soldPrice.toStringAsFixed(2)}',
-                                          ),
-                                          Text(
-                                            'Date: ${DateFormat('yyyy-MM-dd HH:mm').format(transaction.createdAt)}',
-                                          ),
-                                        ],
-                                      ),
-                                    );
-                                  },
-                                ),
-
-                              if (authProvider.user?.role == 'admin' &&
-                                  availableItem.salesman == null)
-                                Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.stretch,
-                                  children: [
-                                    const SizedBox(height: 16),
-                                    CustomButton(
-                                      onPressed: () {
-                                        showDialog(
-                                          context: context,
-                                          builder:
-                                              (context) => AlertDialog(
-                                                title: const Text(
-                                                  'Assign to Salesman',
-                                                ),
-                                                content: Form(
-                                                  key: _formKey,
-                                                  child: Column(
-                                                    mainAxisSize:
-                                                        MainAxisSize.min,
-                                                    children: [
-                                                      DropdownButtonFormField<
-                                                        String
-                                                      >(
-                                                        value:
-                                                            _selectedSalesmanId,
-                                                        decoration: const InputDecoration(
-                                                          labelText:
-                                                              'Select Salesman',
-                                                          border:
-                                                              OutlineInputBorder(),
-                                                        ),
-                                                        items:
-                                                            userProvider.users
-                                                                .where(
-                                                                  (user) =>
-                                                                      user.role ==
-                                                                      'salesman',
-                                                                )
-                                                                .map((user) {
-                                                                  return DropdownMenuItem<
-                                                                    String
-                                                                  >(
-                                                                    value:
-                                                                        user.id,
-                                                                    child: Text(
-                                                                      user.name,
-                                                                    ),
-                                                                  );
-                                                                })
-                                                                .toList(),
-                                                        onChanged: (value) {
-                                                          setState(() {
-                                                            _selectedSalesmanId =
-                                                                value;
-                                                          });
-                                                        },
-                                                        validator: (value) {
-                                                          if (value == null) {
-                                                            return 'Please select a salesman';
-                                                          }
-                                                          return null;
-                                                        },
-                                                      ),
-                                                      const SizedBox(
-                                                        height: 16,
-                                                      ),
-                                                      CustomTextField(
-                                                        controller:
-                                                            _quantityController,
-                                                        labelText: 'Quantity',
-                                                        keyboardType:
-                                                            TextInputType
-                                                                .number,
-                                                        validator: (value) {
-                                                          if (value == null ||
-                                                              value.isEmpty) {
-                                                            return 'Please enter a quantity';
-                                                          }
-                                                          final quantity =
-                                                              double.tryParse(
-                                                                value,
-                                                              );
-                                                          if (quantity ==
-                                                              null) {
-                                                            return 'Please enter a valid number';
-                                                          }
-                                                          if (quantity <= 0) {
-                                                            return 'Quantity must be greater than 0';
-                                                          }
-                                                          if (quantity >
-                                                              availableItem
-                                                                  .quantity) {
-                                                            return 'Quantity cannot be greater than available quantity';
-                                                          }
-                                                          return null;
-                                                        },
-                                                      ),
-                                                      const SizedBox(
-                                                        height: 16,
-                                                      ),
-                                                      CustomTextField(
-                                                        controller:
-                                                            _soldPriceController,
-                                                        labelText: 'Sold Price',
-                                                        keyboardType:
-                                                            TextInputType
-                                                                .number,
-                                                        validator: (value) {
-                                                          if (value == null ||
-                                                              value.isEmpty) {
-                                                            return 'Please enter a sold price';
-                                                          }
-                                                          final price =
-                                                              double.tryParse(
-                                                                value,
-                                                              );
-                                                          if (price == null) {
-                                                            return 'Please enter a valid number';
-                                                          }
-                                                          if (price <= 0) {
-                                                            return 'Price must be greater than 0';
-                                                          }
-                                                          return null;
-                                                        },
-                                                      ),
-                                                    ],
-                                                  ),
-                                                ),
-                                                actions: [
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      Navigator.of(
-                                                        context,
-                                                      ).pop();
-                                                    },
-                                                    child: const Text('Cancel'),
-                                                  ),
-                                                  TextButton(
-                                                    onPressed: () {
-                                                      _assignToSalesman(
-                                                        availableItem,
-                                                      );
-                                                    },
-                                                    child: const Text('Assign'),
-                                                  ),
-                                                ],
-                                              ),
-                                        );
-                                      },
-                                      text: 'Assign to Salesman',
-                                    ),
-                                  ],
-                                ),
-                            ],
                           ),
-                        ),
-                      ],
+                        );
+                      },
                     ),
                   );
                 },

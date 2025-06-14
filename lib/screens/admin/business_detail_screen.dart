@@ -119,9 +119,7 @@ class _BusinessDetailScreenState extends State<BusinessDetailScreen> {
                         const SizedBox(height: 16),
                         _buildInfoRow('ID', business.id),
                         _buildInfoRow('Name', business.name),
-                        _buildInfoRow('Email', business.email ?? 'N/A'),
-                        _buildInfoRow('Phone', business.phone ?? 'N/A'),
-                        _buildInfoRow('Address', business.address ?? 'N/A'),
+          
                         _buildInfoRow('Active', business.isActive ? 'Yes' : 'No'),
                       ],
                     ),

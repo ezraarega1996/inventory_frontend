@@ -14,9 +14,6 @@ class BusinessRegisterScreen extends StatefulWidget {
 class _BusinessRegisterScreenState extends State<BusinessRegisterScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
-  final _addressController = TextEditingController();
-  final _phoneController = TextEditingController();
-  final _emailController = TextEditingController();
   final _ownerNameController = TextEditingController();
   final _ownerEmailController = TextEditingController();
   final _ownerPhoneController = TextEditingController();
@@ -31,10 +28,7 @@ class _BusinessRegisterScreenState extends State<BusinessRegisterScreen> {
 
   @override
   void dispose() {
-    _nameController.dispose();
-    _addressController.dispose();
-    _phoneController.dispose();
-    _emailController.dispose();
+
     _ownerNameController.dispose();
     _ownerEmailController.dispose();
     _ownerPhoneController.dispose();
@@ -66,9 +60,7 @@ class _BusinessRegisterScreenState extends State<BusinessRegisterScreen> {
       final businessService = Provider.of<BusinessService>(context, listen: false);
       final business = Business(
         name: _nameController.text,
-        address: _addressController.text,
-        phone: _phoneController.text,
-        email: _emailController.text,
+
         logo: _logoPath,
       );
 
@@ -154,31 +146,9 @@ class _BusinessRegisterScreenState extends State<BusinessRegisterScreen> {
                         return null;
                       },
                     ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _addressController,
-                      decoration: const InputDecoration(
-                        labelText: 'Address',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _phoneController,
-                      decoration: const InputDecoration(
-                        labelText: 'Phone',
-                        border: OutlineInputBorder(),
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-                    TextFormField(
-                      controller: _emailController,
-                      decoration: const InputDecoration(
-                        labelText: 'Email',
-                        border: OutlineInputBorder(),
-                      ),
-                      keyboardType: TextInputType.emailAddress,
-                    ),
+                  
+                   
+                  
                     const SizedBox(height: 32),
                     const Text(
                       'Owner Information',

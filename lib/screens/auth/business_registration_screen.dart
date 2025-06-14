@@ -9,15 +9,14 @@ class BusinessRegistrationScreen extends StatefulWidget {
   const BusinessRegistrationScreen({Key? key}) : super(key: key);
 
   @override
-  State<BusinessRegistrationScreen> createState() => _BusinessRegistrationScreenState();
+  State<BusinessRegistrationScreen> createState() =>
+      _BusinessRegistrationScreenState();
 }
 
-class _BusinessRegistrationScreenState extends State<BusinessRegistrationScreen> {
+class _BusinessRegistrationScreenState
+    extends State<BusinessRegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _businessNameController = TextEditingController();
-  final _businessEmailController = TextEditingController();
-  final _businessPhoneController = TextEditingController();
-  final _businessAddressController = TextEditingController();
   final _ownerNameController = TextEditingController();
   final _ownerEmailController = TextEditingController();
   final _ownerPhoneController = TextEditingController();
@@ -26,13 +25,10 @@ class _BusinessRegistrationScreenState extends State<BusinessRegistrationScreen>
   final _confirmPasswordController = TextEditingController();
   bool _obscurePassword = true;
   bool _obscureConfirmPassword = true;
-  
+
   @override
   void dispose() {
     _businessNameController.dispose();
-    _businessEmailController.dispose();
-    _businessPhoneController.dispose();
-    _businessAddressController.dispose();
     _ownerNameController.dispose();
     _ownerEmailController.dispose();
     _ownerPhoneController.dispose();
@@ -41,38 +37,37 @@ class _BusinessRegistrationScreenState extends State<BusinessRegistrationScreen>
     _confirmPasswordController.dispose();
     super.dispose();
   }
-  
+
   Future<void> _registerBusiness() async {
     if (_formKey.currentState!.validate()) {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      
+
       final businessData = {
         'name': _businessNameController.text.trim(),
-        'email': _businessEmailController.text.trim(),
-        'phone': _businessPhoneController.text.trim(),
-        'address': _businessAddressController.text.trim(),
         'ownerName': _ownerNameController.text.trim(),
         'ownerEmail': _ownerEmailController.text.trim(),
         'ownerPhone': _ownerPhoneController.text.trim(),
         'ownerUsername': _ownerUsernameController.text.trim(),
         'ownerPassword': _ownerPasswordController.text,
       };
-      
+
       final success = await authProvider.registerBusiness(businessData);
-      
+
       if (!mounted) return;
-      
+
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Business registered successfully. Please login.'))
+          const SnackBar(
+            content: Text('Business registered successfully. Please login.'),
+          ),
         );
-        
+
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => const LoginScreen())
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authProvider.error ?? 'Registration failed'))
+          SnackBar(content: Text(authProvider.error ?? 'Registration failed')),
         );
       }
     }
@@ -81,11 +76,9 @@ class _BusinessRegistrationScreenState extends State<BusinessRegistrationScreen>
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
-    
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Register Your Business'),
-      ),
+      appBar: AppBar(title: const Text('Register Your Business')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -95,10 +88,7 @@ class _BusinessRegistrationScreenState extends State<BusinessRegistrationScreen>
             children: [
               const Text(
                 'Business Information',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               CustomTextField(
@@ -111,51 +101,10 @@ class _BusinessRegistrationScreenState extends State<BusinessRegistrationScreen>
                   return null;
                 },
               ),
-              const SizedBox(height: 16),
-              CustomTextField(
-                controller: _businessEmailController,
-                labelText: 'Business Email',
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your business email';
-                  }
-                  if (!value.contains('@')) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              CustomTextField(
-                controller: _businessPhoneController,
-                labelText: 'Business Phone',
-                keyboardType: TextInputType.phone,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your business phone';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              CustomTextField(
-                controller: _businessAddressController,
-                labelText: 'Business Address',
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your business address';
-                  }
-                  return null;
-                },
-              ),
               const SizedBox(height: 32),
               const Text(
                 'Owner Information',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 16),
               CustomTextField(
@@ -241,7 +190,9 @@ class _BusinessRegistrationScreenState extends State<BusinessRegistrationScreen>
                 obscureText: _obscureConfirmPassword,
                 suffixIcon: IconButton(
                   icon: Icon(
-                    _obscureConfirmPassword ? Icons.visibility : Icons.visibility_off,
+                    _obscureConfirmPassword
+                        ? Icons.visibility
+                        : Icons.visibility_off,
                   ),
                   onPressed: () {
                     setState(() {
@@ -269,7 +220,7 @@ class _BusinessRegistrationScreenState extends State<BusinessRegistrationScreen>
               TextButton(
                 onPressed: () {
                   Navigator.of(context).pushReplacement(
-                    MaterialPageRoute(builder: (_) => const LoginScreen())
+                    MaterialPageRoute(builder: (_) => const LoginScreen()),
                   );
                 },
                 child: const Text('Already have an account? Login'),
