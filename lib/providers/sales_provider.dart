@@ -34,17 +34,23 @@ class SalesProvider with ChangeNotifier {
 
     try {
       final response = await Api.get("sales");
+      print('Sales response: $response'); // Debug print
 
-      if (response.statusCode == 200) {
-        final List<dynamic> data = json.decode(response.body);
-        _sales = data.map((json) => SoldItem.fromJson(json)).toList();
+      if (response != null) {
+        _sales = List<SoldItem>.from(response.map((x) => SoldItem.fromJson(x)));
+        // Sort sales by date, most recent first
+        _sales.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         _totalItemsSold = _sales.length;
-        _todaySales = _sales.fold<double>(0.0, (sum, item) => sum + item.soldPrice);
+        _totalSales = _sales.fold<double>(0.0, (sum, item) => sum + item.soldPrice);
+        print('Fetched ${_sales.length} sales records'); // Debug print
       } else {
-        _error = 'Failed to fetch sales';
+        _error = 'No sales data received';
+        _sales = [];
       }
     } catch (e) {
+      print('Error fetching sales: $e'); // Debug print
       _error = e.toString();
+      _sales = [];
     } finally {
       _isLoading = false;
       notifyListeners();

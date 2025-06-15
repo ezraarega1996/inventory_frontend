@@ -24,7 +24,7 @@ void main() {
       providers: [
         Provider(
           create: (_) => BusinessService(
-            baseUrl: 'https://18.116.170.87: 5000/api',
+            baseUrl: 'https://18.116.170.87:5000/api',
           ),
         ),
         ChangeNotifierProxyProvider<BusinessService, BusinessProvider>(

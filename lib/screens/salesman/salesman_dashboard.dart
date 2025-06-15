@@ -98,6 +98,19 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
+                    Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          const Text(
+                            'Dashboard',
+                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.refresh),
+                            onPressed: _loadDashboardData,
+                          ),
+                        ],
+                      ),
                     DashboardCard(
                       title: 'Total Sales',
                       value: '\$${salesProvider.totalSales?.toStringAsFixed(2) ?? '0.00'}',
@@ -135,12 +148,7 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
             return Text(authProvider.user?.name ?? 'Salesman Dashboard');
           },
         ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadDashboardData,
-          ),
-        ],
+
       ),
       drawer: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {
@@ -155,19 +163,6 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          const Text(
-                            'Dashboard',
-                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.refresh),
-                            onPressed: _loadDashboardData,
-                          ),
-                        ],
-                      ),
                       CircleAvatar(
                         radius: 30,
                         backgroundColor: Colors.white,
