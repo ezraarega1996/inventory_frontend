@@ -22,6 +22,7 @@ class _UsersScreenState extends State<UsersScreen> {
   String? _editingUserId;
   bool _obscurePassword = true;
   bool _isLoading = true;
+  bool _isSubmitting = false;
   
   @override
   void initState() {
@@ -77,153 +78,182 @@ class _UsersScreenState extends State<UsersScreen> {
     
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(_editingUserId == null ? 'Add Salesperson' : 'Edit Salesperson'),
-        content: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CustomTextField(
-                  controller: _nameController,
-                  labelText: 'Name',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a name';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                CustomTextField(
-                  controller: _phoneController,
-                  labelText: 'Phone',
-                  keyboardType: TextInputType.phone,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a phone number';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                CustomTextField(
-                  controller: _locationController,
-                  labelText: 'Location',
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a location';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                CustomTextField(
-                  controller: _usernameController,
-                  labelText: 'Username',
-                  enabled: _editingUserId == null,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter a username';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                CustomTextField(
-                  controller: _passwordController,
-                  labelText: 'Password',
-                  obscureText: _obscurePassword,
-                  suffixIcon: IconButton(
-                    icon: Icon(
-                      _obscurePassword ? Icons.visibility : Icons.visibility_off,
-                    ),
-                    onPressed: () {
-                      setState(() {
-                        _obscurePassword = !_obscurePassword;
-                      });
+      barrierDismissible: false,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(_editingUserId == null ? 'Add Salesperson' : 'Edit Salesperson'),
+          content: SingleChildScrollView(
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  CustomTextField(
+                    controller: _nameController,
+                    labelText: 'Name',
+                    enabled: !_isSubmitting,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a name';
+                      }
+                      return null;
                     },
                   ),
-                  validator: (value) {
-                    if (_editingUserId == null && (value == null || value.isEmpty)) {
-                      return 'Please enter a password';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 16),
-                CustomTextField(
-                  controller: _emailController,
-                  labelText: 'Email',
-                  keyboardType: TextInputType.emailAddress,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'Please enter an email';
-                    }
-                    if (!value.contains('@')) {
-                      return 'Please enter a valid email';
-                    }
-                    return null;
-                  },
-                ),
-              ],
+                  const SizedBox(height: 16),
+                  CustomTextField(
+                    controller: _phoneController,
+                    labelText: 'Phone',
+                    keyboardType: TextInputType.phone,
+                    enabled: !_isSubmitting,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a phone number';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  CustomTextField(
+                    controller: _locationController,
+                    labelText: 'Location',
+                    enabled: !_isSubmitting,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a location';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  CustomTextField(
+                    controller: _usernameController,
+                    labelText: 'Username',
+                    enabled: _editingUserId == null && !_isSubmitting,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter a username';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  CustomTextField(
+                    controller: _passwordController,
+                    labelText: 'Password',
+                    obscureText: _obscurePassword,
+                    enabled: !_isSubmitting,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword ? Icons.visibility : Icons.visibility_off,
+                      ),
+                      onPressed: _isSubmitting ? null : () {
+                        setDialogState(() {
+                          _obscurePassword = !_obscurePassword;
+                        });
+                      },
+                    ),
+                    validator: (value) {
+                      if (_editingUserId == null && (value == null || value.isEmpty)) {
+                        return 'Please enter a password';
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  CustomTextField(
+                    controller: _emailController,
+                    labelText: 'Email',
+                    keyboardType: TextInputType.emailAddress,
+                    enabled: !_isSubmitting,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter an email';
+                      }
+                      if (!value.contains('@')) {
+                        return 'Please enter a valid email';
+                      }
+                      return null;
+                    },
+                  ),
+                ],
+              ),
             ),
           ),
+          actions: [
+            TextButton(
+              onPressed: _isSubmitting ? null : () {
+                setState(() { _isSubmitting = false; });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: _isSubmitting ? null : () async {
+                if (!_formKey.currentState!.validate()) return;
+                
+                setState(() { _isSubmitting = true; });
+                setDialogState(() {});
+                
+                try {
+                  final userProvider = context.read<UserProvider>();
+                  bool success;
+                  
+                  final userData = {
+                    'name': _nameController.text.trim(),
+                    'phone': _phoneController.text.trim(),
+                    'location': _locationController.text.trim(),
+                    'email': _emailController.text.trim(),
+                    'role': 'salesman',
+                  };
+                  
+                  if (_editingUserId == null) {
+                    userData['username'] = _usernameController.text.trim();
+                    userData['password'] = _passwordController.text;
+                    success = await userProvider.createUser(userData);
+                  } else {
+                    if (_passwordController.text.isNotEmpty) {
+                      userData['password'] = _passwordController.text;
+                    }
+                    success = await userProvider.updateUser(_editingUserId!, userData);
+                  }
+                  
+                  if (!mounted) return;
+                  
+                  Navigator.of(context).pop();
+                  
+                  if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Salesperson ${_editingUserId == null ? 'added' : 'updated'} successfully'))
+                    );
+                    await _loadUsers();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(userProvider.error ?? 'An error occurred'))
+                    );
+                  }
+                } finally {
+                  if (mounted) {
+                    setState(() { _isSubmitting = false; });
+                  }
+                }
+              },
+              child: _isSubmitting 
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Save'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: _saveUser,
-            child: const Text('Save'),
-          ),
-        ],
       ),
-    );
-  }
-  
-  Future<void> _saveUser() async {
-    if (!_formKey.currentState!.validate()) return;
-    
-    final userProvider = context.read<UserProvider>();
-    bool success;
-    
-    final userData = {
-      'name': _nameController.text.trim(),
-      'phone': _phoneController.text.trim(),
-      'location': _locationController.text.trim(),
-      'email': _emailController.text.trim(),
-      'role': 'salesman',
-    };
-    
-    if (_editingUserId == null) {
-      userData['username'] = _usernameController.text.trim();
-      userData['password'] = _passwordController.text;
-      success = await userProvider.createUser(userData);
-    } else {
-      if (_passwordController.text.isNotEmpty) {
-        userData['password'] = _passwordController.text;
+    ).then((_) {
+      // Reset state when dialog is closed
+      if (mounted) {
+        setState(() { _isSubmitting = false; });
       }
-      success = await userProvider.updateUser(_editingUserId!, userData);
-    }
-    
-    if (!mounted) return;
-    
-    Navigator.of(context).pop();
-    
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Salesperson ${_editingUserId == null ? 'added' : 'updated'} successfully'))
-      );
-      _loadUsers(); // Reload users after successful save
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(userProvider.error ?? 'An error occurred'))
-      );
-    }
+    });
   }
   
   Future<void> _deleteUser(String id) async {
@@ -272,7 +302,7 @@ class _UsersScreenState extends State<UsersScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
-            onPressed: _loadUsers,
+            onPressed: _isLoading ? null : _loadUsers,
           ),
         ],
       ),
@@ -322,7 +352,7 @@ class _UsersScreenState extends State<UsersScreen> {
                             children: [
                               IconButton(
                                 icon: const Icon(Icons.edit),
-                                onPressed: () => _showAddEditDialog(
+                                onPressed: _isSubmitting ? null : () => _showAddEditDialog(
                                   id: user.id,
                                   name: user.name,
                                   phone: user.phone,
@@ -333,7 +363,7 @@ class _UsersScreenState extends State<UsersScreen> {
                               ),
                               IconButton(
                                 icon: const Icon(Icons.delete),
-                                onPressed: () => _deleteUser(user.id),
+                                onPressed: _isSubmitting ? null : () => _deleteUser(user.id),
                               ),
                             ],
                           ),
@@ -345,7 +375,7 @@ class _UsersScreenState extends State<UsersScreen> {
               },
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddEditDialog(),
+        onPressed: _isLoading || _isSubmitting ? null : () => _showAddEditDialog(),
         child: const Icon(Icons.add),
       ),
     );

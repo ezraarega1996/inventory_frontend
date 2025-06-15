@@ -306,7 +306,7 @@ Future<void> _loadDashboardData() async {
           ),
           ListTile(
             leading: Icon(Icons.people),
-            title: Text('Users'),
+            title: Text('Sales person'),
             selected: _selectedIndex == 4,
             onTap: () {
               setState(() {
