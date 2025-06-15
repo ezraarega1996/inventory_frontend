@@ -16,23 +16,37 @@ class Item {
     this.fractions,
   });
   
-  factory Item.fromJson(Map<String, dynamic> json) {
+factory Item.fromJson(Map<String, dynamic> json) {
+  try {
     List<Fraction>? fractionsList;
-    
+
     if (json['fractions'] != null) {
       fractionsList = List<Fraction>.from(
-        json['fractions'].map((x) => Fraction.fromJson(x))
+        json['fractions'].map((x) => Fraction.fromJson(x)),
       );
     }
-    
+
     return Item(
       id: json['id'],
       name: json['name'],
-      categoryId: json['categoryId'],
-      category: json['Category'] != null ? Category.fromJson(json['Category']) : null,
+      categoryId: json['categoryId'] != null ? json['categoryId']: "Unknown",
+      category: json['Category'] != null
+          ? Category.fromJson(json['Category'])
+          : null,
       fractions: fractionsList,
     );
+  } catch (e, stackTrace) {
+
+    return Item(
+      id: "",
+      name: 'Unknown',
+      categoryId: "",
+      category: null,
+      fractions: [],
+    );
   }
+}
+
   
   Map<String, dynamic> toJson() {
     return {

@@ -19,7 +19,6 @@ class ItemProvider with ChangeNotifier {
     
     try {
       final response = await Api.get('items');
-      
       _items = List<Item>.from(
         response.map((x) => Item.fromJson(x))
       );

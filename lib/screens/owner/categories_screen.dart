@@ -16,6 +16,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   final _nameController = TextEditingController();
   String? _editingCategoryId;
   bool _isLoading = true;
+  bool _isSubmitting = false;
   
   @override
   void initState() {
@@ -44,62 +45,84 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
     
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(_editingCategoryId == null ? 'Add Category' : 'Edit Category'),
-        content: Form(
-          key: _formKey,
-          child: CustomTextField(
-            controller: _nameController,
-            labelText: 'Category Name',
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter a category name';
-              }
-              return null;
-            },
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          title: Text(_editingCategoryId == null ? 'Add Category' : 'Edit Category'),
+          content: Form(
+            key: _formKey,
+            child: CustomTextField(
+              controller: _nameController,
+              labelText: 'Category Name',
+              validator: (value) {
+                if (value == null || value.isEmpty) {
+                  return 'Please enter a category name';
+                }
+                return null;
+              },
+            ),
           ),
+          actions: [
+            TextButton(
+              onPressed: _isSubmitting ? null : () {
+                setState(() { _isSubmitting = false; });
+                Navigator.of(context).pop();
+              },
+              child: const Text('Cancel'),
+            ),
+            TextButton(
+              onPressed: _isSubmitting ? null : () async {
+                if (!_formKey.currentState!.validate()) return;
+                
+                setState(() { _isSubmitting = true; });
+                setDialogState(() {});
+                
+                try {
+                  final categoryProvider = context.read<CategoryProvider>();
+                  bool success;
+                  
+                  if (_editingCategoryId == null) {
+                    success = await categoryProvider.createCategory(_nameController.text.trim());
+                  } else {
+                    success = await categoryProvider.updateCategory(_editingCategoryId!, _nameController.text.trim());
+                  }
+                  
+                  if (!mounted) return;
+                  
+                  Navigator.of(context).pop();
+                  
+                  if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Category ${_editingCategoryId == null ? 'added' : 'updated'} successfully'))
+                    );
+                    await _loadCategories();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(categoryProvider.error ?? 'An error occurred'))
+                    );
+                  }
+                } finally {
+                  if (mounted) {
+                    setState(() { _isSubmitting = false; });
+                  }
+                }
+              },
+              child: _isSubmitting 
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Save'),
+            ),
+          ],
         ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Cancel'),
-          ),
-          TextButton(
-            onPressed: () async {
-              await _saveCategory();
-              await _loadCategories();
-            },
-            child: const Text('Save'),
-          ),
-        ],
       ),
-    );
-  }
-  
-  Future<void> _saveCategory() async {
-    if (!_formKey.currentState!.validate()) return;
-    final categoryProvider = context.read<CategoryProvider>();
-    bool success;
-    
-    if (_editingCategoryId == null) {
-      success = await categoryProvider.createCategory(_nameController.text.trim());
-    } else {
-      success = await categoryProvider.updateCategory(_editingCategoryId!, _nameController.text.trim());
-    }
-    
-    if (!mounted) return;
-    
-    Navigator.of(context).pop();
-    
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Category ${_editingCategoryId == null ? 'added' : 'updated'} successfully'))
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(categoryProvider.error ?? 'An error occurred'))
-      );
-    }
+    ).then((_) {
+      // Reset state when dialog is closed
+      if (mounted) {
+        setState(() { _isSubmitting = false; });
+      }
+    });
   }
   
   Future<void> _deleteCategory(String id) async {
@@ -190,7 +213,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
               },
             ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddEditDialog(),
+        onPressed: _isLoading ? null : () => _showAddEditDialog(),
         child: const Icon(Icons.add),
       ),
     );

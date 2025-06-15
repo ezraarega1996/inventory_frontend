@@ -214,10 +214,6 @@ class _SellItemScreenState extends State<SellItemScreen> {
       return;
     }
 
-    setState(() {
-      _isSubmitting = true;
-    });
-
     try {
       final success = await _salesProvider.createSale({
         'itemId': _selectedItem!.id,
@@ -447,8 +443,14 @@ class _SellItemScreenState extends State<SellItemScreen> {
               ),
               const SizedBox(height: 24),
               CustomButton(
-                onPressed: _isSubmitting ? () {} : _sellItem,
+                onPressed: _isSubmitting 
+                  ? () {} 
+                  : () {
+                      // ignore: unawaited_futures
+                      _sellItem();
+                    },
                 text: _isSubmitting ? 'Processing...' : 'Sell Item',
+                isLoading: _isSubmitting,
               ),
             ],
           ),

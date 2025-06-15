@@ -31,6 +31,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
   String? _selectedFractionId;
   String? _selectedSalesmanId;
   bool _isLoading = true;
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -97,8 +98,9 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
 
     showDialog(
       context: context,
+      barrierDismissible: false,
       builder: (context) => StatefulBuilder(
-        builder: (context, setState) => AlertDialog(
+        builder: (context, setDialogState) => AlertDialog(
           title: Text(_editingBoughtId == null ? 'Add Bought Item' : 'Edit Bought Item'),
           content: SingleChildScrollView(
             child: Form(
@@ -121,8 +123,8 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                             child: Text(salesman.name),
                           );
                         }).toList(),
-                        onChanged: (value) {
-                          setState(() { _selectedSalesmanId = value; });
+                        onChanged: _isSubmitting ? null : (value) {
+                          setDialogState(() { _selectedSalesmanId = value; });
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -148,8 +150,8 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                             child: Text(item.name),
                           );
                         }).toList(),
-                        onChanged: (value) {
-                          setState(() {
+                        onChanged: _isSubmitting ? null : (value) {
+                          setDialogState(() {
                             _selectedItemId = value;
                             _selectedFractionId = null;
                             _fractionNameController.clear();
@@ -205,8 +207,8 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                                       ),
                                     );
                                   }).toList() ?? [],
-                                  onChanged: (value) {
-                                    setState(() {
+                                  onChanged: _isSubmitting ? null : (value) {
+                                    setDialogState(() {
                                       _selectedFractionId = value;
                                       final fraction = item.fractions?.firstWhere((f) => f.id == value);
                                       if (fraction != null) {
@@ -230,6 +232,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                     controller: _fractionPurchasePriceController,
                     labelText: 'Purchase Price',
                     keyboardType: TextInputType.number,
+                    enabled: !_isSubmitting,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a purchase price';
@@ -245,6 +248,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                     controller: _fractionSoldPriceController,
                     labelText: 'Sold Price',
                     keyboardType: TextInputType.number,
+                    enabled: !_isSubmitting,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a sold price';
@@ -260,6 +264,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                     controller: _quantityController,
                     labelText: 'Quantity',
                     keyboardType: TextInputType.number,
+                    enabled: !_isSubmitting,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a quantity';
@@ -274,6 +279,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                   CustomTextField(
                     controller: _locationController,
                     labelText: 'Location',
+                    enabled: !_isSubmitting,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter a location';
@@ -285,6 +291,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                   ListTile(
                     title: Text(_expiryDate == null ? 'Select Expiry Date' : 'Expiry Date: ${DateFormat('MMM dd, yyyy').format(_expiryDate!)}'),
                     trailing: const Icon(Icons.calendar_today),
+                    enabled: !_isSubmitting,
                     onTap: () async {
                       final date = await showDatePicker(
                         context: context,
@@ -293,7 +300,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                         lastDate: DateTime.now().add(const Duration(days: 365)),
                       );
                       if (date != null) {
-                        setState(() { _expiryDate = date; });
+                        setDialogState(() { _expiryDate = date; });
                       }
                     },
                   ),
@@ -303,68 +310,94 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
           ),
           actions: [
             TextButton(
-              onPressed: () => Navigator.of(context).pop(),
+              onPressed: _isSubmitting ? null : () {
+                setState(() { _isSubmitting = false; });
+                Navigator.of(context).pop();
+              },
               child: const Text('Cancel'),
             ),
             TextButton(
-              onPressed: () async {
-                await _saveBought();
-                await _loadBoughts();
+              onPressed: _isSubmitting ? null : () async {
+                if (!_formKey.currentState!.validate()) return;
+                if (_selectedFractionId == null) {
+                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a fraction')));
+                  return;
+                }
+                
+                setState(() { _isSubmitting = true; });
+                setDialogState(() {});
+                
+                try {
+                  final boughtProvider = context.read<BoughtProvider>();
+                  final itemProvider = context.read<ItemProvider>();
+                  final item = itemProvider.items.firstWhere((item) => item.id == _selectedItemId);
+                  final fraction = item.fractions?.firstWhere((f) => f.id == _selectedFractionId);
+                  if (fraction == null) {
+                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Selected fraction not found')));
+                    return;
+                  }
+                  bool success;
+                  if (_editingBoughtId == null) {
+                    success = await boughtProvider.createBought(
+                      itemId: _selectedItemId!,
+                      fractionId: _selectedFractionId!,
+                      fractionPurchasePrice: double.parse(_fractionPurchasePriceController.text),
+                      fractionSoldPrice: double.parse(_fractionSoldPriceController.text),
+                      quantity: double.parse(_quantityController.text),
+                      location: _locationController.text.trim(),
+                      expiryDate: _expiryDate,
+                      salesmanId: _selectedSalesmanId,
+                    );
+                  } else {
+                    success = await boughtProvider.updateBought(
+                      id: _editingBoughtId!,
+                      fractionId: _selectedFractionId!,
+                      fractionPurchasePrice: double.parse(_fractionPurchasePriceController.text),
+                      fractionSoldPrice: double.parse(_fractionSoldPriceController.text),
+                      quantity: double.parse(_quantityController.text),
+                      location: _locationController.text.trim(),
+                      expiryDate: _expiryDate,
+                      salesmanId: _selectedSalesmanId,
+                    );
+                  }
+                  
+                  if (!mounted) return;
+                  
+                  Navigator.of(context).pop();
+                  
+                  if (success) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Bought item ${_editingBoughtId == null ? 'added' : 'updated'} successfully'))
+                    );
+                    await _loadBoughts();
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(boughtProvider.error ?? 'An error occurred'))
+                    );
+                  }
+                } finally {
+                  if (mounted) {
+                    setState(() { _isSubmitting = false; });
+                  }
+                }
               },
-              child: const Text('Save'),
+              child: _isSubmitting 
+                ? const SizedBox(
+                    width: 20,
+                    height: 20,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
+                : const Text('Save'),
             ),
           ],
         ),
       ),
-    );
-  }
-
-  Future<void> _saveBought() async {
-    if (!_formKey.currentState!.validate()) return;
-    if (_selectedFractionId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a fraction')));
-      return;
-    }
-    final boughtProvider = context.read<BoughtProvider>();
-    final itemProvider = context.read<ItemProvider>();
-    final item = itemProvider.items.firstWhere((item) => item.id == _selectedItemId);
-    final fraction = item.fractions?.firstWhere((f) => f.id == _selectedFractionId);
-    if (fraction == null) {
-      ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Selected fraction not found')));
-      return;
-    }
-    bool success;
-    if (_editingBoughtId == null) {
-      success = await boughtProvider.createBought(
-        itemId: _selectedItemId!,
-        fractionId: _selectedFractionId!,
-        fractionPurchasePrice: double.parse(_fractionPurchasePriceController.text),
-        fractionSoldPrice: double.parse(_fractionSoldPriceController.text),
-        quantity: double.parse(_quantityController.text),
-        location: _locationController.text.trim(),
-        expiryDate: _expiryDate,
-        salesmanId: _selectedSalesmanId,
-      );
-    } else {
-      success = await boughtProvider.updateBought(
-        id: _editingBoughtId!,
-        fractionId: _selectedFractionId!,
-        fractionPurchasePrice: double.parse(_fractionPurchasePriceController.text),
-        fractionSoldPrice: double.parse(_fractionSoldPriceController.text),
-        quantity: double.parse(_quantityController.text),
-        location: _locationController.text.trim(),
-        expiryDate: _expiryDate,
-        salesmanId: _selectedSalesmanId,
-      );
-    }
-    if (!mounted) return;
-    Navigator.of(context).pop();
-    if (success) {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Bought item ${_editingBoughtId == null ? 'added' : 'updated'} successfully')));
-      await _loadBoughts();
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(boughtProvider.error ?? 'An error occurred')));
-    }
+    ).then((_) {
+      // Reset state when dialog is closed
+      if (mounted) {
+        setState(() { _isSubmitting = false; });
+      }
+    });
   }
 
   Future<void> _deleteBought(String id) async {
