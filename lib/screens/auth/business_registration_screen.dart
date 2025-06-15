@@ -15,11 +15,7 @@ class BusinessRegistrationScreen extends StatefulWidget {
 class _BusinessRegistrationScreenState extends State<BusinessRegistrationScreen> {
   final _formKey = GlobalKey<FormState>();
   final _businessNameController = TextEditingController();
-  final _businessEmailController = TextEditingController();
-  final _businessPhoneController = TextEditingController();
-  final _businessAddressController = TextEditingController();
   final _ownerNameController = TextEditingController();
-  final _ownerEmailController = TextEditingController();
   final _ownerPhoneController = TextEditingController();
   final _ownerUsernameController = TextEditingController();
   final _ownerPasswordController = TextEditingController();
@@ -30,11 +26,7 @@ class _BusinessRegistrationScreenState extends State<BusinessRegistrationScreen>
   @override
   void dispose() {
     _businessNameController.dispose();
-    _businessEmailController.dispose();
-    _businessPhoneController.dispose();
-    _businessAddressController.dispose();
     _ownerNameController.dispose();
-    _ownerEmailController.dispose();
     _ownerPhoneController.dispose();
     _ownerUsernameController.dispose();
     _ownerPasswordController.dispose();
@@ -48,11 +40,7 @@ class _BusinessRegistrationScreenState extends State<BusinessRegistrationScreen>
       
       final businessData = {
         'name': _businessNameController.text.trim(),
-        'email': _businessEmailController.text.trim(),
-        'phone': _businessPhoneController.text.trim(),
-        'address': _businessAddressController.text.trim(),
         'ownerName': _ownerNameController.text.trim(),
-        'ownerEmail': _ownerEmailController.text.trim(),
         'ownerPhone': _ownerPhoneController.text.trim(),
         'ownerUsername': _ownerUsernameController.text.trim(),
         'ownerPassword': _ownerPasswordController.text,
@@ -94,7 +82,7 @@ class _BusinessRegistrationScreenState extends State<BusinessRegistrationScreen>
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               const Text(
-                'Business Information',
+                'Registration Information',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -113,72 +101,11 @@ class _BusinessRegistrationScreenState extends State<BusinessRegistrationScreen>
               ),
               const SizedBox(height: 16),
               CustomTextField(
-                controller: _businessEmailController,
-                labelText: 'Business Email',
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your business email';
-                  }
-                  if (!value.contains('@')) {
-                    return 'Please enter a valid email';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              CustomTextField(
-                controller: _businessPhoneController,
-                labelText: 'Business Phone',
-                keyboardType: TextInputType.phone,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your business phone';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              CustomTextField(
-                controller: _businessAddressController,
-                labelText: 'Business Address',
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your business address';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 32),
-              const Text(
-                'Owner Information',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-              const SizedBox(height: 16),
-              CustomTextField(
                 controller: _ownerNameController,
                 labelText: 'Owner Name',
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return 'Please enter owner name';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              CustomTextField(
-                controller: _ownerEmailController,
-                labelText: 'Owner Email',
-                keyboardType: TextInputType.emailAddress,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter owner email';
-                  }
-                  if (!value.contains('@')) {
-                    return 'Please enter a valid email';
                   }
                   return null;
                 },

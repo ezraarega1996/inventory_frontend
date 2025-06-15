@@ -182,8 +182,17 @@ class _BusinessDetailScreenState extends State<BusinessDetailScreen> {
                 ),
                 const SizedBox(height: 16),
                 if (_error != null)
-                  Center(child: Text('Error loading stats: $_error'))
-                else if (_stats.isNotEmpty)
+                  Card(
+                    color: Colors.red.shade100,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Text(
+                        'Error loading stats: $_error',
+                        style: TextStyle(color: Colors.red.shade900),
+                      ),
+                    ),
+                  )
+                else
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
