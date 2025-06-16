@@ -6,11 +6,8 @@ import 'package:inventory_frontend/screens/owner/fraction_management_screen.dart
 
 class ItemDetailScreen extends StatefulWidget {
   final Item item;
-  
-  const ItemDetailScreen({
-    Key? key,
-    required this.item,
-  }) : super(key: key);
+
+  const ItemDetailScreen({super.key, required this.item});
 
   @override
   State<ItemDetailScreen> createState() => _ItemDetailScreenState();
@@ -21,11 +18,9 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
   Widget build(BuildContext context) {
     final itemProvider = Provider.of<ItemProvider>(context);
     final item = itemProvider.items.firstWhere((i) => i.id == widget.item.id);
-    
+
     return Scaffold(
-      appBar: AppBar(
-        title: Text(item.name),
-      ),
+      appBar: AppBar(title: Text(item.name)),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Column(
@@ -76,10 +71,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
               children: [
                 const Text(
                   'Units',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                 ),
                 TextButton.icon(
                   onPressed: () {
@@ -96,9 +88,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
             ),
             const SizedBox(height: 16),
             if (item.fractions == null || item.fractions!.isEmpty)
-              const Center(
-                child: Text('No Units added yet'),
-              )
+              const Center(child: Text('No Units added yet'))
             else
               ListView.builder(
                 shrinkWrap: true,
@@ -109,7 +99,9 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                   return Card(
                     child: ListTile(
                       title: Text(fraction.name),
-                      subtitle: Text('Ratio: ${fraction.ratio}, Price: \$${fraction.price}'),
+                      subtitle: Text(
+                        'Ratio: ${fraction.ratio}, Price: \$${fraction.price}',
+                      ),
                     ),
                   );
                 },

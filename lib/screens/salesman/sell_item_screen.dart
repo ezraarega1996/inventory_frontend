@@ -16,10 +16,10 @@ class SellItemScreen extends StatefulWidget {
   final Fraction? preSelectedFraction;
   
   const SellItemScreen({
-    Key? key,
+    super.key,
     this.preSelectedItem,
     this.preSelectedFraction,
-  }) : super(key: key);
+  });
 
   @override
   State<SellItemScreen> createState() => _SellItemScreenState();

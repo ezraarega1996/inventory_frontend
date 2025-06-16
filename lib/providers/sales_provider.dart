@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:inventory_frontend/models/sold_item.dart';
 import 'package:inventory_frontend/utils/api.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:inventory_frontend/config.dart';
-import 'package:inventory_frontend/models/user.dart';
 import 'package:inventory_frontend/models/sales_data.dart';
 
 class SalesProvider with ChangeNotifier {
@@ -41,7 +37,10 @@ class SalesProvider with ChangeNotifier {
         // Sort sales by date, most recent first
         _sales.sort((a, b) => b.createdAt.compareTo(a.createdAt));
         _totalItemsSold = _sales.length;
-        _totalSales = _sales.fold<double>(0.0, (sum, item) => sum + item.soldPrice);
+        _totalSales = _sales.fold<double>(
+          0.0,
+          (sum, item) => sum + item.soldPrice,
+        );
         print('Fetched ${_sales.length} sales records'); // Debug print
       } else {
         _error = 'No sales data received';
@@ -65,15 +64,16 @@ class SalesProvider with ChangeNotifier {
     try {
       final response = await Api.get('available-items/today-sales');
       print('Today sales response: $response'); // Debug print
-      
+
       if (response != null && response is Map<String, dynamic>) {
         _todaySales = (response['totalSales'] ?? 0).toDouble();
         print('Total sales: $_todaySales'); // Debug print
-        
+
         if (response['salesBySalesman'] != null) {
-          _todaySalesData = (response['salesBySalesman'] as List)
-              .map((json) => SalesData.fromJson(json))
-              .toList();
+          _todaySalesData =
+              (response['salesBySalesman'] as List)
+                  .map((json) => SalesData.fromJson(json))
+                  .toList();
           print('Sales by salesman: $_todaySalesData'); // Debug print
         } else {
           _todaySalesData = [];
@@ -118,11 +118,14 @@ class SalesProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-
       final response = await Api.get('sales/dashboard');
+      print('Dashboard stats response: $response'); // Debug log
+
       if (response != null) {
         _totalSales = response['totalSales']?.toDouble();
         _totalItemsSold = response['salesCount'];
+        print('Total sales: $_totalSales'); // Debug log
+        print('Sales by day: ${response['salesByDay']}'); // Debug log
 
         _dashboardStats = response;
         if (response['sales'] is List) {
@@ -142,6 +145,7 @@ class SalesProvider with ChangeNotifier {
         _error = 'Failed to fetch dashboard stats';
       }
     } catch (e) {
+      print('Error in fetchDashboardStats: $e'); // Debug log
       _error = e.toString();
     } finally {
       _isLoading = false;
@@ -244,7 +248,8 @@ class SalesProvider with ChangeNotifier {
         throw Exception('No response from server');
       }
 
-      if (response is Map<String, dynamic> && response.containsKey('availableQuantity')) {
+      if (response is Map<String, dynamic> &&
+          response.containsKey('availableQuantity')) {
         final quantity = response['availableQuantity'];
         if (quantity is num) {
           _isLoading = false;

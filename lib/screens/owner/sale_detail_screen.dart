@@ -6,9 +6,9 @@ class SaleDetailScreen extends StatelessWidget {
   final SoldItem sale;
   
   const SaleDetailScreen({
-    Key? key,
+    super.key,
     required this.sale,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -80,7 +80,7 @@ class SaleDetailScreen extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 16),
-                    _buildInfoRow('Amount', '\$${sale.soldPrice}'),
+                    _buildInfoRow('Amount', '${sale.soldPrice} ETB'),
                   ],
                 ),
               ),

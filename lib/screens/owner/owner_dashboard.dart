@@ -15,7 +15,7 @@ import 'package:inventory_frontend/widgets/dashboard_card.dart';
 import 'package:inventory_frontend/widgets/dashboard_chart.dart';
 
 class OwnerDashboard extends StatefulWidget {
-  const OwnerDashboard({Key? key}) : super(key: key);
+  const OwnerDashboard({super.key});
 
   @override
   State<OwnerDashboard> createState() => _OwnerDashboardState();
@@ -31,31 +31,31 @@ class _OwnerDashboardState extends State<OwnerDashboard> {
     _loadDashboardData();
   }
 
-Future<void> _loadDashboardData() async {
-  if (!mounted) return;
-  
-  setState(() {
-    _isLoading = true;
-  });
+  Future<void> _loadDashboardData() async {
+    if (!mounted) return;
 
-  final salesProvider = context.read<SalesProvider>();
-  final authProvider = context.read<AuthProvider>();
-  final businessProvider = context.read<BusinessProvider>();
-
-  await salesProvider.fetchDashboardStats();
-  await salesProvider.fetchTodaySales(); // <-- Add this line
-  if (authProvider.user?.businessId != null) {
-    await businessProvider.loadCurrentBusiness(
-      authProvider.user!.businessId!,
-    );
-  }
-
-  if (mounted) {
     setState(() {
-      _isLoading = false;
+      _isLoading = true;
     });
+
+    final salesProvider = context.read<SalesProvider>();
+    final authProvider = context.read<AuthProvider>();
+    final businessProvider = context.read<BusinessProvider>();
+
+    await salesProvider.fetchDashboardStats();
+    await salesProvider.fetchTodaySales(); // <-- Add this line
+    if (authProvider.user?.businessId != null) {
+      await businessProvider.loadCurrentBusiness(
+        authProvider.user!.businessId!,
+      );
+    }
+
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
-}
 
   void _onItemTapped(int index) {
     setState(() {
@@ -69,9 +69,9 @@ Future<void> _loadDashboardData() async {
 
     if (!mounted) return;
 
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(builder: (_) => const LoginScreen())
-    );
+    Navigator.of(
+      context,
+    ).pushReplacement(MaterialPageRoute(builder: (_) => const LoginScreen()));
   }
 
   Widget _getScreen() {
@@ -116,7 +116,10 @@ Future<void> _loadDashboardData() async {
                   children: [
                     const Text(
                       'Dashboard',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                      style: TextStyle(
+                        fontSize: 24,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                     IconButton(
                       icon: const Icon(Icons.refresh),
@@ -124,7 +127,8 @@ Future<void> _loadDashboardData() async {
                     ),
                   ],
                 ),
-                if (business != null && business.subscriptionStatus == 'trial') ...[
+                if (business != null &&
+                    business.subscriptionStatus == 'trial') ...[
                   const SizedBox(height: 16),
                   Card(
                     color: Colors.amber.shade100,
@@ -148,7 +152,8 @@ Future<void> _loadDashboardData() async {
                           TextButton(
                             onPressed: () {
                               setState(() {
-                                _selectedIndex = 5; // Switch to subscription screen
+                                _selectedIndex =
+                                    5; // Switch to subscription screen
                               });
                             },
                             child: const Text('View Plans'),
@@ -160,27 +165,29 @@ Future<void> _loadDashboardData() async {
                 ],
                 const SizedBox(height: 24),
 
-            // Add this section for today's sales by salesman
-            const Text(
-              "Today's Sales by Salesman",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            if (salesProvider.todaySalesData.isEmpty)
-              const Text('No sales recorded today.'),
-            ...salesProvider.todaySalesData.map((salesData) => Card(
-                  child: ListTile(
-                    title: Text(salesData.salesmanName ?? 'Unknown'),
-                    trailing: Text(
-                      '₹${salesData.totalAmount.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                // Add this section for today's sales by salesman
+                const Text(
+                  "Today's Sales by Salesman",
+                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                if (salesProvider.todaySalesData.isEmpty)
+                  const Text('No sales recorded today.'),
+                ...salesProvider.todaySalesData.map(
+                  (salesData) => Card(
+                    child: ListTile(
+                      title: Text(salesData.salesmanName ?? 'Unknown'),
+                      trailing: Text(
+                        '₹${salesData.totalAmount.toStringAsFixed(2)}',
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
                       ),
                     ),
                   ),
-                )),
-                
+                ),
+
                 const SizedBox(height: 24),
                 if (_isLoading)
                   const Center(child: CircularProgressIndicator())
@@ -192,7 +199,8 @@ Future<void> _loadDashboardData() async {
                           Expanded(
                             child: DashboardCard(
                               title: 'Total Sales',
-                              value: '\$${stats['totalSales']?.toStringAsFixed(2) ?? '0.00'}',
+                              value:
+                                  '${stats['totalSales']?.toStringAsFixed(2) ?? '0.00'} ETB',
                               icon: Icons.attach_money,
                               color: Colors.green,
                             ),
@@ -211,7 +219,10 @@ Future<void> _loadDashboardData() async {
                       const SizedBox(height: 24),
                       const Text(
                         'Sales Trend (Last 30 Days)',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       SizedBox(
@@ -221,7 +232,10 @@ Future<void> _loadDashboardData() async {
                       const SizedBox(height: 24),
                       const Text(
                         'Top Selling Items',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       ListView.builder(
@@ -235,9 +249,13 @@ Future<void> _loadDashboardData() async {
                             child: ListTile(
                               title: Text(
                                 item['Item']['name'],
-                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                style: const TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
-                              subtitle: Text('Quantity: ${item['totalQuantity']}'),
+                              subtitle: Text(
+                                'Quantity: ${item['totalQuantity']}',
+                              ),
                               trailing: Text(
                                 '\$${item['totalAmount']?.toStringAsFixed(2) ?? '0.00'}',
                                 style: const TextStyle(
@@ -269,11 +287,9 @@ Future<void> _loadDashboardData() async {
     return Consumer<BusinessProvider>(
       builder: (context, businessProvider, child) {
         final business = businessProvider.currentBusiness;
-        
+
         return Scaffold(
-          appBar: AppBar(
-            title: Text(business?.name ?? 'Owner Dashboard'),
-          ),
+          appBar: AppBar(title: Text(business?.name ?? 'Owner Dashboard')),
           drawer: _buildDrawer(),
           body: _getScreen(),
         );
@@ -315,7 +331,7 @@ Future<void> _loadDashboardData() async {
               Navigator.pop(context);
             },
           ),
-                    ListTile(
+          ListTile(
             leading: Icon(Icons.category),
             title: Text('Categories'),
             selected: _selectedIndex == 3,
@@ -382,11 +398,11 @@ Future<void> _loadDashboardData() async {
             },
           ),
           const Divider(),
-                ListTile(
-                  leading: const Icon(Icons.logout, color: Colors.red),
-                  title: const Text('Logout'),
-                  onTap: _logout,
-                ),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: const Text('Logout'),
+            onTap: _logout,
+          ),
         ],
       ),
     );

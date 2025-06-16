@@ -10,7 +10,7 @@ import 'package:inventory_frontend/widgets/custom_text_field.dart';
 import 'package:intl/intl.dart';
 
 class BoughtsScreen extends StatefulWidget {
-  const BoughtsScreen({Key? key}) : super(key: key);
+  const BoughtsScreen({super.key});
 
   @override
   State<BoughtsScreen> createState() => _BoughtsScreenState();

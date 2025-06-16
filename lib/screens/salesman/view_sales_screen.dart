@@ -6,7 +6,7 @@ import 'package:inventory_frontend/providers/sales_provider.dart';
 import 'package:inventory_frontend/screens/salesman/sale_detail_screen.dart';
 
 class ViewSalesScreen extends StatefulWidget {
-  const ViewSalesScreen({Key? key}) : super(key: key);
+  const ViewSalesScreen({super.key});
 
   @override
   State<ViewSalesScreen> createState() => _ViewSalesScreenState();
@@ -108,10 +108,10 @@ class _ViewSalesScreenState extends State<ViewSalesScreen> {
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text('Quantity: ${sale.quantity * sale.fraction!.ratio / selectedFraction!.ratio} ${selectedFraction?.name ?? ""}'),
+                                              Text('Quantity: ${sale.quantity * sale.fraction!.ratio / selectedFraction.ratio} ${selectedFraction.name ?? ""}'),
                                               Text('Amount: \$${sale.soldPrice}'),
                                               sale.available_items_count != null
-                                                ? Text('Available items: ${sale.available_items_count! * sale.fraction!.ratio / selectedFraction!.ratio} ${selectedFraction?.name ?? ""}')
+                                                ? Text('Available items: ${sale.available_items_count! * sale.fraction!.ratio / selectedFraction.ratio} ${selectedFraction.name ?? ""}')
                                                 : const SizedBox.shrink(),
                                               Text('Date: ${dateFormat.format(sale.createdAt)}'),
                                             ],

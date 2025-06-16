@@ -6,7 +6,7 @@ import 'package:inventory_frontend/providers/sales_provider.dart';
 import 'package:inventory_frontend/screens/owner/sale_detail_screen.dart';
 
 class SalesScreen extends StatefulWidget {
-  const SalesScreen({Key? key}) : super(key: key);
+  const SalesScreen({super.key});
 
   @override
   State<SalesScreen> createState() => _SalesScreenState();
@@ -133,7 +133,7 @@ class _SalesScreenState extends State<SalesScreen> {
                                         Row(
                                           children: [
                                             Expanded(
-                                              child: Text('Amount: \$${sale.soldPrice}'),
+                                              child: Text('Amount: ${sale.soldPrice} ETB'),
                                             ),
                                             Expanded(
                                               child: sale.available_items_count != null
