@@ -10,7 +10,7 @@ import 'package:inventory_frontend/screens/salesman/available_items_screen.dart'
 import 'package:inventory_frontend/widgets/dashboard_card.dart';
 
 class SalesmanDashboard extends StatefulWidget {
-  const SalesmanDashboard({Key? key}) : super(key: key);
+  const SalesmanDashboard({super.key});
 
   @override
   State<SalesmanDashboard> createState() => _SalesmanDashboardState();
@@ -167,7 +167,7 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
                         radius: 30,
                         backgroundColor: Colors.white,
                         child: Text(
-                          authProvider.user?.name?.substring(0, 1).toUpperCase() ?? 'S',
+                          authProvider.user?.name.substring(0, 1).toUpperCase() ?? 'S',
                           style: TextStyle(
                             fontSize: 24,
                             color: Theme.of(context).primaryColor,

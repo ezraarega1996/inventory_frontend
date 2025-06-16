@@ -6,7 +6,7 @@ import 'package:inventory_frontend/screens/admin/business_detail_screen.dart';
 import 'package:inventory_frontend/utils/api.dart';
 
 class BusinessesScreen extends StatefulWidget {
-  const BusinessesScreen({Key? key}) : super(key: key);
+  const BusinessesScreen({super.key});
 
   @override
   State<BusinessesScreen> createState() => _BusinessesScreenState();

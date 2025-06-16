@@ -6,7 +6,7 @@ import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
 
 class BusinessRegistrationScreen extends StatefulWidget {
-  const BusinessRegistrationScreen({Key? key}) : super(key: key);
+  const BusinessRegistrationScreen({super.key});
 
   @override
   State<BusinessRegistrationScreen> createState() => _BusinessRegistrationScreenState();

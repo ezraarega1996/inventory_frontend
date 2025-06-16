@@ -13,11 +13,11 @@ class SellItemScreen extends StatefulWidget {
   final String businessId;
 
   const SellItemScreen({
-    Key? key,
+    super.key,
     required this.token,
     required this.userId,
     required this.businessId,
-  }) : super(key: key);
+  });
 
   @override
   State<SellItemScreen> createState() => _SellItemScreenState();

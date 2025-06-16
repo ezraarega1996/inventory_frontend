@@ -5,7 +5,7 @@ import 'package:inventory_frontend/providers/item_provider.dart';
 import 'package:inventory_frontend/screens/salesman/item_detail_screen.dart';
 
 class ViewItemsScreen extends StatefulWidget {
-  const ViewItemsScreen({Key? key}) : super(key: key);
+  const ViewItemsScreen({super.key});
 
   @override
   State<ViewItemsScreen> createState() => _ViewItemsScreenState();

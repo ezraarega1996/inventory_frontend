@@ -9,6 +9,7 @@ import 'package:inventory_frontend/providers/category_provider.dart';
 import 'package:inventory_frontend/providers/user_provider.dart';
 import 'package:inventory_frontend/providers/bought_provider.dart';
 import 'package:inventory_frontend/providers/available_item_provider.dart';
+import 'package:inventory_frontend/providers/salesman_provider.dart';
 import 'package:inventory_frontend/services/business_service.dart';
 import 'package:inventory_frontend/screens/business/business_list_screen.dart';
 import 'package:inventory_frontend/screens/business/business_register_screen.dart';
@@ -23,39 +24,26 @@ void main() {
     MultiProvider(
       providers: [
         Provider(
-          create: (_) => BusinessService(
-            baseUrl: 'https://18.116.170.87:5000/api',
-          ),
+          create:
+              (_) => BusinessService(baseUrl: 'https://18.116.170.87:5000/api'),
         ),
         ChangeNotifierProxyProvider<BusinessService, BusinessProvider>(
-          create: (context) => BusinessProvider(
-            Provider.of<BusinessService>(context, listen: false),
-          ),
-          update: (context, businessService, previous) => BusinessProvider(
-            businessService,
-          ),
+          create:
+              (context) => BusinessProvider(
+                Provider.of<BusinessService>(context, listen: false),
+              ),
+          update:
+              (context, businessService, previous) =>
+                  BusinessProvider(businessService),
         ),
-        ChangeNotifierProvider(
-          create: (_) => AuthProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => SalesProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => ItemProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => CategoryProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => UserProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => BoughtProvider(),
-        ),
-        ChangeNotifierProvider(
-          create: (_) => AvailableItemProvider(),
-        ),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => SalesProvider()),
+        ChangeNotifierProvider(create: (_) => ItemProvider()),
+        ChangeNotifierProvider(create: (_) => CategoryProvider()),
+        ChangeNotifierProvider(create: (_) => UserProvider()),
+        ChangeNotifierProvider(create: (_) => BoughtProvider()),
+        ChangeNotifierProvider(create: (_) => AvailableItemProvider()),
+        ChangeNotifierProvider(create: (_) => SalesmanProvider()),
       ],
       child: const MyApp(),
     ),
@@ -80,11 +68,14 @@ class MyApp extends StatelessWidget {
         '/login': (context) => const LoginScreen(),
         '/business/register': (context) => const BusinessRegisterScreen(),
         '/business/detail': (context) {
-          final business = ModalRoute.of(context)!.settings.arguments as Business;
+          final business =
+              ModalRoute.of(context)!.settings.arguments as Business;
           return BusinessDetailScreen(business: business);
         },
         '/sell-item': (context) {
-          final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
+          final args =
+              ModalRoute.of(context)!.settings.arguments
+                  as Map<String, dynamic>?;
           return SellItemScreen(
             preSelectedItem: args?['preSelectedItem'],
             preSelectedFraction: args?['preSelectedFraction'],

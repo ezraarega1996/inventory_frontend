@@ -4,23 +4,18 @@ import 'package:intl/intl.dart';
 
 class DashboardChart extends StatelessWidget {
   final List<dynamic> data;
-  
-  const DashboardChart({
-    Key? key,
-    required this.data,
-  }) : super(key: key);
+
+  const DashboardChart({super.key, required this.data});
 
   @override
   Widget build(BuildContext context) {
     if (data.isEmpty) {
-      return const Center(
-        child: Text('No data available'),
-      );
+      return const Center(child: Text('No data available'));
     }
-    
+
     final spots = _createSpots();
     final maxY = _getMaxY();
-    
+
     return LineChart(
       LineChartData(
         gridData: FlGridData(
@@ -31,12 +26,8 @@ class DashboardChart extends StatelessWidget {
         ),
         titlesData: FlTitlesData(
           show: true,
-          rightTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
-          topTitles: AxisTitles(
-            sideTitles: SideTitles(showTitles: false),
-          ),
+          rightTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
+          topTitles: AxisTitles(sideTitles: SideTitles(showTitles: false)),
           bottomTitles: AxisTitles(
             sideTitles: SideTitles(
               showTitles: true,
@@ -46,15 +37,13 @@ class DashboardChart extends StatelessWidget {
                 if (value.toInt() >= data.length || value.toInt() < 0) {
                   return const SizedBox();
                 }
-                
+
                 final date = DateTime.parse(data[value.toInt()]['date']);
                 return Padding(
                   padding: const EdgeInsets.only(top: 8.0),
                   child: Text(
                     DateFormat('MM/dd').format(date),
-                    style: const TextStyle(
-                      fontSize: 10,
-                    ),
+                    style: const TextStyle(fontSize: 10),
                   ),
                 );
               },
@@ -66,10 +55,8 @@ class DashboardChart extends StatelessWidget {
               interval: maxY / 5,
               getTitlesWidget: (value, meta) {
                 return Text(
-                  '\$${value.toInt()}',
-                  style: const TextStyle(
-                    fontSize: 10,
-                  ),
+                  'ETB${value.toInt()}',
+                  style: const TextStyle(fontSize: 10),
                 );
               },
               reservedSize: 42,
@@ -91,9 +78,7 @@ class DashboardChart extends StatelessWidget {
             color: Colors.blue,
             barWidth: 3,
             isStrokeCapRound: true,
-            dotData: FlDotData(
-              show: true,
-            ),
+            dotData: FlDotData(show: true),
             belowBarData: BarAreaData(
               show: true,
               color: Colors.blue.withOpacity(0.3),
@@ -103,28 +88,34 @@ class DashboardChart extends StatelessWidget {
       ),
     );
   }
-  
+
   List<FlSpot> _createSpots() {
     final spots = <FlSpot>[];
-    
+
     for (int i = 0; i < data.length; i++) {
-      final total = double.parse(data[i]['total'].toString());
+      final total =
+          data[i]['total'] is String
+              ? double.parse(data[i]['total'])
+              : (data[i]['total'] as num).toDouble();
       spots.add(FlSpot(i.toDouble(), total));
     }
-    
+
     return spots;
   }
-  
+
   double _getMaxY() {
     double maxY = 0;
-    
+
     for (final item in data) {
-      final total = double.parse(item['total'].toString());
+      final total =
+          item['total'] is String
+              ? double.parse(item['total'])
+              : (item['total'] as num).toDouble();
       if (total > maxY) {
         maxY = total;
       }
     }
-    
+
     // Add some padding to the max value
     return maxY * 1.2;
   }

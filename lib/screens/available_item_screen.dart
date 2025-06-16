@@ -9,7 +9,7 @@ import 'package:intl/intl.dart';
 import 'package:inventory_frontend/providers/user_provider.dart';
 
 class AvailableItemScreen extends StatefulWidget {
-  const AvailableItemScreen({Key? key}) : super(key: key);
+  const AvailableItemScreen({super.key});
 
   @override
   State<AvailableItemScreen> createState() => _AvailableItemScreenState();

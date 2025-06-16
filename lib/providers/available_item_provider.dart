@@ -1,7 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:inventory_frontend/models/available_item.dart';
-import 'package:inventory_frontend/config.dart';
-import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:inventory_frontend/utils/api.dart';
 
