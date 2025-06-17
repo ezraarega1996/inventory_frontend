@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:inventory_frontend/providers/available_item_provider.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/screens/owner/transactions_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AvailableItemsScreen extends StatefulWidget {
   const AvailableItemsScreen({Key? key}) : super(key: key);
@@ -56,9 +57,10 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Available Items'),
+        title: Text(l10n.availableItems),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -71,10 +73,10 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
           : Consumer<AvailableItemProvider>(
               builder: (context, availableItemProvider, child) {
                 if (availableItemProvider.availableItems.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Text(
-                      'No available items found',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      l10n.noData,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   );
                 }
@@ -102,10 +104,10 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                         margin: const EdgeInsets.only(bottom: 16),
                         child: ListTile(
                           title: RichText(
-                        text: TextSpan(
-                          children: [
+                            text: TextSpan(
+                              children: [
                                 TextSpan(
-                                  text: "${availableItem.item?.name ?? 'Unknown Item'} ",
+                                  text: "${availableItem.item?.name ?? l10n.unknownItem} ",
                                   style: const TextStyle(
                                     fontWeight: FontWeight.bold,
                                     fontSize: 16,
@@ -113,10 +115,10 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                                   ),
                                 ),
                                 TextSpan(
-                                  text: "(${availableItem.salesman?.name ?? 'Unknown Salesman'})",
+                                  text: "(${availableItem.salesman?.name ?? l10n.unknownSalesman})",
                                   style: const TextStyle(
                                     fontWeight: FontWeight.normal,
-                                    fontSize: 14, // Smaller font size
+                                    fontSize: 14,
                                   ),
                                 ),
                               ],
@@ -126,10 +128,10 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Available Quantity: ${displayedQuantity.toStringAsFixed(2)} ${selectedFraction?.name ?? ""}',
+                                '${l10n.availableQuantity}: ${displayedQuantity.toStringAsFixed(2)} ${selectedFraction?.name ?? ""}',
                               ),
                               Text(
-                                'Sold Price: \$${availableItem.soldPrice.toStringAsFixed(2)}',
+                                '${l10n.soldPrice}: \$${availableItem.soldPrice.toStringAsFixed(2)}',
                               ),
                             ],
                           ),
@@ -146,7 +148,7 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                               IconButton(
                                 icon: const Icon(Icons.history),
                                 onPressed: () => _navigateToTransactions(availableItem),
-                                tooltip: 'View Transactions',
+                                tooltip: l10n.viewTransactions,
                               ),
                             ],
                           ),

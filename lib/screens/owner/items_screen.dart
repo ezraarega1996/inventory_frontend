@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:inventory_frontend/models/item.dart';
 import 'package:inventory_frontend/providers/category_provider.dart';
 import 'package:inventory_frontend/providers/item_provider.dart';
@@ -50,6 +51,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
   }
 
   void _showAddEditDialog({String? id, String? name, String? categoryId}) {
+    final l10n = AppLocalizations.of(context)!;
     _editingItemId = id;
     _nameController.text = name ?? '';
     _selectedCategoryId = categoryId;
@@ -59,7 +61,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
       barrierDismissible: false,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: Text(_editingItemId == null ? 'Add Item' : 'Edit Item'),
+          title: Text(_editingItemId == null ? l10n.addNew : l10n.edit),
           content: Form(
             key: _formKey,
             child: Column(
@@ -67,10 +69,10 @@ class _ItemsScreenState extends State<ItemsScreen> {
               children: [
                 CustomTextField(
                   controller: _nameController,
-                  labelText: 'Item Name',
+                  labelText: l10n.name,
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter an item name';
+                      return l10n.required;
                     }
                     return null;
                   },
@@ -80,9 +82,9 @@ class _ItemsScreenState extends State<ItemsScreen> {
                   builder: (context, categoryProvider, child) {
                     return DropdownButtonFormField<String>(
                       value: _selectedCategoryId,
-                      decoration: const InputDecoration(
-                        labelText: 'Select Category',
-                        border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        labelText: l10n.select,
+                        border: const OutlineInputBorder(),
                       ),
                       items: categoryProvider.categories.map((category) {
                         return DropdownMenuItem<String>(
@@ -95,7 +97,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
                       },
                       validator: (value) {
                         if (value == null || value.isEmpty) {
-                          return 'Please select a category';
+                          return l10n.required;
                         }
                         return null;
                       },
@@ -111,7 +113,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
                 setState(() { _isSubmitting = false; });
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             TextButton(
               onPressed: _isSubmitting ? null : () async {
@@ -144,12 +146,12 @@ class _ItemsScreenState extends State<ItemsScreen> {
                   
                   if (success) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Item ${_editingItemId == null ? 'added' : 'updated'} successfully'))
+                      SnackBar(content: Text(l10n.success))
                     );
                     await _loadAll();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(itemProvider.error ?? 'An error occurred'))
+                      SnackBar(content: Text(itemProvider.error ?? l10n.error))
                     );
                   }
                 } finally {
@@ -164,7 +166,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Save'),
+                : Text(l10n.save),
             ),
           ],
         ),
@@ -178,25 +180,23 @@ class _ItemsScreenState extends State<ItemsScreen> {
   }
 
   Future<void> _deleteItem(String id) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: const Text('Delete Item'),
-            content: const Text(
-              'Are you sure you want to delete this item? This action cannot be undone.',
-            ),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(false),
-                child: const Text('Cancel'),
-              ),
-              TextButton(
-                onPressed: () => Navigator.of(context).pop(true),
-                child: const Text('Delete'),
-              ),
-            ],
+      builder: (context) => AlertDialog(
+        title: Text(l10n.delete),
+        content: Text(l10n.confirmDelete),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(false),
+            child: Text(l10n.cancel),
           ),
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(true),
+            child: Text(l10n.delete),
+          ),
+        ],
+      ),
     );
 
     if (confirm == true) {
@@ -207,12 +207,12 @@ class _ItemsScreenState extends State<ItemsScreen> {
 
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Item deleted successfully')),
+          SnackBar(content: Text(l10n.success))
         );
         await _loadAll();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(itemProvider.error ?? 'An error occurred')),
+          SnackBar(content: Text(itemProvider.error ?? l10n.error))
         );
       }
     }
@@ -226,9 +226,10 @@ class _ItemsScreenState extends State<ItemsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Items'),
+        title: Text(l10n.items),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -241,7 +242,7 @@ class _ItemsScreenState extends State<ItemsScreen> {
           : Consumer<ItemProvider>(
               builder: (context, itemProvider, child) {
                 if (itemProvider.items.isEmpty) {
-                  return const Center(child: Text('No items found'));
+                  return Center(child: Text(l10n.noData));
                 }
                 return RefreshIndicator(
                   onRefresh: _loadAll,
@@ -251,36 +252,23 @@ class _ItemsScreenState extends State<ItemsScreen> {
                       final item = itemProvider.items[index];
                       return ListTile(
                         title: Text(item.name),
-                        subtitle: Text(item.category?.name ?? 'No category'),
-                        trailing: PopupMenuButton<String>(
-                          onSelected: (value) {
-                            if (value == 'edit') {
-                              _showAddEditDialog(
+                        subtitle: Text(item.category?.name ?? ''),
+                        trailing: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            IconButton(
+                              icon: const Icon(Icons.edit),
+                              onPressed: () => _showAddEditDialog(
                                 id: item.id,
                                 name: item.name,
                                 categoryId: item.categoryId,
-                              );
-                            } else if (value == 'delete') {
-                              _deleteItem(item.id);
-                            }
-                          },
-                          itemBuilder:
-                              (context) => [
-                                const PopupMenuItem(
-                                  value: 'edit',
-                                  child: ListTile(
-                                    leading: Icon(Icons.edit),
-                                    title: Text('Edit'),
-                                  ),
-                                ),
-                                const PopupMenuItem(
-                                  value: 'delete',
-                                  child: ListTile(
-                                    leading: Icon(Icons.delete),
-                                    title: Text('Delete'),
-                                  ),
-                                ),
-                              ],
+                              ),
+                            ),
+                            IconButton(
+                              icon: const Icon(Icons.delete),
+                              onPressed: () => _deleteItem(item.id),
+                            ),
+                          ],
                         ),
                         onTap: () => _viewItemDetails(item),
                       );

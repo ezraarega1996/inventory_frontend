@@ -8,6 +8,7 @@ import 'package:inventory_frontend/providers/item_provider.dart';
 import 'package:inventory_frontend/providers/user_provider.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BoughtsScreen extends StatefulWidget {
   const BoughtsScreen({Key? key}) : super(key: key);
@@ -83,6 +84,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
     DateTime? expiryDate,
     String? salesmanId,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
       _editingBoughtId = id;
       _selectedItemId = itemId;
@@ -101,7 +103,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
       barrierDismissible: false,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: Text(_editingBoughtId == null ? 'Add Bought Item' : 'Edit Bought Item'),
+          title: Text(_editingBoughtId == null ? l10n.addBoughtItem : l10n.editBoughtItem),
           content: SingleChildScrollView(
             child: Form(
               key: _formKey,
@@ -113,9 +115,9 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                       final salesmen = userProvider.users.where((user) => user.role == 'salesman').toList();
                       return DropdownButtonFormField<String>(
                         value: _selectedSalesmanId,
-                        decoration: const InputDecoration(
-                          labelText: 'Select Salesman',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: l10n.selectSalesman,
+                          border: const OutlineInputBorder(),
                         ),
                         items: salesmen.map((salesman) {
                           return DropdownMenuItem<String>(
@@ -128,7 +130,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please select a salesman';
+                            return l10n.required;
                           }
                           return null;
                         },
@@ -140,9 +142,9 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                     builder: (context, itemProvider, child) {
                       return DropdownButtonFormField<String>(
                         value: _selectedItemId,
-                        decoration: const InputDecoration(
-                          labelText: 'Select Item',
-                          border: OutlineInputBorder(),
+                        decoration: InputDecoration(
+                          labelText: l10n.selectItem,
+                          border: const OutlineInputBorder(),
                         ),
                         items: itemProvider.items.map((item) {
                           return DropdownMenuItem<String>(
@@ -161,7 +163,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
-                            return 'Please select an item';
+                            return l10n.required;
                           }
                           return null;
                         },
@@ -177,12 +179,12 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                           orElse: () => Item(id: '', name: '', categoryId: '', fractions: []),
                         );
                         if (item.fractions == null || item.fractions!.isEmpty) {
-                          return const Text('No fractions available for this item', style: TextStyle(color: Colors.red));
+                          return Text(l10n.noFractionsAvailable, style: const TextStyle(color: Colors.red));
                         }
                         return Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text('Select Fraction', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                            Text(l10n.selectFraction, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                             const SizedBox(height: 8),
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 12),
@@ -194,7 +196,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                                 child: DropdownButton<String>(
                                   isExpanded: true,
                                   value: _selectedFractionId,
-                                  hint: const Text('Choose a fraction'),
+                                  hint: Text(l10n.chooseFraction),
                                   items: item.fractions?.map((fraction) {
                                     return DropdownMenuItem<String>(
                                       value: fraction.id,
@@ -202,7 +204,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(fraction.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                          Text('Ratio: ${fraction.ratio} | Price: \$${fraction.price}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                                          Text('${l10n.ratio}: ${fraction.ratio} | ${l10n.price}: \$${fraction.price}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
                                         ],
                                       ),
                                     );
@@ -226,19 +228,19 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                     ),
                   const SizedBox(height: 16),
                   if (_selectedFractionId == null)
-                    const Text('Please select a fraction to continue', style: TextStyle(color: Colors.red)),
+                    Text(l10n.selectFractionToContinue, style: const TextStyle(color: Colors.red)),
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _fractionPurchasePriceController,
-                    labelText: 'Purchase Price',
+                    labelText: l10n.purchasePrice,
                     keyboardType: TextInputType.number,
                     enabled: !_isSubmitting,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter a purchase price';
+                        return l10n.required;
                       }
                       if (double.tryParse(value) == null) {
-                        return 'Please enter a valid number';
+                        return l10n.invalidNumber;
                       }
                       return null;
                     },
@@ -246,15 +248,15 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _fractionSoldPriceController,
-                    labelText: 'Sold Price',
+                    labelText: git ,
                     keyboardType: TextInputType.number,
                     enabled: !_isSubmitting,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter a sold price';
+                        return l10n.required;
                       }
                       if (double.tryParse(value) == null) {
-                        return 'Please enter a valid number';
+                        return l10n.invalidNumber;
                       }
                       return null;
                     },
@@ -262,15 +264,15 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _quantityController,
-                    labelText: 'Quantity',
+                    labelText: l10n.quantity,
                     keyboardType: TextInputType.number,
                     enabled: !_isSubmitting,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter a quantity';
+                        return l10n.required;
                       }
                       if (double.tryParse(value) == null) {
-                        return 'Please enter a valid number';
+                        return l10n.invalidNumber;
                       }
                       return null;
                     },
@@ -278,18 +280,18 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _locationController,
-                    labelText: 'Location',
+                    labelText: l10n.location,
                     enabled: !_isSubmitting,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter a location';
+                        return l10n.required;
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 16),
                   ListTile(
-                    title: Text(_expiryDate == null ? 'Select Expiry Date' : 'Expiry Date: ${DateFormat('MMM dd, yyyy').format(_expiryDate!)}'),
+                    title: Text(_expiryDate == null ? l10n.selectExpiryDate : '${l10n.expiryDate}: ${DateFormat('MMM dd, yyyy').format(_expiryDate!)}'),
                     trailing: const Icon(Icons.calendar_today),
                     enabled: !_isSubmitting,
                     onTap: () async {
@@ -314,13 +316,13 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                 setState(() { _isSubmitting = false; });
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             TextButton(
               onPressed: _isSubmitting ? null : () async {
                 if (!_formKey.currentState!.validate()) return;
                 if (_selectedFractionId == null) {
-                  ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Please select a fraction')));
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.selectFractionToContinue)));
                   return;
                 }
                 
@@ -333,7 +335,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                   final item = itemProvider.items.firstWhere((item) => item.id == _selectedItemId);
                   final fraction = item.fractions?.firstWhere((f) => f.id == _selectedFractionId);
                   if (fraction == null) {
-                    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Selected fraction not found')));
+                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.noFractionsAvailable)));
                     return;
                   }
                   bool success;
@@ -367,12 +369,12 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                   
                   if (success) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Bought item ${_editingBoughtId == null ? 'added' : 'updated'} successfully'))
+                      SnackBar(content: Text(l10n.success))
                     );
                     await _loadBoughts();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(boughtProvider.error ?? 'An error occurred'))
+                      SnackBar(content: Text(boughtProvider.error ?? l10n.error))
                     );
                   }
                 } finally {
@@ -387,7 +389,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Save'),
+                : Text(l10n.save),
             ),
           ],
         ),
@@ -401,19 +403,20 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
   }
 
   Future<void> _deleteBought(String id) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Bought Item'),
-        content: const Text('Are you sure you want to delete this bought item?'),
+        title: Text(l10n.deleteBoughtItem),
+        content: Text(l10n.confirmDeleteBought),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -423,20 +426,20 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
       final success = await boughtProvider.deleteBought(id);
       if (!mounted) return;
       if (success) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Bought item deleted successfully')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.success)));
         await _loadBoughts();
       } else {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(boughtProvider.error ?? 'An error occurred')));
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(boughtProvider.error ?? l10n.error)));
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final dateFormat = DateFormat('MMM dd, yyyy HH:mm');
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Bought Items'),
+        title: Text(l10n.boughtItems),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -449,7 +452,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
           : Consumer<BoughtProvider>(
               builder: (context, boughtProvider, child) {
                 if (boughtProvider.boughts.isEmpty) {
-                  return const Center(child: Text('No bought items found'));
+                  return Center(child: Text(l10n.noBoughtItems));
                 }
                 return RefreshIndicator(
                   onRefresh: _loadBoughts,
@@ -459,137 +462,41 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                       final bought = boughtProvider.boughts[index];
                       return Card(
                         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                        child: StatefulBuilder(
-                          builder: (context, setState) {
-                            String selectedFractionId = _selectedFractionIds[bought.id] ?? bought.fraction?.id ?? '';
-                            Fraction? selectedFraction = bought.item?.fractions?.firstWhere((f) => f.id == selectedFractionId);
-                            Bought? fractionBought = boughtProvider.boughts.firstWhere(
-                              (b) => b.itemId == bought.itemId && b.fractionId == selectedFractionId,
-                              orElse: () => bought,
-                            );
-                            return ListTile(
-                              title: Text(bought.item?.name ?? 'Unknown Item'),
-                              subtitle: Column(
-                                children: [
-                                  Row(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Expanded(
-                                        child: Row(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text('salesman: ${bought.salesman?.name ?? 'Unknown Salesman'}'),
-                                                  Text('Quantity: ${bought.quantity * bought.fraction!.ratio / selectedFraction!.ratio} ${selectedFraction?.name ?? ""}'),
-                                                  Text('Available items: ${bought.available_items_count! * bought.fraction!.ratio / selectedFraction.ratio} ${selectedFraction.name ?? ""}'),
-                                                ],
-                                              ),
-                                            ),
-                                            const SizedBox(width: 16),
-                                            Expanded(
-                                              child: Column(
-                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                children: [
-                                                  Text('Location: ${bought.location}'),
-                                                  Text('Created: ${dateFormat.format(bought.createdTime)}'),
-                                                  if (bought.expiryDate != null)
-                                                    Text('Expiry: ${dateFormat.format(bought.expiryDate!)}'),
-                                                ],
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment: CrossAxisAlignment.end,
-                                        children: [
-                                          PopupMenuButton<String>(
-                                            onSelected: (value) {
-                                              if (value == 'edit') {
-                                                _showAddEditDialog(
-                                                  id: fractionBought.id,
-                                                  itemId: fractionBought.itemId,
-                                                  fractionId: fractionBought.fractionId,
-                                                  fractionPurchasePrice: fractionBought.fractionPurchasePrice,
-                                                  fractionSoldPrice: fractionBought.fractionSoldPrice,
-                                                  quantity: fractionBought.quantity,
-                                                  location: fractionBought.location,
-                                                  expiryDate: fractionBought.expiryDate,
-                                                  salesmanId: fractionBought.salesmanId,
-                                                );
-                                              } else if (value == 'delete') {
-                                                _deleteBought(fractionBought.id);
-                                              }
-                                            },
-                                            itemBuilder: (context) => [
-                                              const PopupMenuItem(
-                                                value: 'edit',
-                                                child: ListTile(
-                                                  leading: Icon(Icons.edit, color: Colors.blue),
-                                                  title: Text('Edit', style: TextStyle(color: Colors.blue)),
-                                                ),
-                                              ),
-                                              const PopupMenuItem(
-                                                value: 'delete',
-                                                child: ListTile(
-                                                  leading: Icon(Icons.delete, color: Colors.red),
-                                                  title: Text('Delete', style: TextStyle(color: Colors.red)),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          if ((bought.item?.fractions ?? []).isNotEmpty)
-                                            Padding(
-                                              padding: const EdgeInsets.only(top: 4.0),
-                                              child: Container(
-                                                decoration: BoxDecoration(
-                                                  color: Colors.grey[100],
-                                                  borderRadius: BorderRadius.circular(8),
-                                                  border: Border.all(color: Colors.grey.shade300),
-                                                ),
-                                                padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 2),
-                                                child: Row(
-                                                  mainAxisSize: MainAxisSize.min,
-                                                  children: [
-                                                    const Icon(Icons.swap_horiz, size: 18, color: Colors.blueGrey),
-                                                    DropdownButtonHideUnderline(
-                                                      child: DropdownButton<String>(
-                                                        value: selectedFractionId,
-                                                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
-                                                        items: bought.item!.fractions!.map((fraction) {
-                                                          return DropdownMenuItem<String>(
-                                                            value: fraction.id,
-                                                            child: Row(
-                                                              children: [
-                                                                Text(fraction.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                                                const SizedBox(width: 8),
-                                                              ],
-                                                            ),
-                                                          );
-                                                        }).toList(),
-                                                        onChanged: (value) {
-                                                          setState(() {
-                                                            _selectedFractionIds[bought.id] = value!;
-                                                          });
-                                                        },
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                              ),
-                                            ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
-                                ],
+                        child: ListTile(
+                          title: Text(bought.item?.name ?? l10n.unknownItem),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('${l10n.salesman}: ${bought.salesman?.name ?? l10n.unknownSalesman}'),
+                              Text('${l10n.quantity}: ${bought.quantity}'),
+                              Text('${l10n.location}: ${bought.location}'),
+                              if (bought.expiryDate != null)
+                                Text('${l10n.expiry}: ${DateFormat('yyyy-MM-dd').format(bought.expiryDate!)}'),
+                            ],
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.edit),
+                                onPressed: () => _showAddEditDialog(
+                                  id: bought.id,
+                                  itemId: bought.itemId,
+                                  fractionId: bought.fractionId,
+                                  fractionPurchasePrice: bought.fractionPurchasePrice,
+                                  fractionSoldPrice: bought.fractionSoldPrice,
+                                  quantity: bought.quantity,
+                                  location: bought.location,
+                                  expiryDate: bought.expiryDate,
+                                  salesmanId: bought.salesmanId,
+                                ),
                               ),
-                            );
-                          },
+                              IconButton(
+                                icon: const Icon(Icons.delete),
+                                onPressed: () => _deleteBought(bought.id),
+                              ),
+                            ],
+                          ),
                         ),
                       );
                     },

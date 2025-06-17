@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:inventory_frontend/providers/user_provider.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
@@ -66,6 +67,7 @@ class _UsersScreenState extends State<UsersScreen> {
     String? username,
     String? email,
   }) {
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
       _editingUserId = id;
       _nameController.text = name ?? '';
@@ -81,7 +83,7 @@ class _UsersScreenState extends State<UsersScreen> {
       barrierDismissible: false,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: Text(_editingUserId == null ? 'Add Salesperson' : 'Edit Salesperson'),
+          title: Text(_editingUserId == null ? l10n.addNew : l10n.edit),
           content: SingleChildScrollView(
             child: Form(
               key: _formKey,
@@ -90,11 +92,11 @@ class _UsersScreenState extends State<UsersScreen> {
                 children: [
                   CustomTextField(
                     controller: _nameController,
-                    labelText: 'Name',
+                    labelText: l10n.name,
                     enabled: !_isSubmitting,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter a name';
+                        return l10n.required;
                       }
                       return null;
                     },
@@ -102,12 +104,12 @@ class _UsersScreenState extends State<UsersScreen> {
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _phoneController,
-                    labelText: 'Phone',
+                    labelText: l10n.phone,
                     keyboardType: TextInputType.phone,
                     enabled: !_isSubmitting,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter a phone number';
+                        return l10n.required;
                       }
                       return null;
                     },
@@ -115,11 +117,11 @@ class _UsersScreenState extends State<UsersScreen> {
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _locationController,
-                    labelText: 'Location',
+                    labelText: l10n.location,
                     enabled: !_isSubmitting,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter a location';
+                        return l10n.required;
                       }
                       return null;
                     },
@@ -127,11 +129,11 @@ class _UsersScreenState extends State<UsersScreen> {
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _usernameController,
-                    labelText: 'Username',
+                    labelText: l10n.username,
                     enabled: _editingUserId == null && !_isSubmitting,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter a username';
+                        return l10n.required;
                       }
                       return null;
                     },
@@ -139,7 +141,7 @@ class _UsersScreenState extends State<UsersScreen> {
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _passwordController,
-                    labelText: 'Password',
+                    labelText: l10n.password,
                     obscureText: _obscurePassword,
                     enabled: !_isSubmitting,
                     suffixIcon: IconButton(
@@ -154,7 +156,7 @@ class _UsersScreenState extends State<UsersScreen> {
                     ),
                     validator: (value) {
                       if (_editingUserId == null && (value == null || value.isEmpty)) {
-                        return 'Please enter a password';
+                        return l10n.required;
                       }
                       return null;
                     },
@@ -162,15 +164,15 @@ class _UsersScreenState extends State<UsersScreen> {
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _emailController,
-                    labelText: 'Email',
+                    labelText: l10n.email,
                     keyboardType: TextInputType.emailAddress,
                     enabled: !_isSubmitting,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter an email';
+                        return l10n.required;
                       }
                       if (!value.contains('@')) {
-                        return 'Please enter a valid email';
+                        return l10n.error;
                       }
                       return null;
                     },
@@ -185,7 +187,7 @@ class _UsersScreenState extends State<UsersScreen> {
                 setState(() { _isSubmitting = false; });
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             TextButton(
               onPressed: _isSubmitting ? null : () async {
@@ -223,12 +225,12 @@ class _UsersScreenState extends State<UsersScreen> {
                   
                   if (success) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Salesperson ${_editingUserId == null ? 'added' : 'updated'} successfully'))
+                      SnackBar(content: Text(l10n.success))
                     );
                     await _loadUsers();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(userProvider.error ?? 'An error occurred'))
+                      SnackBar(content: Text(userProvider.error ?? l10n.error))
                     );
                   }
                 } finally {
@@ -243,7 +245,7 @@ class _UsersScreenState extends State<UsersScreen> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Save'),
+                : Text(l10n.save),
             ),
           ],
         ),
@@ -257,19 +259,20 @@ class _UsersScreenState extends State<UsersScreen> {
   }
   
   Future<void> _deleteUser(String id) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Salesperson'),
-        content: const Text('Are you sure you want to delete this salesperson? This action cannot be undone.'),
+        title: Text(l10n.delete),
+        content: Text(l10n.confirmDelete),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -283,12 +286,12 @@ class _UsersScreenState extends State<UsersScreen> {
       
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Salesperson deleted successfully'))
+          SnackBar(content: Text(l10n.success))
         );
         _loadUsers(); // Reload users after successful deletion
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(userProvider.error ?? 'An error occurred'))
+          SnackBar(content: Text(userProvider.error ?? l10n.error))
         );
       }
     }
@@ -296,9 +299,10 @@ class _UsersScreenState extends State<UsersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Salespeople'),
+        title: Text(l10n.users),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),

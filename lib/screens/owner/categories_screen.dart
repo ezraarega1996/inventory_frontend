@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:inventory_frontend/providers/category_provider.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
@@ -40,6 +41,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
   
   void _showAddEditDialog({String? id, String? name}) {
+    final l10n = AppLocalizations.of(context)!;
     _editingCategoryId = id;
     _nameController.text = name ?? '';
     
@@ -47,15 +49,15 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       context: context,
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
-          title: Text(_editingCategoryId == null ? 'Add Category' : 'Edit Category'),
+          title: Text(_editingCategoryId == null ? l10n.addNew : l10n.edit),
           content: Form(
             key: _formKey,
             child: CustomTextField(
               controller: _nameController,
-              labelText: 'Category Name',
+              labelText: l10n.name,
               validator: (value) {
                 if (value == null || value.isEmpty) {
-                  return 'Please enter a category name';
+                  return l10n.required;
                 }
                 return null;
               },
@@ -67,7 +69,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                 setState(() { _isSubmitting = false; });
                 Navigator.of(context).pop();
               },
-              child: const Text('Cancel'),
+              child: Text(l10n.cancel),
             ),
             TextButton(
               onPressed: _isSubmitting ? null : () async {
@@ -92,12 +94,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                   
                   if (success) {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text('Category ${_editingCategoryId == null ? 'added' : 'updated'} successfully'))
+                      SnackBar(content: Text(l10n.success))
                     );
                     await _loadCategories();
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(content: Text(categoryProvider.error ?? 'An error occurred'))
+                      SnackBar(content: Text(categoryProvider.error ?? l10n.error))
                     );
                   }
                 } finally {
@@ -112,7 +114,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                     height: 20,
                     child: CircularProgressIndicator(strokeWidth: 2),
                   )
-                : const Text('Save'),
+                : Text(l10n.save),
             ),
           ],
         ),
@@ -126,19 +128,20 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   }
   
   Future<void> _deleteCategory(String id) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Category'),
-        content: const Text('Are you sure you want to delete this category? This action cannot be undone.'),
+        title: Text(l10n.delete),
+        content: Text(l10n.confirmDelete),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -152,12 +155,12 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
       
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Category deleted successfully'))
+          SnackBar(content: Text(l10n.success))
         );
         await _loadCategories();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(categoryProvider.error ?? 'An error occurred'))
+          SnackBar(content: Text(categoryProvider.error ?? l10n.error))
         );
       }
     }
@@ -165,9 +168,10 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Categories'),
+        title: Text(l10n.categories),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -180,7 +184,7 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
           : Consumer<CategoryProvider>(
               builder: (context, categoryProvider, child) {
                 if (categoryProvider.categories.isEmpty) {
-                  return const Center(child: Text('No categories found'));
+                  return Center(child: Text(l10n.noData));
                 }
                 return RefreshIndicator(
                   onRefresh: _loadCategories,
