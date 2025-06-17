@@ -5,6 +5,7 @@ import 'package:inventory_frontend/models/item.dart';
 import 'package:inventory_frontend/models/fraction.dart';
 import 'package:inventory_frontend/providers/bought_provider.dart';
 import 'package:inventory_frontend/providers/item_provider.dart';
+import 'package:inventory_frontend/providers/available_item_provider.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
 import 'package:intl/intl.dart';
@@ -24,12 +25,40 @@ class TransactionsScreen extends StatefulWidget {
 
 class _TransactionsScreenState extends State<TransactionsScreen> {
   final Map<String, String> _selectedFractionIds = {}; // availableItemId -> fractionId
+  bool _isLoading = true;
+  List<Map<String, dynamic>> _transactions = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadTransactions();
+  }
+
+  Future<void> _loadTransactions() async {
+    if (!mounted) return;
+    
+    setState(() {
+      _isLoading = true;
+    });
+
+    final availableItemProvider = context.read<AvailableItemProvider>();
+    await availableItemProvider.fetchAvailableItemTransactions(widget.availableItem.id);
+
+    if (!mounted) return;
+
+    setState(() {
+      _transactions = _getCombinedTransactions();
+      _isLoading = false;
+    });
+  }
 
   List<Map<String, dynamic>> _getCombinedTransactions() {
     final List<Map<String, dynamic>> transactions = [];
+    final availableItem = context.read<AvailableItemProvider>()
+        .getAvailableItem(widget.availableItem.id);
 
-    if (widget.availableItem.boughtTransactions != null) {
-      for (var transaction in widget.availableItem.boughtTransactions!) {
+    if (availableItem?.boughtTransactions != null) {
+      for (var transaction in availableItem!.boughtTransactions!) {
         transactions.add({
           'type': 'bought',
           'transaction': transaction,
@@ -38,8 +67,8 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       }
     }
 
-    if (widget.availableItem.soldTransactions != null) {
-      for (var transaction in widget.availableItem.soldTransactions!) {
+    if (availableItem?.soldTransactions != null) {
+      for (var transaction in availableItem!.soldTransactions!) {
         transactions.add({
           'type': 'sold',
           'transaction': transaction,
@@ -66,12 +95,17 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
         ? widget.availableItem.quantity / selectedFraction.ratio
         : widget.availableItem.quantity;
 
-    final transactions = _getCombinedTransactions();
     final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
 
     return Scaffold(
       appBar: AppBar(
         title: Text('Transactions - ${widget.availableItem.item?.name ?? 'Unknown Item'}'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadTransactions,
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -163,71 +197,73 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
           
           // Transactions list
           Expanded(
-            child: transactions.isEmpty
-                ? const Center(
-                    child: Text(
-                      'No transactions found',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                  )
-                : ListView.builder(
-                    padding: const EdgeInsets.symmetric(horizontal: 16),
-                    itemCount: transactions.length,
-                    itemBuilder: (context, index) {
-                      final transaction = transactions[index];
-                      final isBought = transaction['type'] == 'bought';
-                      final dynamic trans = transaction['transaction'];
-
-                      final transactionFraction = itemFractions.firstWhere(
-                        (f) => f.id == trans.fractionId,
-                        orElse: () => itemFractions.first,
-                      );
-
-                      double convertedQuantity = trans.quantity;
-                      if (transactionFraction != null && selectedFraction != null) {
-                        convertedQuantity = trans.quantity * transactionFraction.ratio / selectedFraction.ratio;
-                      }
-                      double convertedAvailableQty = trans.available_items_count;
-                      if (transactionFraction != null && selectedFraction != null) {
-                        convertedAvailableQty = trans.available_items_count * transactionFraction.ratio / selectedFraction.ratio;
-                      }
-
-                      return Card(
-                        color: isBought ? Colors.blue.shade50 : Colors.green.shade50,
-                        margin: const EdgeInsets.only(bottom: 8),
-                        child: ListTile(
-                          leading: Icon(
-                            isBought ? Icons.shopping_cart : Icons.point_of_sale,
-                            color: isBought ? Colors.blue : Colors.green,
-                          ),
-                          title: Text(
-                            isBought ? 'Bought' : 'Sold',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: isBought ? Colors.blue : Colors.green,
-                            ),
-                          ),
-                          subtitle: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Quantity: ${convertedQuantity.toStringAsFixed(2)} ${selectedFraction?.name ?? ''}',
-                              ),
-                              Text(
-                                'Price: \$${(isBought ? trans.fractionSoldPrice : trans.soldPrice).toStringAsFixed(2)}',
-                              ),
-                              Text(
-                                'Available Quantity: ${convertedAvailableQty.toStringAsFixed(2)} ${selectedFraction?.name ?? ''}',
-                              ),
-                              Text(
-                                'Date: ${dateFormat.format(trans.createdAt)}',
-                              ),
-                            ],
-                          ),
+            child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : _transactions.isEmpty
+                    ? const Center(
+                        child: Text(
+                          'No transactions found',
+                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
-                      );
-                    },
-                  ),
+                      )
+                    : ListView.builder(
+                        padding: const EdgeInsets.symmetric(horizontal: 16),
+                        itemCount: _transactions.length,
+                        itemBuilder: (context, index) {
+                          final transaction = _transactions[index];
+                          final isBought = transaction['type'] == 'bought';
+                          final dynamic trans = transaction['transaction'];
+
+                          final transactionFraction = itemFractions.firstWhere(
+                            (f) => f.id == trans.fractionId,
+                            orElse: () => itemFractions.first,
+                          );
+
+                          double convertedQuantity = trans.quantity;
+                          if (transactionFraction != null && selectedFraction != null) {
+                            convertedQuantity = trans.quantity * transactionFraction.ratio / selectedFraction.ratio;
+                          }
+                          double convertedAvailableQty = trans.available_items_count;
+                          if (transactionFraction != null && selectedFraction != null) {
+                            convertedAvailableQty = trans.available_items_count * transactionFraction.ratio / selectedFraction.ratio;
+                          }
+
+                          return Card(
+                            color: isBought ? Colors.blue.shade50 : Colors.green.shade50,
+                            margin: const EdgeInsets.only(bottom: 8),
+                            child: ListTile(
+                              leading: Icon(
+                                isBought ? Icons.shopping_cart : Icons.point_of_sale,
+                                color: isBought ? Colors.blue : Colors.green,
+                              ),
+                              title: Text(
+                                isBought ? 'Bought' : 'Sold',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: isBought ? Colors.blue : Colors.green,
+                                ),
+                              ),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Quantity: ${convertedQuantity.toStringAsFixed(2)} ${selectedFraction?.name ?? ''}',
+                                  ),
+                                  Text(
+                                    'Price: \$${(isBought ? trans.fractionSoldPrice : trans.soldPrice).toStringAsFixed(2)}',
+                                  ),
+                                  Text(
+                                    'Available Quantity: ${convertedAvailableQty.toStringAsFixed(2)} ${selectedFraction?.name ?? ''}',
+                                  ),
+                                  Text(
+                                    'Date: ${dateFormat.format(trans.createdAt)}',
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
           ),
         ],
       ),

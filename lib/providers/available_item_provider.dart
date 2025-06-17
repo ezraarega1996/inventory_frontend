@@ -221,4 +221,42 @@ class AvailableItemProvider with ChangeNotifier {
     _error = null;
     notifyListeners();
   }
+
+  Future<void> fetchAvailableItemTransactions(String availableItemId) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    
+    try {
+      final transactionsResponse = await Api.get('available-items/$availableItemId/transactions');
+      
+      if (transactionsResponse != null) {
+        final index = _availableItems.indexWhere((i) => i.id == availableItemId);
+        if (index != -1) {
+          final updatedItem = AvailableItem.fromJson({
+            ..._availableItems[index].toJson(),
+            'boughtTransactions': transactionsResponse['boughtTransactions'],
+            'soldTransactions': transactionsResponse['soldTransactions'],
+          });
+          _availableItems[index] = updatedItem;
+        }
+      }
+      
+      notifyListeners();
+    } catch (e) {
+      _error = e.toString();
+      print('Error fetching transactions for item $availableItemId: $e');
+    } finally {
+      _isLoading = false;
+      notifyListeners();
+    }
+  }
+
+  AvailableItem? getAvailableItem(String availableItemId) {
+    try {
+      return _availableItems.firstWhere((item) => item.id == availableItemId);
+    } catch (e) {
+      return null;
+    }
+  }
 } 
