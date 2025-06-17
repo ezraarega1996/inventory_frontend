@@ -7,6 +7,7 @@ import 'package:inventory_frontend/providers/auth_provider.dart';
 import 'package:inventory_frontend/providers/item_provider.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:intl/intl.dart';
+import 'package:inventory_frontend/screens/salesman/transactions_screen.dart';
 
 class AvailableItemsScreen extends StatefulWidget {
   const AvailableItemsScreen({Key? key}) : super(key: key);
@@ -16,8 +17,8 @@ class AvailableItemsScreen extends StatefulWidget {
 }
 
 class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
+  final Map<String, String> _selectedFractionIds = {}; // availableItemId -> fractionId
   bool _isLoading = true;
-  final Map<String, String> _selectedFractionIds = {}; // itemId -> fractionId
 
   @override
   void initState() {
@@ -46,74 +47,16 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
     });
   }
 
-  List<Map<String, dynamic>> _getCombinedTransactions(dynamic availableItem) {
-    final List<Map<String, dynamic>> transactions = [];
-
-    // Add bought transactions
-    if (availableItem.boughtTransactions != null) {
-      for (var transaction in availableItem.boughtTransactions!) {
-        transactions.add({
-          'type': 'bought',
-          'transaction': transaction,
-          'date': transaction.createdAt,
-        });
-      }
-    }
-
-    // Add sold transactions
-    if (availableItem.soldTransactions != null) {
-      for (var transaction in availableItem.soldTransactions!) {
-        transactions.add({
-          'type': 'sold',
-          'transaction': transaction,
-          'date': transaction.createdAt,
-        });
-      }
-    }
-
-    // Sort by date in descending order (most recent first)
-    transactions.sort((a, b) => b['date'].compareTo(a['date']));
-
-    return transactions;
+  void _updateSelectedFraction(String availableItemId, String fractionId) {
+    setState(() {
+      _selectedFractionIds[availableItemId] = fractionId;
+    });
   }
-  Widget _buildFractionDropdown(List<Fraction> fractions, String itemId) {
-    return Container(
-      constraints: const BoxConstraints(maxWidth: 140),
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-      decoration: BoxDecoration(
-        color: Colors.blue.shade50,
-        borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: Colors.blue.shade200),
-      ),
-      child: DropdownButtonHideUnderline(
-        child: DropdownButton<String>(
-          isDense: true,
-          value: _selectedFractionIds[itemId] ?? fractions.first.id,
-          items: fractions.map((fraction) {
-            return DropdownMenuItem<String>(
-              value: fraction.id,
-              child: Row(
-                children: [
-                  Icon(Icons.scale, color: Colors.blue.shade400, size: 18),
-                  const SizedBox(width: 8),
-                  Text(
-                    fraction.name,
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                    overflow: TextOverflow.ellipsis,
-                  ),
-                ],
-              ),
-            );
-          }).toList(),
-          onChanged: (value) {
-            setState(() {
-              _selectedFractionIds[itemId] = value!;
-            });
-          },
-          dropdownColor: Colors.white,
-          style: const TextStyle(color: Colors.blue, fontWeight: FontWeight.w600),
-          icon: const Icon(Icons.arrow_drop_down, color: Colors.blue),
-        ),
+
+  void _navigateToTransactions(dynamic availableItem) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => TransactionsScreen(availableItem: availableItem),
       ),
     );
   }
@@ -123,16 +66,14 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
     final itemProvider = Provider.of<ItemProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context);
     final availableItemProvider = Provider.of<AvailableItemProvider>(context);
-    final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
 
     // Get items assigned to this salesman
-    final assignedItems =
-        itemProvider.items.where((item) {
-          final availableItems = availableItemProvider
-              .getAvailableItemsForSalesman(authProvider.user!.id);
-          return availableItems.any(
-            (availableItem) => availableItem.itemId == item.id,
-          );
+    final assignedItems = itemProvider.items.where((item) {
+      final availableItems = availableItemProvider
+          .getAvailableItemsForSalesman(authProvider.user!.id);
+      return availableItems.any(
+        (availableItem) => availableItem.itemId == item.id,
+      );
     }).toList();
 
     return Scaffold(
@@ -142,14 +83,13 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
           IconButton(icon: const Icon(Icons.refresh), onPressed: _loadData),
         ],
       ),
-      body:
-          _isLoading
+      body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : assignedItems.isEmpty
               ? const Center(
                   child: Text(
                     'No items assigned to you',
-                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 )
               : RefreshIndicator(
@@ -163,192 +103,78 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                           .getAvailableItemsForSalesman(authProvider.user!.id)
                           .firstWhere((ai) => ai.itemId == item.id);
 
-                    final transactions = _getCombinedTransactions(
-                      availableItem,
-                    );
+                      final itemFractions = item.fractions ?? [];
+                      final selectedFractionId = _selectedFractionIds[availableItem.id] ?? 
+                          (itemFractions.isNotEmpty ? itemFractions.first.id : '');
+                      final selectedFraction = itemFractions.firstWhere(
+                        (f) => f.id == selectedFractionId,
+                        orElse: () => itemFractions.first,
+                      );
+
+                      final displayedQuantity = selectedFraction != null
+                          ? availableItem.quantity / selectedFraction.ratio
+                          : availableItem.quantity;
 
                       return Card(
                         margin: const EdgeInsets.only(bottom: 16),
-                      child: ExpansionTile(
-                        title: Text(
-                                      item.name,
-                                      style: const TextStyle(
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                        subtitle: Builder(
-                                        builder: (context) {
-                          final selectedFractionId = _selectedFractionIds[item.id] ?? item.fractions!.first.id;
-                          final selectedFraction = item.fractions!.firstWhere((f) => f.id == selectedFractionId);
-
-                          // Convert available quantity to selected fraction
-                          num convertAvailableQty(num quantity) {
-                            // Find the base fraction (ratio == 1)
-                            final baseFraction = item.fractions!.firstWhere((f) => f.ratio == 1, orElse: () => item.fractions!.first);
-                            // Convert to base, then to selected
-                            final baseQty = quantity * baseFraction.ratio;
-                            return baseQty / selectedFraction.ratio;
-                          }
-
-                            final convertedAvailableQty = convertAvailableQty(availableItem.quantity);
-                            // Show sold price below available quantity
-                            final soldPriceText = Text(
-                            'Sold Price: \$${availableItem.soldPrice.toStringAsFixed(2)}',
-                            );
-
-                                          return Column(
-                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                            children: [
-                                              Text(
-                              'Available Quantity: ${convertedAvailableQty.toStringAsFixed(2)} ${selectedFraction.name}',
-                                              ),
-                              soldPriceText,
-                                            ],
-                                          );
-                                        },
-                                      ),
-                        children: [
-                          Padding(
-                            padding: const EdgeInsets.all(16),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                    const SizedBox(height: 16),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                  const Text(
-                                    'Transaction History',
-                                    style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    ),
-                                  ),
-                                  if (item.fractions != null && item.fractions!.isNotEmpty)
-                                    FractionDropdown(
-                                      fractions: item.fractions!,
-                                      selectedFractionId: _selectedFractionIds[item.id] ?? item.fractions!.first.id,
-                                      onChanged: (value) {
-                                        setState(() {
-                                          _selectedFractionIds[item.id] = value;
-                                        });
-                                      },
-                                    ),
-
-                                    CustomButton(
-                                      onPressed: () {
-                                        Navigator.pushNamed(
-                                          context,
-                                          '/sell-item',
-                                          arguments: {
-                                            'preSelectedItem': item,
-                                        'preSelectedFraction': item.fractions
-                                            ?.firstWhere(
-                                              (f) =>
-                                                  f.id ==
-                                                  _selectedFractionIds[item.id],
-                                              orElse:
-                                                  () => item.fractions!.first,
-                                            ),
-                                          },
-                                        );
-                                      },
-                                      text: 'Sell Item',
-                                    ),
-                                  ],
-                                ),
-                                if (transactions.isEmpty)
-                                  const Text('No transactions found')
-                                else
-                                    Builder(
-                                      builder: (context) {
-                                        final selectedFractionId = _selectedFractionIds[item.id] ?? item.fractions!.first.id;
-                                        final selectedFraction = item.fractions!.firstWhere((f) => f.id == selectedFractionId);
-
-                                        // Helper to convert quantity to selected fraction
-                                        num convertToSelectedFraction(num quantity, String fromFractionId) {
-                                          final fromFraction = item.fractions!.firstWhere((f) => f.id == fromFractionId, orElse: () => selectedFraction);
-                                          if (fromFraction.id == selectedFraction.id) return quantity;
-                                          // Convert to base, then to selected
-                                          final baseQty = quantity * fromFraction.ratio;
-                                          return baseQty / selectedFraction.ratio;
-                                        }
-
-                                        return Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            if (transactions.isNotEmpty)
-                                              Padding(
-                                                padding: const EdgeInsets.only(bottom: 8.0),
-                                                child: Text(
-                                                  'Quantities shown in: ${selectedFraction.name}',
-                                                  style: const TextStyle(fontStyle: FontStyle.italic, fontSize: 13),
-                                                ),
-                                              ),
-                                            ListView.builder(
-                                              shrinkWrap: true,
-                                              physics: const NeverScrollableScrollPhysics(),
-                                              itemCount: transactions.length,
-                                              itemBuilder: (context, index) {
-                                                final transaction = transactions[index];
-                                                final isBought = transaction['type'] == 'bought';
-                                                final dynamic trans = transaction['transaction'];
-                                                final fromFractionId = trans.fractionId ?? trans.fraction?.id ?? selectedFraction.id;
-                                                final convertedQty = convertToSelectedFraction(trans.quantity, fromFractionId);
-                                                final convertedAvailableQty = convertToSelectedFraction(trans.available_items_count, fromFractionId);
-
-                                                return Card(
-                                                  color: isBought ? Colors.blue.shade50 : Colors.green.shade50,
-                                                  child: ListTile(
-                                                    leading: Icon(
-                                                      isBought ? Icons.shopping_cart : Icons.point_of_sale,
-                                                      color: isBought ? Colors.blue : Colors.green,
-                                                    ),
-                                                    title: Text(
-                                                      isBought ? 'Bought' : 'Sold',
-                                                      style: TextStyle(
-                                                        fontWeight: FontWeight.bold,
-                                                        color: isBought ? Colors.blue : Colors.green,
-                                                      ),
-                                                    ),
-                                                    subtitle: Column(
-                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                      children: [
-                                                        Row(
-                                                          children: [
-                                                            Text('Quantity: ${convertedQty.toStringAsFixed(2)}'),
-                                                            const SizedBox(width: 4),
-                                                            Text(selectedFraction.name),
-                                                          ],
-                                                        ),
-                                                        Row(
-                                                          children: [
-                                                            Text('Available: ${convertedAvailableQty.toStringAsFixed(2)}'),
-                                                            const SizedBox(width: 4),
-                                                            Text(selectedFraction.name),
-                                                          ],
-                                                        ),
-                                                        Text(
-                                                          'Price: \$${(isBought ? trans.fractionSoldPrice : trans.soldPrice).toStringAsFixed(2)}',
-                                                        ),
-                                                        Text(
-                                                          'Date: ${dateFormat.format(trans.createdAt)}',
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                );
-                                              },
-                                            ),
-                                          ],
-                                        );
-                                      },
-                                    ),
-                              ],
-                                  ),
-                                ),
+                        child: ListTile(
+                          title: Text(
+                            item.name,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                          subtitle: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Available Quantity: ${displayedQuantity.toStringAsFixed(2)} ${selectedFraction?.name ?? ""}',
+                              ),
+                              Text(
+                                'Sold Price: \$${availableItem.soldPrice.toStringAsFixed(2)}',
+                              ),
                             ],
+                          ),
+                          trailing: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              if (itemFractions.isNotEmpty)
+                                FractionDropdown(
+                                  fractions: itemFractions,
+                                  selectedFractionId: selectedFractionId,
+                                  onChanged: (value) => _updateSelectedFraction(availableItem.id, value),
+                                ),
+                              const SizedBox(width: 8),
+                              IconButton(
+                                icon: const Icon(Icons.history),
+                                onPressed: () => _navigateToTransactions(availableItem),
+                                tooltip: 'View Transactions',
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.sell),
+                                onPressed: () {
+                                  Navigator.pushNamed(
+                                    context,
+                                    '/sell-item',
+                                    arguments: {
+                                      'preSelectedItem': item,
+                                      'preSelectedFraction': item.fractions
+                                          ?.firstWhere(
+                                            (f) =>
+                                                f.id ==
+                                                _selectedFractionIds[availableItem.id],
+                                            orElse: () =>
+                                                item.fractions!.first,
+                                          ),
+                                    },
+                                  );
+                                },
+                                tooltip: 'Sell Item',
+                              ),
+                            ],
+                          ),
+                          onTap: () => _navigateToTransactions(availableItem),
                         ),
                       );
                     },
