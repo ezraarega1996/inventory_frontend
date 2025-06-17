@@ -10,6 +10,7 @@ import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
 import 'package:intl/intl.dart';
 import 'package:inventory_frontend/models/available_item.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TransactionsScreen extends StatefulWidget {
   final AvailableItem availableItem;
@@ -83,6 +84,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final itemFractions = widget.availableItem.item?.fractions ?? [];
     final selectedFractionId = _selectedFractionIds[widget.availableItem.id] ?? 
         (itemFractions.isNotEmpty ? itemFractions.first.id : '');
@@ -99,7 +101,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text('Transactions - ${widget.availableItem.item?.name ?? 'Unknown Item'}'),
+        title: Text(l10n.transactionsFor(widget.availableItem.item?.name ?? l10n.unknownItem)),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -123,7 +125,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            widget.availableItem.item?.name ?? 'Unknown Item',
+                            widget.availableItem.item?.name ?? l10n.unknownItem,
                             style: const TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: 18,
@@ -131,11 +133,14 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Available Quantity: ${displayedQuantity.toStringAsFixed(2)} ${selectedFraction?.name ?? ""}',
+                            l10n.availableQuantity(
+                              displayedQuantity,
+                              selectedFraction?.name ?? "",
+                            ),
                             style: const TextStyle(fontSize: 16),
                           ),
                           Text(
-                            'Sold Price: \$${widget.availableItem.soldPrice.toStringAsFixed(2)}',
+                            l10n.soldPrice(widget.availableItem.soldPrice),
                             style: const TextStyle(fontSize: 16),
                           ),
                         ],
@@ -200,10 +205,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
                 : _transactions.isEmpty
-                    ? const Center(
+                    ? Center(
                         child: Text(
-                          'No transactions found',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                          l10n.noTransactionsFound,
+                          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                       )
                     : ListView.builder(
@@ -237,7 +242,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                 color: isBought ? Colors.blue : Colors.green,
                               ),
                               title: Text(
-                                isBought ? 'Bought' : 'Sold',
+                                isBought ? l10n.bought : l10n.sold,
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: isBought ? Colors.blue : Colors.green,
@@ -247,16 +252,20 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Quantity: ${convertedQuantity.toStringAsFixed(2)} ${selectedFraction?.name ?? ''}',
+                                    l10n.quantity(
+                                      convertedQuantity,
+                                      selectedFraction?.name ?? '',
+                                    ),
                                   ),
                                   Text(
-                                    'Price: \$${(isBought ? trans.fractionSoldPrice : trans.soldPrice).toStringAsFixed(2)}',
+                                    l10n.availableQuantity(
+                                      convertedAvailableQty,
+                                      selectedFraction?.name ?? '',
+                                    ),
                                   ),
                                   Text(
-                                    'Available Quantity: ${convertedAvailableQty.toStringAsFixed(2)} ${selectedFraction?.name ?? ''}',
-                                  ),
-                                  Text(
-                                    'Date: ${dateFormat.format(trans.createdAt)}',
+                                    dateFormat.format(transaction['date']),
+                                    style: const TextStyle(fontSize: 12),
                                   ),
                                 ],
                               ),

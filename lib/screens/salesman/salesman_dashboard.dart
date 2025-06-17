@@ -9,6 +9,7 @@ import 'package:inventory_frontend/screens/salesman/view_sales_screen.dart';
 import 'package:inventory_frontend/screens/salesman/available_items_screen.dart';
 import 'package:inventory_frontend/widgets/dashboard_card.dart';
 import 'package:inventory_frontend/widgets/language_selector.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SalesmanDashboard extends StatefulWidget {
   const SalesmanDashboard({Key? key}) : super(key: key);
@@ -37,8 +38,9 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
       await salesProvider.fetchUserSales();
     } catch (e) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to load dashboard data: ${e.toString()}')),
+        SnackBar(content: Text(l10n.failedToLoadDashboard(e.toString()))),
       );
     } finally {
       if (mounted) {
@@ -62,8 +64,9 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
       );
     } catch (e) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Failed to logout: ${e.toString()}')),
+        SnackBar(content: Text(l10n.failedToLogout(e.toString()))),
       );
     } finally {
       if (mounted) {
@@ -88,6 +91,7 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
   }
   
   Widget _buildDashboard() {
+    final l10n = AppLocalizations.of(context)!;
     return Consumer<SalesProvider>(
       builder: (context, salesProvider, child) {
         return RefreshIndicator(
@@ -102,9 +106,9 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
                     Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
-                          const Text(
-                            'Dashboard',
-                            style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                          Text(
+                            l10n.dashboard,
+                            style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                           ),
                           IconButton(
                             icon: const Icon(Icons.refresh),
@@ -113,21 +117,21 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
                         ],
                       ),
                     DashboardCard(
-                      title: 'Total Sales',
+                      title: l10n.totalSales,
                       value: '\$${salesProvider.totalSales?.toStringAsFixed(2) ?? '0.00'}',
                       icon: Icons.point_of_sale,
                       color: Colors.blue,
                     ),
                     const SizedBox(height: 16),
                     DashboardCard(
-                      title: 'Total Items Sold',
+                      title: l10n.totalItemsSold,
                       value: '${salesProvider.totalItemsSold ?? 0}',
                       icon: Icons.shopping_cart,
                       color: Colors.green,
                     ),
                     const SizedBox(height: 16),
                     DashboardCard(
-                      title: 'Today\'s Sales',
+                      title: l10n.todaysSales,
                       value: '\$${salesProvider.todaySales?.toStringAsFixed(2) ?? '0.00'}',
                       icon: Icons.today,
                       color: Colors.orange,
@@ -142,11 +146,12 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: Consumer<AuthProvider>(
           builder: (context, authProvider, child) {
-            return Text(authProvider.user?.name ?? 'Salesman Dashboard');
+            return Text(authProvider.user?.name ?? l10n.salesmanDashboard);
           },
         ),
         actions: const [
@@ -179,7 +184,7 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
                       ),
                       const SizedBox(height: 10),
                       Text(
-                        authProvider.user?.name ?? 'Salesman',
+                        authProvider.user?.name ?? l10n.salesmanDashboard,
                         style: const TextStyle(
                           color: Colors.white,
                           fontSize: 18,
@@ -197,7 +202,7 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.dashboard, color: Colors.blue),
-                  title: const Text('Dashboard'),
+                  title: Text(l10n.dashboard),
                   selected: _selectedIndex == 0,
                   selectedColor: Colors.blue,
                   onTap: () {
@@ -207,7 +212,7 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.add_shopping_cart, color: Colors.orange),
-                  title: const Text('Sell Item'),
+                  title: Text(l10n.sellItem),
                   selected: _selectedIndex == 2,
                   selectedColor: Colors.orange,
                   onTap: () {
@@ -217,7 +222,7 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.inventory_2, color: Colors.green),
-                  title: const Text('Available Items'),
+                  title: Text(l10n.availableItems),
                   selected: _selectedIndex == 1,
                   selectedColor: Colors.green,
                   onTap: () {
@@ -227,7 +232,7 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
                 ),
                 ListTile(
                   leading: const Icon(Icons.history, color: Colors.purple),
-                  title: const Text('Sales History'),
+                  title: Text(l10n.salesHistory),
                   selected: _selectedIndex == 3,
                   selectedColor: Colors.purple,
                   onTap: () {
@@ -238,7 +243,7 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
                 const Divider(),
                 ListTile(
                   leading: const Icon(Icons.logout, color: Colors.red),
-                  title: const Text('Logout'),
+                  title: Text(l10n.logout),
                   onTap: _logout,
                 ),
               ],

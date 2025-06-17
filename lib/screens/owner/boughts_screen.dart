@@ -264,7 +264,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _quantityController,
-                    labelText: l10n.quantity,
+                    labelText: l10n.quantityLabel,
                     keyboardType: TextInputType.number,
                     enabled: !_isSubmitting,
                     validator: (value) {

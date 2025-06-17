@@ -8,6 +8,7 @@ import 'package:inventory_frontend/providers/item_provider.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:intl/intl.dart';
 import 'package:inventory_frontend/screens/salesman/transactions_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AvailableItemsScreen extends StatefulWidget {
   const AvailableItemsScreen({Key? key}) : super(key: key);
@@ -63,6 +64,7 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final itemProvider = Provider.of<ItemProvider>(context);
     final authProvider = Provider.of<AuthProvider>(context);
     final availableItemProvider = Provider.of<AvailableItemProvider>(context);
@@ -78,7 +80,7 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Available Items'),
+        title: Text(l10n.availableItems),
         actions: [
           IconButton(icon: const Icon(Icons.refresh), onPressed: _loadData),
         ],
@@ -86,10 +88,10 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : assignedItems.isEmpty
-              ? const Center(
+              ? Center(
                   child: Text(
-                    'No items assigned to you',
-                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    l10n.noItemsAssigned,
+                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 )
               : RefreshIndicator(
@@ -129,10 +131,13 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Available Quantity: ${displayedQuantity.toStringAsFixed(2)} ${selectedFraction?.name ?? ""}',
+                                l10n.availableQuantity(
+                                  double.parse(displayedQuantity.toStringAsFixed(2)),
+                                  selectedFraction?.name ?? "",
+                                ),
                               ),
                               Text(
-                                'Sold Price: \$${availableItem.soldPrice.toStringAsFixed(2)}',
+                                l10n.soldPrice(double.parse(availableItem.soldPrice.toStringAsFixed(2))),
                               ),
                             ],
                           ),
@@ -149,7 +154,7 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                               IconButton(
                                 icon: const Icon(Icons.history),
                                 onPressed: () => _navigateToTransactions(availableItem),
-                                tooltip: 'View Transactions',
+                                tooltip: l10n.viewTransactions,
                               ),
                               IconButton(
                                 icon: const Icon(Icons.sell),
@@ -170,7 +175,7 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                                     },
                                   );
                                 },
-                                tooltip: 'Sell Item',
+                                tooltip: l10n.sellItem,
                               ),
                             ],
                           ),

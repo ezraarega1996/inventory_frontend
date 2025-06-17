@@ -10,10 +10,10 @@
     "amharic": "አማርኛ",
     "noItemsFound": "ምንም እቃዎች አልተገኙም",
     "noTransactionsFound": "ምንም ግብይቶች አልተገኙም",
-    "availableQuantity": "የተገኘ ብዛት: {quantity} {unit}",
+    "availableQuantity": "የተገኘ ብዛት: {amount} {unit}",
     "@availableQuantity": {
         "placeholders": {
-            "quantity": {
+            "amount": {
                 "type": "double"
             },
             "unit": {
@@ -21,7 +21,7 @@
             }
         }
     },
-    "soldPrice": "የሽያጭ ዋጋ: \${price}",
+    "soldPrice": "የሽያጭ ዋጋ: ${price}",
     "@soldPrice": {
         "placeholders": {
             "price": {
@@ -29,6 +29,7 @@
             }
         }
     },
+    "soldPriceLabel": "የሽያጭ ዋጋ",
     "viewTransactions": "ግብይቶችን ይመልከቱ",
     "sellItem": "እቃ ይሽጡ",
     "addItem": "እቃ ይጨምሩ",
@@ -320,5 +321,31 @@
     "success": "ክዋኔው በተሳካ ሁኔታ ተጠናቅቋል",
     "error": "ስህተት ተከስቷል",
     "soldPriceLabel": "የሽያጭ ዋጋ",
-    "noAvailableItems": "የተገኙ ንጥሎች አልተገኙም"
+    "noAvailableItems": "የተገኙ ንጥሎች አልተገኙም",
+    "salesmanDashboard": "የሽያጭ ሰራተኛ ዳሽቦርድ",
+    "totalSales": "ጠቅላላ ሽያጮች",
+    "totalItemsSold": "ጠቅላላ የተሸጡ እቃዎች",
+    "todaysSales": "የዛሬ ሽያጮች",
+    "dashboard": "ዳሽቦርድ",
+    "sellItem": "እቃ ይሽጡ",
+    "availableItems": "የተገኙ ንጥሎች",
+    "salesHistory": "የሽያጭ ታሪክ",
+    "logout": "ውጣ",
+    "failedToLoadDashboard": "የዳሽቦርድ ዳሰሳ አልተሳካም: {error}",
+    "@failedToLoadDashboard": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "failedToLogout": "ውጣት አልተሳካም: {error}",
+    "@failedToLogout": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "quantityLabel": "ብዛት"
 } 

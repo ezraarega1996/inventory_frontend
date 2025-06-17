@@ -23,7 +23,7 @@
         }
     },
     "soldPriceLabel": "Sold Price",
-    "soldPrice": "Sold Price: \${price}",
+    "soldPrice": "Sold Price: ${price}",
     "@soldPrice": {
         "placeholders": {
             "price": {
@@ -47,6 +47,7 @@
             }
         }
     },
+    "quantityLabel": "Quantity",
     "price": "Price",
     "location": "Location",
     "expiryDate": "Expiry Date",
@@ -312,5 +313,25 @@
     "edit": "Edit",
     "required": "This field is required",
     "success": "Operation completed successfully",
-    "noAvailableItems": "No available items found"
+    "noAvailableItems": "No available items found",
+    "salesmanDashboard": "Salesman Dashboard",
+    "totalItemsSold": "Total Items Sold",
+    "todaysSales": "Today's Sales",
+    "salesHistory": "Sales History",
+    "failedToLoadDashboard": "Failed to load dashboard data: {error}",
+    "@failedToLoadDashboard": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "failedToLogout": "Failed to logout: {error}",
+    "@failedToLogout": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    }
 } 
