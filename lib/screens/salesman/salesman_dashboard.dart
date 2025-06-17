@@ -8,6 +8,7 @@ import 'package:inventory_frontend/screens/salesman/view_items_screen.dart';
 import 'package:inventory_frontend/screens/salesman/view_sales_screen.dart';
 import 'package:inventory_frontend/screens/salesman/available_items_screen.dart';
 import 'package:inventory_frontend/widgets/dashboard_card.dart';
+import 'package:inventory_frontend/widgets/language_selector.dart';
 
 class SalesmanDashboard extends StatefulWidget {
   const SalesmanDashboard({Key? key}) : super(key: key);
@@ -148,7 +149,9 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
             return Text(authProvider.user?.name ?? 'Salesman Dashboard');
           },
         ),
-
+        actions: const [
+          LanguageSelector(),
+        ],
       ),
       drawer: Consumer<AuthProvider>(
         builder: (context, authProvider, child) {

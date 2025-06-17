@@ -1,0 +1,86 @@
+{
+    "appTitle": "ኢንቨንቶሪ አስተዳደር",
+    "availableItems": "የተገኙ እቃዎች",
+    "boughtItems": "የተገዙ እቃዎች",
+    "soldItems": "የተሸጡ እቃዎች",
+    "transactions": "ግብይቶች",
+    "settings": "ቅንብሮች",
+    "language": "ቋንቋ",
+    "english": "እንግሊዝኛ",
+    "amharic": "አማርኛ",
+    "noItemsFound": "ምንም እቃዎች አልተገኙም",
+    "noTransactionsFound": "ምንም ግብይቶች አልተገኙም",
+    "availableQuantity": "የተገኘ ብዛት: {quantity} {unit}",
+    "@availableQuantity": {
+        "placeholders": {
+            "quantity": {
+                "type": "double"
+            },
+            "unit": {
+                "type": "String"
+            }
+        }
+    },
+    "soldPrice": "የሽያጭ ዋጋ: {price}",
+    "@soldPrice": {
+        "placeholders": {
+            "price": {
+                "type": "double"
+            }
+        }
+    },
+    "viewTransactions": "ግብይቶችን ይመልከቱ",
+    "sellItem": "እቃ ይሽጡ",
+    "addItem": "እቃ ይጨምሩ",
+    "editItem": "እቃ ያስተካክሉ",
+    "deleteItem": "እቃ ያስወግዱ",
+    "quantity": "ብዛት",
+    "price": "ዋጋ",
+    "location": "አካታች",
+    "expiryDate": "የማብቂያ ቀን",
+    "selectExpiryDate": "የማብቂያ ቀን ይምረጡ",
+    "save": "ያስቀምጡ",
+    "cancel": "ይሰርዙ",
+    "delete": "ያስወግዱ",
+    "confirmDelete": "ይህን እቃ ለመሰረዝ እርግጠኛ ነዎት?",
+    "itemAdded": "እቃው በተሳካ ሁኔታ ተጨምሯል",
+    "itemUpdated": "እቃው በተሳካ ሁኔታ ተዘምኗል",
+    "itemDeleted": "እቃው በተሳካ ሁኔታ ተሰርዟል",
+    "error": "ስህተት ተከስቷል",
+    "refresh": "ያድሱ",
+    "selectSalesman": "ሻጭ ይምረጡ",
+    "selectItem": "እቃ ይምረጡ",
+    "selectFraction": "ክፍልፋይ ይምረጡ",
+    "purchasePrice": "የግዢ ዋጋ",
+    "soldPrice": "የሽያጭ ዋጋ",
+    "bought": "የተገዘ",
+    "sold": "የተሸጠ",
+    "date": "ቀን: {date}",
+    "@date": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "noItemsAssigned": "ምንም እቃዎች አልተመደቡልዎትም",
+    "loading": "በመጫን ላይ...",
+    "dashboard": "ዳሽቦርድ",
+    "trialPeriod": "የሙከራ ጊዜ",
+    "trialEndsOn": "የሙከራዎ ጊዜ በ {date} ያበቃል። ሁሉንም ባህሪያት ለመጠቀም ወደ የተከፈለ እቅድ ያሻሽሉ።",
+    "viewPlans": "እቅዶችን ይመልከቱ",
+    "todaysSalesBySalesman": "የዛሬ ሽያጮች በሽያጭ ሰራተኛ",
+    "noSalesToday": "ዛሬ ምንም ሽያጭ አልተመዘገበም።",
+    "totalSales": "ጠቅላላ ሽያጮች",
+    "salesCount": "የሽያጭ ብዛት",
+    "salesTrend": "የሽያጭ አዝማሚያ (የመጨረሻው 30 ቀናት)",
+    "topSellingItems": "ከፍተኛ የሚሸጡ እቃዎች",
+    "menu": "ምናሌ",
+    "salesPerson": "የሽያጭ ሰራተኛ",
+    "categories": "ምድቦች",
+    "items": "እቃዎች",
+    "storedItems": "የተከማቹ እቃዎች",
+    "sales": "ሽያጮች",
+    "subscription": "የደንበኝነት ምዝገባ",
+    "logout": "ውጣ"
+} 

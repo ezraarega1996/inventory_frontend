@@ -13,6 +13,8 @@ import 'package:inventory_frontend/screens/owner/boughts_screen.dart';
 import 'package:inventory_frontend/screens/owner/available_items_screen.dart';
 import 'package:inventory_frontend/widgets/dashboard_card.dart';
 import 'package:inventory_frontend/widgets/dashboard_chart.dart';
+import 'package:inventory_frontend/widgets/language_selector.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class OwnerDashboard extends StatefulWidget {
   const OwnerDashboard({Key? key}) : super(key: key);
@@ -102,6 +104,7 @@ Future<void> _loadDashboardData() async {
       builder: (context, salesProvider, businessProvider, child) {
         final stats = salesProvider.dashboardStats;
         final business = businessProvider.currentBusiness;
+        final l10n = AppLocalizations.of(context)!;
 
         return RefreshIndicator(
           onRefresh: _loadDashboardData,
@@ -114,9 +117,9 @@ Future<void> _loadDashboardData() async {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      'Dashboard',
-                      style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+                    Text(
+                      l10n.dashboard,
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
                     ),
                     IconButton(
                       icon: const Icon(Icons.refresh),
@@ -133,25 +136,25 @@ Future<void> _loadDashboardData() async {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Trial Period',
-                            style: TextStyle(
+                          Text(
+                            l10n.trialPeriod,
+                            style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            'Your trial ends on ${_formatDate(business.trialEndsAt)}. Upgrade to a paid plan to continue using all features.',
+                            l10n.trialEndsOn(_formatDate(business.trialEndsAt)),
                           ),
                           const SizedBox(height: 8),
                           TextButton(
                             onPressed: () {
                               setState(() {
-                                _selectedIndex = 5; // Switch to subscription screen
+                                _selectedIndex = 5;
                               });
                             },
-                            child: const Text('View Plans'),
+                            child: Text(l10n.viewPlans),
                           ),
                         ],
                       ),
@@ -160,26 +163,25 @@ Future<void> _loadDashboardData() async {
                 ],
                 const SizedBox(height: 24),
 
-            // Add this section for today's sales by salesman
-            const Text(
-              "Today's Sales by Salesman",
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 16),
-            if (salesProvider.todaySalesData.isEmpty)
-              const Text('No sales recorded today.'),
-            ...salesProvider.todaySalesData.map((salesData) => Card(
-                  child: ListTile(
-                    title: Text(salesData.salesmanName ?? 'Unknown'),
-                    trailing: Text(
-                      '₹${salesData.totalAmount.toStringAsFixed(2)}',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
+                Text(
+                  l10n.todaysSalesBySalesman,
+                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 16),
+                if (salesProvider.todaySalesData.isEmpty)
+                  Text(l10n.noSalesToday),
+                ...salesProvider.todaySalesData.map((salesData) => Card(
+                      child: ListTile(
+                        title: Text(salesData.salesmanName ?? 'Unknown'),
+                        trailing: Text(
+                          '₹${salesData.totalAmount.toStringAsFixed(2)}',
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                )),
+                    )),
                 
                 const SizedBox(height: 24),
                 if (_isLoading)
@@ -191,7 +193,7 @@ Future<void> _loadDashboardData() async {
                         children: [
                           Expanded(
                             child: DashboardCard(
-                              title: 'Total Sales',
+                              title: l10n.totalSales,
                               value: '\$${stats['totalSales']?.toStringAsFixed(2) ?? '0.00'}',
                               icon: Icons.attach_money,
                               color: Colors.green,
@@ -200,7 +202,7 @@ Future<void> _loadDashboardData() async {
                           const SizedBox(width: 16),
                           Expanded(
                             child: DashboardCard(
-                              title: 'Sales Count',
+                              title: l10n.salesCount,
                               value: '${stats['salesCount'] ?? 0}',
                               icon: Icons.shopping_cart,
                               color: Colors.blue,
@@ -209,9 +211,9 @@ Future<void> _loadDashboardData() async {
                         ],
                       ),
                       const SizedBox(height: 24),
-                      const Text(
-                        'Sales Trend (Last 30 Days)',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      Text(
+                        l10n.salesTrend,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 16),
                       SizedBox(
@@ -219,9 +221,9 @@ Future<void> _loadDashboardData() async {
                         child: DashboardChart(data: stats['salesByDay'] ?? []),
                       ),
                       const SizedBox(height: 24),
-                      const Text(
-                        'Top Selling Items',
-                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      Text(
+                        l10n.topSellingItems,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                       const SizedBox(height: 16),
                       ListView.builder(
@@ -273,6 +275,9 @@ Future<void> _loadDashboardData() async {
         return Scaffold(
           appBar: AppBar(
             title: Text(business?.name ?? 'Owner Dashboard'),
+            actions: const [
+              LanguageSelector(),
+            ],
           ),
           drawer: _buildDrawer(),
           body: _getScreen(),
@@ -282,6 +287,7 @@ Future<void> _loadDashboardData() async {
   }
 
   Widget _buildDrawer() {
+    final l10n = AppLocalizations.of(context)!;
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -289,13 +295,13 @@ Future<void> _loadDashboardData() async {
           DrawerHeader(
             decoration: BoxDecoration(color: Colors.blue),
             child: Text(
-              'Menu',
+              l10n.menu,
               style: TextStyle(color: Colors.white, fontSize: 24),
             ),
           ),
           ListTile(
             leading: Icon(Icons.dashboard),
-            title: Text('Dashboard'),
+            title: Text(l10n.dashboard),
             selected: _selectedIndex == 0,
             onTap: () {
               setState(() {
@@ -306,7 +312,7 @@ Future<void> _loadDashboardData() async {
           ),
           ListTile(
             leading: Icon(Icons.people),
-            title: Text('Sales person'),
+            title: Text(l10n.salesPerson),
             selected: _selectedIndex == 4,
             onTap: () {
               setState(() {
@@ -315,9 +321,9 @@ Future<void> _loadDashboardData() async {
               Navigator.pop(context);
             },
           ),
-                    ListTile(
+          ListTile(
             leading: Icon(Icons.category),
-            title: Text('Categories'),
+            title: Text(l10n.categories),
             selected: _selectedIndex == 3,
             onTap: () {
               setState(() {
@@ -328,7 +334,7 @@ Future<void> _loadDashboardData() async {
           ),
           ListTile(
             leading: Icon(Icons.inventory),
-            title: Text('Items'),
+            title: Text(l10n.items),
             selected: _selectedIndex == 2,
             onTap: () {
               setState(() {
@@ -339,7 +345,7 @@ Future<void> _loadDashboardData() async {
           ),
           ListTile(
             leading: Icon(Icons.shopping_basket),
-            title: Text('Stored Items'),
+            title: Text(l10n.storedItems),
             selected: _selectedIndex == 6,
             onTap: () {
               setState(() {
@@ -350,7 +356,7 @@ Future<void> _loadDashboardData() async {
           ),
           ListTile(
             leading: Icon(Icons.inventory_2),
-            title: Text('Available Items'),
+            title: Text(l10n.availableItems),
             selected: _selectedIndex == 7,
             onTap: () {
               setState(() {
@@ -361,7 +367,7 @@ Future<void> _loadDashboardData() async {
           ),
           ListTile(
             leading: Icon(Icons.shopping_cart),
-            title: Text('Sales'),
+            title: Text(l10n.sales),
             selected: _selectedIndex == 1,
             onTap: () {
               setState(() {
@@ -372,7 +378,7 @@ Future<void> _loadDashboardData() async {
           ),
           ListTile(
             leading: Icon(Icons.card_membership),
-            title: Text('Subscription'),
+            title: Text(l10n.subscription),
             selected: _selectedIndex == 5,
             onTap: () {
               setState(() {
@@ -382,11 +388,11 @@ Future<void> _loadDashboardData() async {
             },
           ),
           const Divider(),
-                ListTile(
-                  leading: const Icon(Icons.logout, color: Colors.red),
-                  title: const Text('Logout'),
-                  onTap: _logout,
-                ),
+          ListTile(
+            leading: const Icon(Icons.logout, color: Colors.red),
+            title: Text(l10n.logout),
+            onTap: _logout,
+          ),
         ],
       ),
     );

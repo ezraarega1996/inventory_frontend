@@ -68,6 +68,8 @@ dependencies:
   uuid: ^4.3.3
   url_launcher: ^6.1.14
   flutter_dotenv: ^5.1.0
+  flutter_localizations:
+    sdk: flutter
 
 dev_dependencies:
   flutter_test:
@@ -128,3 +130,5 @@ flutter:
   #
   # For details regarding fonts from package dependencies,
   # see https://flutter.dev/to/font-from-package
+
+  generate: true

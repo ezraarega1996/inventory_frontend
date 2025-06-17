@@ -1,0 +1,93 @@
+{
+    "appTitle": "Inventory Management",
+    "availableItems": "Available Items",
+    "boughtItems": "Bought Items",
+    "soldItems": "Sold Items",
+    "transactions": "Transactions",
+    "settings": "Settings",
+    "language": "Language",
+    "english": "English",
+    "amharic": "Amharic",
+    "noItemsFound": "No items found",
+    "noTransactionsFound": "No transactions found",
+    "availableQuantity": "Available Quantity: {quantity} {unit}",
+    "@availableQuantity": {
+        "placeholders": {
+            "quantity": {
+                "type": "double"
+            },
+            "unit": {
+                "type": "String"
+            }
+        }
+    },
+    "soldPrice": "Sold Price: {price}",
+    "@soldPrice": {
+        "placeholders": {
+            "price": {
+                "type": "double"
+            }
+        }
+    },
+    "viewTransactions": "View Transactions",
+    "sellItem": "Sell Item",
+    "addItem": "Add Item",
+    "editItem": "Edit Item",
+    "deleteItem": "Delete Item",
+    "quantity": "Quantity",
+    "price": "Price",
+    "location": "Location",
+    "expiryDate": "Expiry Date",
+    "selectExpiryDate": "Select Expiry Date",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "confirmDelete": "Are you sure you want to delete this item?",
+    "itemAdded": "Item added successfully",
+    "itemUpdated": "Item updated successfully",
+    "itemDeleted": "Item deleted successfully",
+    "error": "An error occurred",
+    "refresh": "Refresh",
+    "selectSalesman": "Select Salesman",
+    "selectItem": "Select Item",
+    "selectFraction": "Select Fraction",
+    "purchasePrice": "Purchase Price",
+    "soldPrice": "Sold Price",
+    "bought": "Bought",
+    "sold": "Sold",
+    "date": "Date: {date}",
+    "@date": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "noItemsAssigned": "No items assigned to you",
+    "loading": "Loading...",
+    "dashboard": "Dashboard",
+    "trialPeriod": "Trial Period",
+    "trialEndsOn": "Your trial ends on {date}. Upgrade to a paid plan to continue using all features.",
+    "@trialEndsOn": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "viewPlans": "View Plans",
+    "todaysSalesBySalesman": "Today's Sales by Salesman",
+    "noSalesToday": "No sales recorded today.",
+    "totalSales": "Total Sales",
+    "salesCount": "Sales Count",
+    "salesTrend": "Sales Trend (Last 30 Days)",
+    "topSellingItems": "Top Selling Items",
+    "menu": "Menu",
+    "salesPerson": "Sales person",
+    "categories": "Categories",
+    "items": "Items",
+    "storedItems": "Stored Items",
+    "sales": "Sales",
+    "subscription": "Subscription",
+    "logout": "Logout"
+} 
