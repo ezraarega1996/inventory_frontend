@@ -248,7 +248,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _fractionSoldPriceController,
-                    labelText: git ,
+                    labelText: "Sold Price",
                     keyboardType: TextInputType.number,
                     enabled: !_isSubmitting,
                     validator: (value) {

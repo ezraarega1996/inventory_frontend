@@ -75,7 +75,7 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                 if (availableItemProvider.availableItems.isEmpty) {
                   return Center(
                     child: Text(
-                      l10n.noData,
+                      l10n.noItemsFound,
                       style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   );
@@ -128,10 +128,10 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                '${l10n.availableQuantity}: ${displayedQuantity.toStringAsFixed(2)} ${selectedFraction?.name ?? ""}',
+                                l10n.availableQuantity(displayedQuantity, selectedFraction?.name ?? ""),
                               ),
                               Text(
-                                '${l10n.soldPrice}: \$${availableItem.soldPrice.toStringAsFixed(2)}',
+                                l10n.soldPrice(availableItem.soldPrice),
                               ),
                             ],
                           ),

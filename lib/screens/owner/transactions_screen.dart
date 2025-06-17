@@ -133,12 +133,16 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            '${l10n.availableQuantity}: ${displayedQuantity.toStringAsFixed(2)} ${selectedFraction?.name ?? ""}',
+                            'Available Quantity: ${displayedQuantity.toStringAsFixed(2)} ${selectedFraction?.name ?? ""}',
                             style: const TextStyle(fontSize: 16),
                           ),
                           Text(
-                            '${l10n.soldPrice}: \$${widget.availableItem.soldPrice.toStringAsFixed(2)}',
-                            style: const TextStyle(fontSize: 16),
+                            'የሽያጭ ዋጋ: \$${widget.availableItem.soldPrice.toStringAsFixed(2)}',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.green,
+                            ),
                           ),
                         ],
                       ),
@@ -249,13 +253,14 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    '${l10n.quantity}: ${convertedQuantity.toStringAsFixed(2)} ${selectedFraction?.name ?? ''}',
+                                    'Quantity: ${convertedQuantity.toStringAsFixed(2)} ${selectedFraction?.name ?? ''}',
                                   ),
                                   Text(
-                                    '${l10n.availableQuantity}: ${convertedAvailableQty.toStringAsFixed(2)} ${selectedFraction?.name ?? ''}',
+                                    'Available Quantity: ${convertedAvailableQty.toStringAsFixed(2)} ${selectedFraction?.name ?? ''}',
                                   ),
                                   Text(
-                                    '${l10n.date}: ${dateFormat.format(trans.createdAt)}',
+                                    dateFormat.format(transaction['date']),
+                                    style: const TextStyle(fontSize: 12, color: Colors.grey),
                                   ),
                                 ],
                               ),

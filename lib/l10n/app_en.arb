@@ -4,16 +4,17 @@
     "boughtItems": "Bought Items",
     "soldItems": "Sold Items",
     "transactions": "Transactions",
+    "transactionsFor": "Transactions - {itemName}",
     "settings": "Settings",
     "language": "Language",
     "english": "English",
     "amharic": "Amharic",
     "noItemsFound": "No items found",
     "noTransactionsFound": "No transactions found",
-    "availableQuantity": "Available Quantity",
+    "availableQuantity": "Available Quantity: {amount} {unit}",
     "@availableQuantity": {
         "placeholders": {
-            "quantity": {
+            "amount": {
                 "type": "double"
             },
             "unit": {
@@ -21,7 +22,8 @@
             }
         }
     },
-    "soldPrice": "Sold Price",
+    "soldPriceLabel": "Sold Price",
+    "soldPrice": "Sold Price: \${price}",
     "@soldPrice": {
         "placeholders": {
             "price": {
@@ -34,7 +36,17 @@
     "addItem": "Add Item",
     "editItem": "Edit Item",
     "deleteItem": "Delete Item",
-    "quantity": "Quantity",
+    "quantity": "Quantity: {amount} {unit}",
+    "@quantity": {
+        "placeholders": {
+            "amount": {
+                "type": "double"
+            },
+            "unit": {
+                "type": "String"
+            }
+        }
+    },
     "price": "Price",
     "location": "Location",
     "expiryDate": "Expiry Date",
@@ -52,7 +64,6 @@
     "selectItem": "Select Item",
     "selectFraction": "Select Fraction",
     "purchasePrice": "Purchase Price",
-    "soldPrice": "Sold Price",
     "bought": "Bought",
     "sold": "Sold",
     "date": "Date",
@@ -283,7 +294,6 @@
     "selectItem": "Select Item",
     "selectFraction": "Select Fraction",
     "purchasePrice": "Purchase Price",
-    "soldPrice": "Sold Price",
     "quantity": "Quantity",
     "location": "Location",
     "selectExpiryDate": "Select Expiry Date",
@@ -302,5 +312,5 @@
     "edit": "Edit",
     "required": "This field is required",
     "success": "Operation completed successfully",
-    "soldPriceLabel": "Sold Price"
+    "noAvailableItems": "No available items found"
 } 

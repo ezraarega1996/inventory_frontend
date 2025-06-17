@@ -1,6 +1,6 @@
 {
     "appTitle": "ኢንቨንቶሪ አስተዳደር",
-    "availableItems": "የተገኙ እቃዎች",
+    "availableItems": "የተገኙ ንጥሎች",
     "boughtItems": "የተገዙ ንጥሎች",
     "soldItems": "የተሸጡ እቃዎች",
     "transactions": "ግብይቶች",
@@ -21,7 +21,7 @@
             }
         }
     },
-    "soldPrice": "የሽያጭ ዋጋ",
+    "soldPrice": "የሽያጭ ዋጋ: \${price}",
     "@soldPrice": {
         "placeholders": {
             "price": {
@@ -87,7 +87,7 @@
     "subscription": "የደንበኝነት ምዝገባ",
     "logout": "ውጣ",
     "transactions": "ግብይቶች",
-    "availableItems": "የሚገኙ እቃዎች",
+    "availableItems": "የተገኙ ንጥሎች",
     "ownerHome": "የባለቤት መነሻ",
     "saleDetails": "የሽያጭ ዝርዝሮች",
     "users": "ተጠቃሚዎች",
@@ -319,5 +319,6 @@
     "required": "ይህ መስክ ያስፈልጋል",
     "success": "ክዋኔው በተሳካ ሁኔታ ተጠናቅቋል",
     "error": "ስህተት ተከስቷል",
-    "soldPriceLabel": "የሽያጭ ዋጋ"
+    "soldPriceLabel": "የሽያጭ ዋጋ",
+    "noAvailableItems": "የተገኙ ንጥሎች አልተገኙም"
 } 
