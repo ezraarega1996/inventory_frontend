@@ -12,7 +12,7 @@ class LanguageSelector extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
 
     return IconButton(
-      icon: const Icon(Icons.language),
+      icon: const Text("Language"),
       onPressed: () {
         showDialog(
           context: context,
