@@ -204,7 +204,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(fraction.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                          Text('${l10n.ratio}: ${fraction.ratio} | ${l10n.price}: \$${fraction.price}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                                          Text('${l10n.ratio}: ${fraction.ratio} | ${l10n.price}:  24${fraction.price}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
                                         ],
                                       ),
                                     );
@@ -248,7 +248,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _fractionSoldPriceController,
-                    labelText: "Sold Price",
+                    labelText: l10n.soldPriceLabel,
                     keyboardType: TextInputType.number,
                     enabled: !_isSubmitting,
                     validator: (value) {

@@ -4,6 +4,14 @@
     "boughtItems": "የተገዙ ንጥሎች",
     "soldItems": "የተሸጡ እቃዎች",
     "transactions": "ግብይቶች",
+    "transactionsFor": "ግብይቶች - {itemName}",
+    "@transactionsFor": {
+        "placeholders": {
+            "itemName": {
+                "type": "Object"
+            }
+        }
+    },
     "settings": "ቅንብሮች",
     "language": "ቋንቋ",
     "english": "እንግሊዝኛ",
@@ -347,5 +355,156 @@
             }
         }
     },
-    "quantityLabel": "ብዛት"
+    "quantityLabel": "ብዛት",
+    "item": "እቃ",
+    "fraction": "ክፍልፋይ",
+    "createSale": "ሽያጭ ፍጠር",
+    "saleCreatedSuccessfully": "ሽያጭ በተሳካ ሁኔታ ተፈጥሯል",
+    "errorLoadingData": "ዳሰሳ ስህተት: {error}",
+    "@errorLoadingData": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "errorCreatingSale": "ስህተት: {error}",
+    "@errorCreatingSale": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "selectItem": "እቃ ይምረጡ",
+    "selectUnit": "ዩኒት ይምረጡ",
+    "pleaseSelectItem": "እባክዎ እቃ ይምረጡ",
+    "pleaseSelectUnit": "እባክዎ ዩኒት ይምረጡ",
+    "pleaseEnterQuantity": "እባክዎ ብዛት ያስገቡ",
+    "pleaseEnterValidNumber": "እባክዎ ትክክለኛ ቁጥር ያስገቡ",
+    "quantityMustBeGreaterThanZero": "ብዛቱ ከ 0 በላይ መሆን አለበት",
+    "availableQuantityIs": "የተገኘ ብዛት {quantity} ነው",
+    "@availableQuantityIs": {
+        "placeholders": {
+            "quantity": {
+                "type": "double"
+            }
+        }
+    },
+    "availableQuantityWithLoading": "የተገኘ ብዛት: {quantity}",
+    "@availableQuantityWithLoading": {
+        "placeholders": {
+            "quantity": {
+                "type": "String"
+            }
+        }
+    },
+    "expectedAmount": "የሚጠበቀ መጠን: ${amount}",
+    "@expectedAmount": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "processing": "በሂደት ላይ...",
+    "sellItem": "እቃ ይሽጡ",
+    "retry": "እንደገና ይሞክሩ",
+    "noItemsAssignedToYou": "ምንም እቃዎች አልተመደቡም",
+    "failedToLoadData": "ዳሰሳ አልተሳካም። እባክዎ እንደገና ይሞክሩ።",
+    "itemNotAssignedToYou": "ይህ እቃ አልተመደበም",
+    "itemNotFound": "እቃው አልተገኘም",
+    "errorFindingPreSelectedItem": "የተመረጠ እቃ ማግኘት ስህተት",
+    "selectedFractionNotFound": "የተመረጠ ክፍልፋይ አልተገኘም",
+    "noFractionsAvailableForItem": "ለዚህ እቃ ክፍልፋዮች አልተገኙም",
+    "errorFindingPreSelectedFraction": "የተመረጠ ክፍልፋይ ማግኘት ስህተት",
+    "failedToFetchAvailableQuantity": "የተገኘ ብዛት ማግኘት አልተሳካም። እባክዎ እንደገና ይሞክሩ።",
+    "pleaseSelectItemAndFraction": "እባክዎ እቃ እና ክፍልፋይ ይምረጡ",
+    "itemSoldSuccessfully": "እቃው በተሳካ ሁኔታ ተሸጥቷል",
+    "failedToProcessSale": "ሽያጭ ማስኬድ አልተሳካም። እባክዎ እንደገና ይሞክሩ።",
+    "failedToUpdateAvailableQuantity": "የተገኘ ብዛት ማዘመን አልተሳካም",
+    "loading": "በመጫን ላይ...",
+    "salesHistory": "የሽያጭ ታሪክ",
+    "noSalesFound": "ምንም ሽያጮች አልተገኙም",
+    "errorLoadingSales": "ሽያጮች መጫን ስህተት: {error}",
+    "@errorLoadingSales": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "quantityWithUnit": "ብዛት: {quantity} {unit}",
+    "@quantityWithUnit": {
+        "placeholders": {
+            "quantity": {
+                "type": "String"
+            },
+            "unit": {
+                "type": "String"
+            }
+        }
+    },
+    "amountWithCurrency": "መጠን: ${amount}",
+    "@amountWithCurrency": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "availableItemsWithUnit": "የተገኙ እቃዎች: {quantity} {unit}",
+    "@availableItemsWithUnit": {
+        "placeholders": {
+            "quantity": {
+                "type": "String"
+            },
+            "unit": {
+                "type": "String"
+            }
+        }
+    },
+    "dateWithFormat": "ቀን: {date}",
+    "@dateWithFormat": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "itemDetails": "ዕቃ ዝርዝር",
+    "noCategory": "ምድብ የለም",
+    "units": "ዕቃዎች",
+    "manageUnits": "ዕቃዎችን አስተዳድር",
+    "noUnitsAddedYet": "ገና ዕቃዎች አልተጨሙም",
+    "ratioAndPrice": "መጠን: {ratio}, ዋጋ: \u0024{price}",
+    "@ratioAndPrice": {
+        "placeholders": {
+            "ratio": {
+                "type": "double"
+            },
+            "price": {
+                "type": "double"
+            }
+        }
+    },
+    "fractionAddedSuccessfully": "ዕቃ በተሳካት ተጨምሯል",
+    "unitUpdatedSuccessfully": "ዕቃ በተሳካት ተዘምኗል",
+    "deleteUnit": "ዕቃ ሰርዝ",
+    "confirmDeleteUnit": "ይህን ዕቃ መሰረዝ እርግጠኛ ነዎት?",
+    "unitDeletedSuccessfully": "ዕቃ በተሳካት ተሰርዟል",
+    "manageUnitsFor": "ዕቃዎችን አስተዳድር - {itemName}",
+    "@manageUnitsFor": {
+        "placeholders": {
+            "itemName": {
+                "type": "String"
+            }
+        }
+    },
+    "unitName": "ዕቃ ስም",
+    "pleaseEnterName": "እባክዎ ስም ያስገቡ",
+    "pleaseEnterRatio": "እባክዎ መጠን ያስገቡ",
+    "pleaseEnterPrice": "እባክዎ ዋጋ ያስገቡ",
+    "addUnit": "ዕቃ ጨምር",
+    "existingUnits": "ያሉ ዕቃዎች"
 } 

@@ -6,6 +6,7 @@ import '../models/available_item.dart';
 import '../models/item.dart';
 import '../models/fraction.dart';
 import '../config.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SellItemScreen extends StatefulWidget {
   final String token;
@@ -73,7 +74,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading data: $e')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.errorLoadingData(e.toString()))),
       );
     } finally {
       setState(() => isLoading = false);
@@ -112,26 +113,27 @@ class _SellItemScreenState extends State<SellItemScreen> {
 
       if (response.statusCode == 201) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sale created successfully')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.saleCreatedSuccessfully)),
         );
         Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Error: ${response.body}')),
+          SnackBar(content: Text(AppLocalizations.of(context)!.errorCreatingSale(response.body))),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e')),
+        SnackBar(content: Text(AppLocalizations.of(context)!.errorCreatingSale(e.toString()))),
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sell Item'),
+        title: Text(l10n.sellItem),
       ),
       body: isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -142,9 +144,9 @@ class _SellItemScreenState extends State<SellItemScreen> {
                 children: [
                   DropdownButtonFormField<String>(
                     value: selectedItemId,
-                    decoration: const InputDecoration(
-                      labelText: 'Item',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n.item,
+                      border: const OutlineInputBorder(),
                     ),
                     items: items.map((item) {
                       return DropdownMenuItem(
@@ -159,9 +161,9 @@ class _SellItemScreenState extends State<SellItemScreen> {
                   const SizedBox(height: 16),
                   DropdownButtonFormField<String>(
                     value: selectedFractionId,
-                    decoration: const InputDecoration(
-                      labelText: 'Fraction',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n.fraction,
+                      border: const OutlineInputBorder(),
                     ),
                     items: fractions.map((fraction) {
                       return DropdownMenuItem(
@@ -176,25 +178,25 @@ class _SellItemScreenState extends State<SellItemScreen> {
                   const SizedBox(height: 16),
                   TextField(
                     controller: quantityController,
-                    decoration: const InputDecoration(
-                      labelText: 'Quantity',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n.quantityLabel,
+                      border: const OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
                   ),
                   const SizedBox(height: 16),
                   TextField(
                     controller: soldPriceController,
-                    decoration: const InputDecoration(
-                      labelText: 'Sold Price',
-                      border: OutlineInputBorder(),
+                    decoration: InputDecoration(
+                      labelText: l10n.soldPriceLabel,
+                      border: const OutlineInputBorder(),
                     ),
                     keyboardType: TextInputType.number,
                   ),
                   const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: _createSale,
-                    child: const Text('Create Sale'),
+                    child: Text(l10n.createSale),
                   ),
                 ],
               ),

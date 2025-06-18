@@ -4,6 +4,7 @@ import 'package:inventory_frontend/models/fraction.dart';
 import 'package:provider/provider.dart';
 import 'package:inventory_frontend/providers/sales_provider.dart';
 import 'package:inventory_frontend/screens/salesman/sale_detail_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ViewSalesScreen extends StatefulWidget {
   const ViewSalesScreen({Key? key}) : super(key: key);
@@ -59,9 +60,10 @@ class _ViewSalesScreenState extends State<ViewSalesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sales History'),
+        title: Text(l10n.salesHistory),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -79,13 +81,12 @@ class _ViewSalesScreenState extends State<ViewSalesScreen> {
                 final dateFormat = DateFormat('MMM dd, yyyy HH:mm');
                 final today = DateTime.now();
 
-
                 return Stack(
                   children: [
                     RefreshIndicator(
                       onRefresh: _loadSales,
                       child: salesProvider.sales.isEmpty
-                          ? const Center(child: Text('No sales found'))
+                          ? Center(child: Text(l10n.noSalesFound))
                           : ListView.builder(
                               itemCount: salesProvider.sales.length,
                               itemBuilder: (context, index) {
@@ -98,7 +99,7 @@ class _ViewSalesScreenState extends State<ViewSalesScreen> {
                                 return Card(
                                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                   child: ListTile(
-                                    title: Text(sale.item?.name ?? 'Unknown Item'),
+                                    title: Text(sale.item?.name ?? l10n.unknownItem),
                                     subtitle: Row(    
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
@@ -108,12 +109,18 @@ class _ViewSalesScreenState extends State<ViewSalesScreen> {
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text('Quantity: ${sale.quantity * sale.fraction!.ratio / selectedFraction!.ratio} ${selectedFraction?.name ?? ""}'),
-                                              Text('Amount: \$${sale.soldPrice}'),
+                                              Text(l10n.quantityWithUnit(
+                                                (sale.quantity * sale.fraction!.ratio / selectedFraction!.ratio).toString(),
+                                                selectedFraction?.name ?? ""
+                                              )),
+                                              Text(l10n.amountWithCurrency(sale.soldPrice.toString())),
                                               sale.available_items_count != null
-                                                ? Text('Available items: ${sale.available_items_count! * sale.fraction!.ratio / selectedFraction!.ratio} ${selectedFraction?.name ?? ""}')
+                                                ? Text(l10n.availableItemsWithUnit(
+                                                    (sale.available_items_count! * sale.fraction!.ratio / selectedFraction!.ratio).toString(),
+                                                    selectedFraction?.name ?? ""
+                                                  ))
                                                 : const SizedBox.shrink(),
-                                              Text('Date: ${dateFormat.format(sale.createdAt)}'),
+                                              Text(l10n.dateWithFormat(dateFormat.format(sale.createdAt))),
                                             ],
                                           ),
                                         ),

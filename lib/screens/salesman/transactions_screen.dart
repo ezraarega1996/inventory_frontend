@@ -133,10 +133,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            l10n.availableQuantity(
-                              displayedQuantity,
-                              selectedFraction?.name ?? "",
-                            ),
+                            l10n.availableQuantity(displayedQuantity, selectedFraction?.name ?? ""),
                             style: const TextStyle(fontSize: 16),
                           ),
                           Text(
@@ -258,11 +255,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                     ),
                                   ),
                                   Text(
-                                    l10n.availableQuantity(
-                                      convertedAvailableQty,
-                                      selectedFraction?.name ?? '',
-                                    ),
-                                  ),
+                                    l10n.availableQuantity(convertedAvailableQty, selectedFraction?.name ?? '')                                  ),
                                   Text(
                                     dateFormat.format(transaction['date']),
                                     style: const TextStyle(fontSize: 12),

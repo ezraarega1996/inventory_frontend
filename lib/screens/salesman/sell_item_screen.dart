@@ -10,6 +10,7 @@ import 'package:inventory_frontend/providers/available_item_provider.dart';
 import 'package:inventory_frontend/providers/auth_provider.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SellItemScreen extends StatefulWidget {
   final Item? preSelectedItem;
@@ -202,15 +203,16 @@ class _SellItemScreenState extends State<SellItemScreen> {
   }
 
   Future<void> _sellItem() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
     if (_selectedItem == null || _selectedFraction == null) {
-      _showErrorSnackBar('Please select an item and fraction');
+      _showErrorSnackBar(l10n.pleaseSelectItemAndFraction);
       return;
     }
 
     final quantity = double.parse(_quantityController.text);
     if (quantity > _availableQuantity) {
-      _showErrorSnackBar('Available quantity is $_availableQuantity');
+      _showErrorSnackBar(l10n.availableQuantityIs(_availableQuantity));
       return;
     }
 
@@ -225,14 +227,14 @@ class _SellItemScreenState extends State<SellItemScreen> {
       if (!mounted) return;
 
       if (success) {
-        _showSuccessSnackBar('Item sold successfully');
+        _showSuccessSnackBar(l10n.itemSoldSuccessfully);
         _resetForm();
       } else {
-        _showErrorSnackBar(_salesProvider.error ?? 'An error occurred');
+        _showErrorSnackBar(_salesProvider.error ?? l10n.failedToProcessSale);
       }
     } catch (e) {
       if (!mounted) return;
-      _showErrorSnackBar('Failed to process sale. Please try again.');
+      _showErrorSnackBar(l10n.failedToProcessSale);
       debugPrint('Error processing sale: $e');
     } finally {
       if (mounted) {
@@ -318,8 +320,9 @@ class _SellItemScreenState extends State<SellItemScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     if (_isLoading) {
-      return const Scaffold(
+      return Scaffold(
         body: Center(
           child: CircularProgressIndicator(),
         ),
@@ -340,7 +343,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
               const SizedBox(height: 16),
               ElevatedButton(
                 onPressed: _loadData,
-                child: const Text('Retry'),
+                child: Text(l10n.retry),
               ),
             ],
           ),
@@ -351,17 +354,17 @@ class _SellItemScreenState extends State<SellItemScreen> {
     final assignedItems = _getAssignedItems();
 
     if (assignedItems.isEmpty) {
-      return const Center(
+      return Center(
         child: Text(
-          'No items assigned to you',
-          style: TextStyle(fontSize: 18),
+          l10n.noItemsAssignedToYou,
+          style: const TextStyle(fontSize: 18),
         ),
       );
     }
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sell Item'),
+        title: Text(l10n.sellItem),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
@@ -372,9 +375,9 @@ class _SellItemScreenState extends State<SellItemScreen> {
             children: [
               DropdownButtonFormField<Item>(
                 value: _selectedItem,
-                decoration: const InputDecoration(
-                  labelText: 'Select Item',         
-                  border: OutlineInputBorder(),
+                decoration: InputDecoration(
+                  labelText: l10n.selectItem,
+                  border: const OutlineInputBorder(),
                 ),
                 items: assignedItems.map((item) {
                   return DropdownMenuItem<Item>(
@@ -383,15 +386,15 @@ class _SellItemScreenState extends State<SellItemScreen> {
                   );
                 }).toList(),
                 onChanged: _handleItemChange,
-                validator: (value) => value == null ? 'Please select an item' : null,
+                validator: (value) => value == null ? l10n.pleaseSelectItem : null,
               ),
               const SizedBox(height: 16),
               if (_selectedItem != null)
                 DropdownButtonFormField<Fraction>(
                   value: _selectedFraction,
-                  decoration: const InputDecoration(
-                    labelText: 'Select Unit',
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: l10n.selectUnit,
+                    border: const OutlineInputBorder(),
                   ),
                   items: _selectedItem!.fractions?.map((fraction) {
                     return DropdownMenuItem<Fraction>(
@@ -400,34 +403,34 @@ class _SellItemScreenState extends State<SellItemScreen> {
                     );
                   }).toList(),
                   onChanged: _handleFractionChange,
-                  validator: (value) => value == null ? 'Please select a unit' : null,
+                  validator: (value) => value == null ? l10n.pleaseSelectUnit : null,
                 ),
               const SizedBox(height: 16),
               CustomTextField(
                 controller: _quantityController,
-                labelText: 'Quantity',
+                labelText: l10n.quantityLabel,
                 keyboardType: TextInputType.number,
                 onChanged: (_) => _updateExpectedAmount(),
                 validator: (value) {
                   if (value == null || value.isEmpty) {
-                    return 'Please enter a quantity';
+                    return l10n.pleaseEnterQuantity;
                   }
                   final quantity = double.tryParse(value);
                   if (quantity == null) {
-                    return 'Please enter a valid number';
+                    return l10n.pleaseEnterValidNumber;
                   }
                   if (quantity <= 0) {
-                    return 'Quantity must be greater than 0';
+                    return l10n.quantityMustBeGreaterThanZero;
                   }
                   if (quantity > _availableQuantity) {
-                    return 'Available quantity is $_availableQuantity';
+                    return l10n.availableQuantityIs(_availableQuantity);
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
               Text(
-                'Available Quantity: ${_isFetchingQuantity ? 'Loading...' : _availableQuantity}',
+                l10n.availableQuantityWithLoading(_isFetchingQuantity ? l10n.loading : _availableQuantity.toString()),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -435,7 +438,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
               ),
               const SizedBox(height: 16),
               Text(
-                'Expected Amount: \$${_expectedAmount.toStringAsFixed(2)}',
+                l10n.expectedAmountWithCurrency(_expectedAmount.toStringAsFixed(2)),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -449,7 +452,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
                       // ignore: unawaited_futures
                       _sellItem();
                     },
-                text: _isSubmitting ? 'Processing...' : 'Sell Item',
+                text: _isSubmitting ? l10n.processing : l10n.sellItem,
                 isLoading: _isSubmitting,
               ),
             ],

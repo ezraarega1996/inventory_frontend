@@ -5,6 +5,7 @@ import 'package:inventory_frontend/models/item.dart';
 import 'package:inventory_frontend/providers/item_provider.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class FractionManagementScreen extends StatefulWidget {
   final Item item;
@@ -50,6 +51,7 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
   Future<void> _addFraction() async {
     if (!_formKey.currentState!.validate()) return;
 
+    final l10n = AppLocalizations.of(context)!;
     final itemProvider = context.read<ItemProvider>();
     try {
       final success = await itemProvider.createFraction(
@@ -66,7 +68,7 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
         _priceController.clear();
         setState(() => _isUnit = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Fraction added successfully')),
+          SnackBar(content: Text(l10n.fractionAddedSuccessfully)),
         );
       }
     } catch (e) {
@@ -80,6 +82,7 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
   }
 
   Future<void> _updateFraction(Fraction fraction) async {
+    final l10n = AppLocalizations.of(context)!;
     final itemProvider = context.read<ItemProvider>();
     try {
       final success = await itemProvider.updateFraction(
@@ -92,7 +95,7 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
 
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Unit updated successfully')),
+          SnackBar(content: Text(l10n.unitUpdatedSuccessfully)),
         );
       }
     } catch (e) {
@@ -106,19 +109,20 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
   }
 
   Future<void> _deleteFraction(Fraction fraction) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete unit'),
-        content: const Text('Are you sure you want to delete this unit?'),
+        title: Text(l10n.deleteUnit),
+        content: Text(l10n.confirmDeleteUnit),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -130,7 +134,7 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
 
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Unit deleted successfully')),
+          SnackBar(content: Text(l10n.unitDeletedSuccessfully)),
         );
       }
     }
@@ -138,9 +142,10 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: Text('Manage Units - ${widget.item.name}'),
+        title: Text(l10n.manageUnitsFor(widget.item.name)),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -159,10 +164,10 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
                 children: [
                   CustomTextField(
                     controller: _nameController,
-                    labelText: 'Unit Name',
+                    labelText: l10n.unitName,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter a name';
+                        return l10n.pleaseEnterName;
                       }
                       return null;
                     },
@@ -170,14 +175,14 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _ratioController,
-                    labelText: 'Ratio',
+                    labelText: l10n.ratio,
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter a ratio';
+                        return l10n.pleaseEnterRatio;
                       }
                       if (double.tryParse(value) == null) {
-                        return 'Please enter a valid number';
+                        return l10n.pleaseEnterValidNumber;
                       }
                       return null;
                     },
@@ -185,14 +190,14 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
                   const SizedBox(height: 16),
                   CustomTextField(
                     controller: _priceController,
-                    labelText: 'Price',
+                    labelText: l10n.price,
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter a price';
+                        return l10n.pleaseEnterPrice;
                       }
                       if (double.tryParse(value) == null) {
-                        return 'Please enter a valid number';
+                        return l10n.pleaseEnterValidNumber;
                       }
                       return null;
                     },
@@ -201,15 +206,15 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
                   const SizedBox(height: 16),
                   CustomButton(
                     onPressed: _addFraction,
-                    text: 'Add Unit',
+                    text: l10n.addUnit,
                   ),
                 ],
               ),
             ),
             const SizedBox(height: 24),
-            const Text(
-              'Existing Units',
-              style: TextStyle(
+            Text(
+              l10n.existingUnits,
+              style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
               ),
@@ -223,8 +228,8 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
                   final fractions = item.fractions ?? [];
 
                   if (fractions.isEmpty) {
-                    return const Center(
-                      child: Text('No units added yet'),
+                    return Center(
+                      child: Text(l10n.noUnitsAddedYet),
                     );
                   }
 
@@ -235,7 +240,7 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
                       return Card(
                         child: ListTile(
                           title: Text(fraction.name),
-                          subtitle: Text('Ratio: ${fraction.ratio}, Price: \$${fraction.price}'),
+                          subtitle: Text(l10n.ratioAndPrice(fraction.ratio, fraction.price)),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [

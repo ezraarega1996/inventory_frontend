@@ -333,5 +333,164 @@
                 "type": "String"
             }
         }
-    }
+    },
+    "item": "Item",
+    "fraction": "Fraction",
+    "createSale": "Create Sale",
+    "saleCreatedSuccessfully": "Sale created successfully",
+    "errorLoadingData": "Error loading data: {error}",
+    "@errorLoadingData": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "errorCreatingSale": "Error: {error}",
+    "@errorCreatingSale": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "selectItem": "Select Item",
+    "selectUnit": "Select Unit",
+    "pleaseSelectItem": "Please select an item",
+    "pleaseSelectUnit": "Please select a unit",
+    "pleaseEnterQuantity": "Please enter a quantity",
+    "pleaseEnterValidNumber": "Please enter a valid number",
+    "quantityMustBeGreaterThanZero": "Quantity must be greater than 0",
+    "availableQuantityIs": "Available quantity is {quantity}",
+    "@availableQuantityIs": {
+        "placeholders": {
+            "quantity": {
+                "type": "double"
+            }
+        }
+    },
+    "expectedAmount": "Expected Amount: ${amount}",
+    "@expectedAmount": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "processing": "Processing...",
+    "sellItem": "Sell Item",
+    "retry": "Retry",
+    "noItemsAssignedToYou": "No items assigned to you",
+    "failedToLoadData": "Failed to load data. Please try again.",
+    "itemNotAssignedToYou": "This item is not assigned to you",
+    "itemNotFound": "Item not found",
+    "errorFindingPreSelectedItem": "Error finding pre-selected item",
+    "selectedFractionNotFound": "Selected fraction not found for this item",
+    "noFractionsAvailableForItem": "No fractions available for this item",
+    "errorFindingPreSelectedFraction": "Error finding pre-selected fraction",
+    "failedToFetchAvailableQuantity": "Failed to fetch available quantity. Please try again.",
+    "pleaseSelectItemAndFraction": "Please select an item and fraction",
+    "itemSoldSuccessfully": "Item sold successfully",
+    "failedToProcessSale": "Failed to process sale. Please try again.",
+    "failedToUpdateAvailableQuantity": "Failed to update available quantity",
+    "loading": "Loading...",
+    "availableQuantityWithLoading": "Available Quantity: {quantity}",
+    "@availableQuantityWithLoading": {
+        "placeholders": {
+            "quantity": {
+                "type": "String"
+            }
+        }
+    },
+    "expectedAmountWithCurrency": "Expected Amount: ${amount}",
+    "@expectedAmountWithCurrency": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "salesHistory": "Sales History",
+    "noSalesFound": "No sales found",
+    "errorLoadingSales": "Error loading sales: {error}",
+    "@errorLoadingSales": {
+        "placeholders": {
+            "error": {
+                "type": "String"
+            }
+        }
+    },
+    "quantityWithUnit": "Quantity: {quantity} {unit}",
+    "@quantityWithUnit": {
+        "placeholders": {
+            "quantity": {
+                "type": "String"
+            },
+            "unit": {
+                "type": "String"
+            }
+        }
+    },
+    "amountWithCurrency": "Amount: ${amount}",
+    "@amountWithCurrency": {
+        "placeholders": {
+            "amount": {
+                "type": "String"
+            }
+        }
+    },
+    "availableItemsWithUnit": "Available items: {quantity} {unit}",
+    "@availableItemsWithUnit": {
+        "placeholders": {
+            "quantity": {
+                "type": "String"
+            },
+            "unit": {
+                "type": "String"
+            }
+        }
+    },
+    "dateWithFormat": "Date: {date}",
+    "@dateWithFormat": {
+        "placeholders": {
+            "date": {
+                "type": "String"
+            }
+        }
+    },
+    "itemDetails": "Item Details",
+    "noCategory": "No category",
+    "units": "Units",
+    "manageUnits": "Manage Units",
+    "noUnitsAddedYet": "No Units added yet",
+    "ratioAndPrice": "Ratio: {ratio}, Price: \u0024{price}",
+    "@ratioAndPrice": {
+        "placeholders": {
+            "ratio": {
+                "type": "double"
+            },
+            "price": {
+                "type": "double"
+            }
+        }
+    },
+    "fractionAddedSuccessfully": "Fraction added successfully",
+    "unitUpdatedSuccessfully": "Unit updated successfully",
+    "deleteUnit": "Delete unit",
+    "confirmDeleteUnit": "Are you sure you want to delete this unit?",
+    "unitDeletedSuccessfully": "Unit deleted successfully",
+    "manageUnitsFor": "Manage Units - {itemName}",
+    "@manageUnitsFor": {
+        "placeholders": {
+            "itemName": {
+                "type": "String"
+            }
+        }
+    },
+    "unitName": "Unit Name",
+    "pleaseEnterName": "Please enter a name",
+    "pleaseEnterRatio": "Please enter a ratio",
+    "pleaseEnterPrice": "Please enter a price",
+    "addUnit": "Add Unit",
+    "existingUnits": "Existing Units"
 } 

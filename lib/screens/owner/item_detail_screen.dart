@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:inventory_frontend/models/item.dart';
 import 'package:inventory_frontend/providers/item_provider.dart';
 import 'package:inventory_frontend/screens/owner/fraction_management_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ItemDetailScreen extends StatefulWidget {
   final Item item;
@@ -19,6 +20,7 @@ class ItemDetailScreen extends StatefulWidget {
 class _ItemDetailScreenState extends State<ItemDetailScreen> {
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final itemProvider = Provider.of<ItemProvider>(context);
     final item = itemProvider.items.firstWhere((i) => i.id == widget.item.id);
     
@@ -37,9 +39,9 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const Text(
-                      'Item Details',
-                      style: TextStyle(
+                    Text(
+                      l10n.itemDetails,
+                      style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
                       ),
@@ -47,9 +49,9 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                     const SizedBox(height: 16),
                     Row(
                       children: [
-                        const Text(
-                          'Name:',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        Text(
+                          l10n.name,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(width: 8),
                         Text(item.name),
@@ -58,12 +60,12 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Text(
-                          'Category:',
-                          style: TextStyle(fontWeight: FontWeight.bold),
+                        Text(
+                          l10n.category,
+                          style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(width: 8),
-                        Text(item.category?.name ?? 'No category'),
+                        Text(item.category?.name ?? l10n.noCategory),
                       ],
                     ),
                   ],
@@ -74,9 +76,9 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                const Text(
-                  'Units',
-                  style: TextStyle(
+                Text(
+                  l10n.units,
+                  style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
                   ),
@@ -90,14 +92,14 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                     );
                   },
                   icon: const Icon(Icons.add),
-                  label: const Text('Manage Units'),
+                  label: Text(l10n.manageUnits),
                 ),
               ],
             ),
             const SizedBox(height: 16),
             if (item.fractions == null || item.fractions!.isEmpty)
-              const Center(
-                child: Text('No Units added yet'),
+              Center(
+                child: Text(l10n.noUnitsAddedYet),
               )
             else
               ListView.builder(
@@ -109,7 +111,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                   return Card(
                     child: ListTile(
                       title: Text(fraction.name),
-                      subtitle: Text('Ratio: ${fraction.ratio}, Price: \$${fraction.price}'),
+                      subtitle: Text(l10n.ratioAndPrice(fraction.ratio, fraction.price)),
                     ),
                   );
                 },
