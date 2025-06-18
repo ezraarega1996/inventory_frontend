@@ -13,6 +13,7 @@ import 'package:inventory_frontend/providers/category_provider.dart';
 import 'package:inventory_frontend/providers/user_provider.dart';
 import 'package:inventory_frontend/providers/bought_provider.dart';
 import 'package:inventory_frontend/providers/available_item_provider.dart';
+import 'package:inventory_frontend/providers/shop_provider.dart';
 import 'package:inventory_frontend/services/business_service.dart';
 import 'package:inventory_frontend/screens/business/business_list_screen.dart';
 import 'package:inventory_frontend/screens/business/business_register_screen.dart';
@@ -31,7 +32,7 @@ void main() async {
         ChangeNotifierProvider.value(value: languageProvider),
         Provider(
           create: (_) => BusinessService(
-            baseUrl: 'https://18.116.170.87:5000/api',
+            baseUrl: 'https://localhost:5000/api',
           ),
         ),
         ChangeNotifierProxyProvider<BusinessService, BusinessProvider>(
@@ -62,6 +63,9 @@ void main() async {
         ),
         ChangeNotifierProvider(
           create: (_) => AvailableItemProvider(),
+        ),
+        ChangeNotifierProvider(
+          create: (_) => ShopProvider(),
         ),
       ],
       child: const MyApp(),

@@ -11,6 +11,7 @@ import 'package:inventory_frontend/screens/owner/subscription_screen.dart';
 import 'package:inventory_frontend/screens/owner/users_screen.dart';
 import 'package:inventory_frontend/screens/owner/boughts_screen.dart';
 import 'package:inventory_frontend/screens/owner/available_items_screen.dart';
+import 'package:inventory_frontend/screens/owner/shops_screen.dart';
 import 'package:inventory_frontend/widgets/dashboard_card.dart';
 import 'package:inventory_frontend/widgets/dashboard_chart.dart';
 import 'package:inventory_frontend/widgets/language_selector.dart';
@@ -94,6 +95,8 @@ Future<void> _loadDashboardData() async {
         return const BoughtsScreen();
       case 7:
         return const AvailableItemsScreen();
+      case 8:
+        return const ShopsScreen();
       default:
         return _buildDashboard();
     }
@@ -383,6 +386,17 @@ Future<void> _loadDashboardData() async {
             onTap: () {
               setState(() {
                 _selectedIndex = 5;
+              });
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
+            leading: Icon(Icons.shop),
+            title: Text(l10n.shops),
+            selected: _selectedIndex == 8,
+            onTap: () {
+              setState(() {
+                _selectedIndex = 8;
               });
               Navigator.pop(context);
             },
