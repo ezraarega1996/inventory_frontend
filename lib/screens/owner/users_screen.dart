@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:inventory_frontend/providers/user_provider.dart';
+import 'package:inventory_frontend/providers/shop_provider.dart';
+import 'package:inventory_frontend/models/shop.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
 
@@ -21,6 +23,7 @@ class _UsersScreenState extends State<UsersScreen> {
   final _passwordController = TextEditingController();
   final _emailController = TextEditingController();
   String? _editingUserId;
+  String? _selectedShopId;
   bool _obscurePassword = true;
   bool _isLoading = true;
   bool _isSubmitting = false;
@@ -29,6 +32,7 @@ class _UsersScreenState extends State<UsersScreen> {
   void initState() {
     super.initState();
     _loadUsers();
+    _loadShops();
   }
   
   @override
@@ -59,6 +63,11 @@ class _UsersScreenState extends State<UsersScreen> {
     }
   }
 
+  Future<void> _loadShops() async {
+    final shopProvider = context.read<ShopProvider>();
+    await shopProvider.getShops();
+  }
+
   void _showAddEditDialog({
     String? id,
     String? name,
@@ -66,10 +75,12 @@ class _UsersScreenState extends State<UsersScreen> {
     String? location,
     String? username,
     String? email,
+    String? shopId,
   }) {
     final l10n = AppLocalizations.of(context)!;
     setState(() {
       _editingUserId = id;
+      _selectedShopId = shopId;
       _nameController.text = name ?? '';
       _phoneController.text = phone ?? '';
       _locationController.text = location ?? '';
@@ -177,6 +188,36 @@ class _UsersScreenState extends State<UsersScreen> {
                       return null;
                     },
                   ),
+                  const SizedBox(height: 16),
+                  Consumer<ShopProvider>(
+                    builder: (context, shopProvider, child) {
+                      final shops = shopProvider.shops;
+                      return DropdownButtonFormField<String>(
+                        value: _selectedShopId,
+                        decoration: const InputDecoration(
+                          labelText: 'Shop (Optional)',
+                          border: OutlineInputBorder(),
+                        ),
+                        items: [
+                          const DropdownMenuItem<String>(
+                            value: null,
+                            child: Text('No shop assigned'),
+                          ),
+                          ...shops.map((shop) {
+                            return DropdownMenuItem<String>(
+                              value: shop.id,
+                              child: Text(shop.name),
+                            );
+                          }).toList(),
+                        ],
+                        onChanged: _isSubmitting ? null : (value) {
+                          setDialogState(() {
+                            _selectedShopId = value;
+                          });
+                        },
+                      );
+                    },
+                  ),
                 ],
               ),
             ),
@@ -207,6 +248,11 @@ class _UsersScreenState extends State<UsersScreen> {
                     'email': _emailController.text.trim(),
                     'role': 'salesman',
                   };
+                  
+                  // Add shopId if selected
+                  if (_selectedShopId != null) {
+                    userData['shopId'] = _selectedShopId!;
+                  }
                   
                   if (_editingUserId == null) {
                     userData['username'] = _usernameController.text.trim();
@@ -349,6 +395,27 @@ class _UsersScreenState extends State<UsersScreen> {
                               Text('Phone: ${user.phone}'),
                               Text('Location: ${user.location}'),
                               Text('Email: ${user.email}'),
+                              Consumer<ShopProvider>(
+                                builder: (context, shopProvider, child) {
+                                  Shop? shop;
+                                  if (user.shopId != null) {
+                                    try {
+                                      shop = shopProvider.shops.firstWhere(
+                                        (s) => s.id == user.shopId,
+                                      );
+                                    } catch (e) {
+                                      shop = null;
+                                    }
+                                  }
+                                  return Text(
+                                    'Shop: ${shop?.name ?? 'No shop assigned'}',
+                                    style: TextStyle(
+                                      color: shop != null ? Colors.green : Colors.grey,
+                                      fontWeight: shop != null ? FontWeight.bold : FontWeight.normal,
+                                    ),
+                                  );
+                                },
+                              ),
                             ],
                           ),
                           trailing: Row(
@@ -363,6 +430,7 @@ class _UsersScreenState extends State<UsersScreen> {
                                   location: user.location,
                                   username: user.username,
                                   email: user.email,
+                                  shopId: user.shopId,
                                 ),
                               ),
                               IconButton(
