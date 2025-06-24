@@ -1,6 +1,6 @@
 import 'package:inventory_frontend/models/item.dart';
 import 'package:inventory_frontend/models/fraction.dart';
-import 'package:inventory_frontend/models/user.dart';
+import 'package:inventory_frontend/models/shop.dart';
 
 class Bought {
   final String id;
@@ -14,8 +14,8 @@ class Bought {
   final String itemId;
   final Item? item;
   final Fraction? fraction;
-  final String? salesmanId;
-  final User? salesman;
+  final String? shopId;
+  final Shop? shop;
   final double? available_items_count;
   
   
@@ -31,8 +31,8 @@ class Bought {
     required this.itemId,
     this.item,
     this.fraction,
-    this.salesmanId,
-    this.salesman,
+    this.shopId,
+    this.shop,
     this.available_items_count,
   });
   
@@ -54,13 +54,13 @@ class Bought {
               orElse: () => null,
             ))
           : null,
-      salesmanId: json['salesmanId'],
-      salesman: json['salesman'] != null ? User.fromJson(json['salesman']) : null,
+      shopId: json['shopId'],
+      shop: json['Shop'] != null ? Shop.fromJson(json['Shop']) : null,
       available_items_count: json['available_items_count'] != null ? double.tryParse(json['available_items_count'].toString()) : null,
     );
   }
   
-  Map<String, dynamic> toJson({required String itemId, required String fractionId, required double fractionPurchasePrice, required double fractionSoldPrice, required double quantity, required String location, String? salesmanId, DateTime? expiryDate}) {
+  Map<String, dynamic> toJson() {
     return {
       'id': id,
       'fractionId': fractionId,
@@ -70,12 +70,12 @@ class Bought {
       'location': location,
       'expiryDate': expiryDate?.toIso8601String(),
       'itemId': itemId,
-      'salesmanId': salesmanId,
+      'shopId': shopId,
     };
   }
 
   @override
   String toString() {
-    return 'Bought(id: $id, fractionId: $fractionId, fractionPurchasePrice: $fractionPurchasePrice, fractionSoldPrice: $fractionSoldPrice, quantity: $quantity, location: $location, expiryDate: $expiryDate, createdTime: $createdTime, itemId: $itemId, item: $item, fraction: $fraction, salesmanId: $salesmanId, salesman: $salesman)';
+    return 'Bought(id: $id, fractionId: $fractionId, fractionPurchasePrice: $fractionPurchasePrice, fractionSoldPrice: $fractionSoldPrice, quantity: $quantity, location: $location, expiryDate: $expiryDate, createdTime: $createdTime, itemId: $itemId, item: $item, fraction: $fraction, shopId: $shopId, shop: $shop)';
   }
 } 

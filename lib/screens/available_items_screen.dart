@@ -114,13 +114,6 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                                     color: Colors.black,
                                   ),
                                 ),
-                                TextSpan(
-                                  text: "(${availableItem.salesman?.name ?? l10n.unknownSalesman})",
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.normal,
-                                    fontSize: 14,
-                                  ),
-                                ),
                               ],
                             ),
                           ),

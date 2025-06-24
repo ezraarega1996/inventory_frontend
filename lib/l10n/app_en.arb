@@ -493,5 +493,15 @@
     "pleaseEnterRatio": "Please enter a ratio",
     "pleaseEnterPrice": "Please enter a price",
     "addUnit": "Add Unit",
-    "existingUnits": "Existing Units"
+    "existingUnits": "Existing Units",
+    "selectShop": "Select Shop",
+    "shop": "Shop",
+    "unknownShop": "Unknown Shop",
+    "addBoughtItem": "Add Bought Item",
+    "editBoughtItem": "Edit Bought Item",
+    "chooseFraction": "Choose Fraction",
+    "selectFractionToContinue": "Please select a fraction to continue",
+    "noFractionsAvailable": "No fractions available",
+    "invalidNumber": "Please enter a valid number",
+    "ratio": "Ratio"
 } 

@@ -10,7 +10,7 @@ import 'package:inventory_frontend/screens/owner/sales_screen.dart';
 import 'package:inventory_frontend/screens/owner/subscription_screen.dart';
 import 'package:inventory_frontend/screens/owner/users_screen.dart';
 import 'package:inventory_frontend/screens/owner/boughts_screen.dart';
-import 'package:inventory_frontend/screens/owner/available_items_screen.dart';
+import 'package:inventory_frontend/screens/available_items_screen.dart';
 import 'package:inventory_frontend/screens/owner/shops_screen.dart';
 import 'package:inventory_frontend/widgets/dashboard_card.dart';
 import 'package:inventory_frontend/widgets/dashboard_chart.dart';

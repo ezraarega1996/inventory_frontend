@@ -7,11 +7,10 @@ class AvailableItem {
   final String id;
   final String itemId;
   final String businessId;
+  final String shopId;
   final double quantity;
   final double soldPrice;
-  final String? salesmanId;
   final Item? item;
-  final User? salesman;
   final List<ItemBought>? boughtTransactions;
   final List<SoldItem>? soldTransactions;
 
@@ -19,70 +18,52 @@ class AvailableItem {
     required this.id,
     required this.itemId,
     required this.businessId,
+    required this.shopId,
     required this.quantity,
     required this.soldPrice,
-    this.salesmanId,
     this.item,
-    this.salesman,
     this.boughtTransactions,
     this.soldTransactions,
   });
 
   factory AvailableItem.fromJson(Map<String, dynamic> json) {
-    print('Parsing AvailableItem: $json'); // Debug log
-    
-    // Handle bought transactions
-    List<ItemBought>? boughtTransactions;
-    if (json['boughtTransactions'] != null) {
-      print('Found bought transactions: ${json['boughtTransactions']}'); // Debug log
-      boughtTransactions = (json['boughtTransactions'] as List)
-          .map((transaction) {
-            print('Parsing bought transaction: $transaction'); // Debug log
-            return ItemBought.fromJson(transaction);
-          })
-          .toList();
+    double parseDouble(dynamic value) {
+      if (value == null) return 0.0;
+      if (value is double) return value;
+      if (value is int) return value.toDouble();
+      if (value is String) return double.tryParse(value) ?? 0.0;
+      return 0.0;
     }
-    
-    // Handle sold transactions
-    List<SoldItem>? soldTransactions;
-    if (json['soldTransactions'] != null) {
-      print('Found sold transactions: ${json['soldTransactions']}'); // Debug log
-      soldTransactions = (json['soldTransactions'] as List)
-          .map((transaction) {
-            print('Parsing sold transaction: $transaction'); // Debug log
-            return SoldItem.fromJson(transaction);
-          })
-          .toList();
-    }
-    
     return AvailableItem(
       id: json['id'],
       itemId: json['itemId'],
       businessId: json['businessId'],
-      quantity: double.tryParse(json['quantity'].toString()) ?? 0.0,
-      soldPrice: double.tryParse(json['soldPrice'].toString()) ?? 0.0,
-      salesmanId: json['salesmanId'],
+      shopId: json['shopId'],
+      quantity: parseDouble(json['quantity']),
+      soldPrice: parseDouble(json['soldPrice']),
       item: json['item'] != null ? Item.fromJson(json['item']) : null,
-      salesman: json['salesman'] != null ? User.fromJson(json['salesman']) : null,
-      boughtTransactions: boughtTransactions,
-      soldTransactions: soldTransactions,
+      boughtTransactions: json['boughtTransactions'] != null
+          ? (json['boughtTransactions'] as List)
+              .map((e) => ItemBought.fromJson(e))
+              .toList()
+          : null,
+      soldTransactions: json['soldTransactions'] != null
+          ? (json['soldTransactions'] as List)
+              .map((e) => SoldItem.fromJson(e))
+              .toList()
+          : null,
     );
   }
-
-  get fraction => null;
-
-  Object? get fractionId => null;
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
       'itemId': itemId,
       'businessId': businessId,
+      'shopId': shopId,
       'quantity': quantity,
       'soldPrice': soldPrice,
-      'salesmanId': salesmanId,
       'item': item?.toJson(),
-      'salesman': salesman?.toJson(),
       'boughtTransactions': boughtTransactions?.map((transaction) => transaction.toJson()).toList(),
       'soldTransactions': soldTransactions?.map((transaction) => transaction.toJson()).toList(),
     };
@@ -90,6 +71,6 @@ class AvailableItem {
 
   @override
   String toString() {
-    return 'AvailableItem(id: $id, itemId: $itemId, businessId: $businessId, quantity: $quantity, soldPrice: $soldPrice, salesmanId: $salesmanId, item: $item, salesman: $salesman, boughtTransactions: $boughtTransactions, soldTransactions: $soldTransactions)';
+    return 'AvailableItem(id: $id, itemId: $itemId, businessId: $businessId, quantity: $quantity, soldPrice: $soldPrice, item: $item, boughtTransactions: $boughtTransactions, soldTransactions: $soldTransactions)';
   }
 } 

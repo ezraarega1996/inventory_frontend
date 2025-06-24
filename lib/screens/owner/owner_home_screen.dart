@@ -4,7 +4,7 @@ import 'package:inventory_frontend/providers/auth_provider.dart';
 import 'package:inventory_frontend/screens/owner/items_screen.dart';
 import 'package:inventory_frontend/screens/owner/categories_screen.dart';
 import 'package:inventory_frontend/screens/owner/boughts_screen.dart';
-import 'package:inventory_frontend/screens/owner/available_items_screen.dart';
+import 'package:inventory_frontend/screens/available_items_screen.dart';
 import 'package:inventory_frontend/screens/owner/sales_screen.dart';
 import 'package:inventory_frontend/screens/owner/users_screen.dart';
 

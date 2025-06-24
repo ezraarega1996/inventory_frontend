@@ -47,6 +47,8 @@ class AuthProvider with ChangeNotifier {
   }
   
   Future<bool> login(String username, String password) async {
+    print('AuthProvider: login called with username: $username');
+    
     if (username.isEmpty || password.isEmpty) {
       _error = 'Username and password are required';
       notifyListeners();
@@ -58,10 +60,13 @@ class AuthProvider with ChangeNotifier {
     notifyListeners();
     
     try {
+      print('AuthProvider: Making API call to auth/login');
       final response = await Api.post('auth/login', {
         'username': username,
         'password': password,
       });
+
+      print('AuthProvider: Received response: $response');
 
       if (response == null || response['token'] == null || response['user'] == null) {
         _error = 'Invalid response from server';
@@ -69,21 +74,33 @@ class AuthProvider with ChangeNotifier {
         notifyListeners();
         return false;
       }
+      
       final token = response['token'];
       final userData = response['user'];
+      
+      print('AuthProvider: Saving token and user data');
       await Storage.saveToken(token);
       await Storage.saveUser(userData);
+      
       _user = User.fromJson(userData);
       _isAuthenticated = true;
+      _isLoading = false;
+      notifyListeners();
+      
+      print('AuthProvider: Login successful for user: ${_user?.name}');
       return true;
-    } on FormatException {
+    } on FormatException catch (e) {
+      print('AuthProvider: FormatException: $e');
       _error = 'Invalid response format from server';
-    } on SocketException {
+    } on SocketException catch (e) {
+      print('AuthProvider: SocketException: $e');
       _error = 'No internet connection';
     } on HttpException catch (e) {
+      print('AuthProvider: HttpException: $e');
       _error = e.message;
     } catch (e) {
-      _error = 'An unexpected error occurred';
+      print('AuthProvider: Unexpected error: $e');
+      _error = 'An unexpected error occurred: $e';
     } finally {
       _isLoading = false;
       notifyListeners();

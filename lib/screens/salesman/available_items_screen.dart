@@ -3,11 +3,8 @@ import 'package:inventory_frontend/models/fraction.dart';
 import 'package:inventory_frontend/widgets/fraction_dropdown.dart';
 import 'package:provider/provider.dart';
 import 'package:inventory_frontend/providers/available_item_provider.dart';
-import 'package:inventory_frontend/providers/auth_provider.dart';
-import 'package:inventory_frontend/providers/item_provider.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
-import 'package:intl/intl.dart';
-import 'package:inventory_frontend/screens/salesman/transactions_screen.dart';
+import 'package:inventory_frontend/screens/owner/transactions_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AvailableItemsScreen extends StatefulWidget {
@@ -24,28 +21,24 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
   @override
   void initState() {
     super.initState();
-    _loadData();
+    _loadAvailableItems();
   }
 
-  Future<void> _loadData() async {
+  Future<void> _loadAvailableItems() async {
+    if (!mounted) return;
+    
     setState(() {
       _isLoading = true;
     });
 
-    final itemProvider = Provider.of<ItemProvider>(context, listen: false);
-    final availableItemProvider = Provider.of<AvailableItemProvider>(
-      context,
-      listen: false,
-    );
+    final availableItemProvider = context.read<AvailableItemProvider>();
+    await availableItemProvider.fetchAvailableItems();
 
-    await Future.wait([
-      itemProvider.fetchItems(),
-      availableItemProvider.fetchAvailableItems(),
-    ]);
-
-    setState(() {
-      _isLoading = false;
-    });
+    if (mounted) {
+      setState(() {
+        _isLoading = false;
+      });
+    }
   }
 
   void _updateSelectedFraction(String availableItemId, String fractionId) {
@@ -65,47 +58,37 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    final itemProvider = Provider.of<ItemProvider>(context);
-    final authProvider = Provider.of<AuthProvider>(context);
-    final availableItemProvider = Provider.of<AvailableItemProvider>(context);
-
-    // Get items assigned to this salesman
-    final assignedItems = itemProvider.items.where((item) {
-      final availableItems = availableItemProvider
-          .getAvailableItemsForSalesman(authProvider.user!.id);
-      return availableItems.any(
-        (availableItem) => availableItem.itemId == item.id,
-      );
-    }).toList();
-
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.availableItems),
         actions: [
-          IconButton(icon: const Icon(Icons.refresh), onPressed: _loadData),
+          IconButton(
+            icon: const Icon(Icons.refresh),
+            onPressed: _loadAvailableItems,
+          ),
         ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : assignedItems.isEmpty
-              ? Center(
-                  child: Text(
-                    l10n.noItemsAssigned,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                  ),
-                )
-              : RefreshIndicator(
-                  onRefresh: _loadData,
+          : Consumer<AvailableItemProvider>(
+              builder: (context, availableItemProvider, child) {
+                if (availableItemProvider.availableItems.isEmpty) {
+                  return Center(
+                    child: Text(
+                      l10n.noItemsFound,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                    ),
+                  );
+                }
+
+                return RefreshIndicator(
+                  onRefresh: _loadAvailableItems,
                   child: ListView.builder(
                     padding: const EdgeInsets.all(16),
-                    itemCount: assignedItems.length,
+                    itemCount: availableItemProvider.availableItems.length,
                     itemBuilder: (context, index) {
-                      final item = assignedItems[index];
-                      final availableItem = availableItemProvider
-                          .getAvailableItemsForSalesman(authProvider.user!.id)
-                          .firstWhere((ai) => ai.itemId == item.id);
-
-                      final itemFractions = item.fractions ?? [];
+                      final availableItem = availableItemProvider.availableItems[index];
+                      final itemFractions = availableItem.item?.fractions ?? [];
                       final selectedFractionId = _selectedFractionIds[availableItem.id] ?? 
                           (itemFractions.isNotEmpty ? itemFractions.first.id : '');
                       final selectedFraction = itemFractions.firstWhere(
@@ -120,24 +103,28 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                       return Card(
                         margin: const EdgeInsets.only(bottom: 16),
                         child: ListTile(
-                          title: Text(
-                            item.name,
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                          title: RichText(
+                            text: TextSpan(
+                              children: [
+                                TextSpan(
+                                  text: "${availableItem.item?.name ?? l10n.unknownItem} ",
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ],
                             ),
                           ),
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                l10n.availableQuantity(
-                                  double.parse(displayedQuantity.toStringAsFixed(2)),
-                                  selectedFraction?.name ?? "",
-                                ),
+                                l10n.availableQuantity(displayedQuantity, selectedFraction?.name ?? ""),
                               ),
                               Text(
-                                l10n.soldPrice(double.parse(availableItem.soldPrice.toStringAsFixed(2))),
+                                l10n.soldPrice(availableItem.soldPrice),
                               ),
                             ],
                           ),
@@ -156,27 +143,6 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                                 onPressed: () => _navigateToTransactions(availableItem),
                                 tooltip: l10n.viewTransactions,
                               ),
-                              IconButton(
-                                icon: const Icon(Icons.sell),
-                                onPressed: () {
-                                  Navigator.pushNamed(
-                                    context,
-                                    '/sell-item',
-                                    arguments: {
-                                      'preSelectedItem': item,
-                                      'preSelectedFraction': item.fractions
-                                          ?.firstWhere(
-                                            (f) =>
-                                                f.id ==
-                                                _selectedFractionIds[availableItem.id],
-                                            orElse: () =>
-                                                item.fractions!.first,
-                                          ),
-                                    },
-                                  );
-                                },
-                                tooltip: l10n.sellItem,
-                              ),
                             ],
                           ),
                           onTap: () => _navigateToTransactions(availableItem),
@@ -184,7 +150,9 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                       );
                     },
                   ),
-                ),
+                );
+              },
+            ),
     );
   }
 } 

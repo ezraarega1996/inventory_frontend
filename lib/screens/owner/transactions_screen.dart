@@ -124,13 +124,6 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(
-                            '${widget.availableItem.item?.name ?? l10n.unknownItem} (${widget.availableItem.salesman?.name ?? l10n.unknownSalesman})',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 18,
-                            ),
-                          ),
                           const SizedBox(height: 8),
                           Text(
                             'Available Quantity: ${displayedQuantity.toStringAsFixed(2)} ${selectedFraction?.name ?? ""}',

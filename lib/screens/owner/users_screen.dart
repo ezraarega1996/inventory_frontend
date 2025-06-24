@@ -21,7 +21,6 @@ class _UsersScreenState extends State<UsersScreen> {
   final _locationController = TextEditingController();
   final _usernameController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _emailController = TextEditingController();
   String? _editingUserId;
   String? _selectedShopId;
   bool _obscurePassword = true;
@@ -42,7 +41,6 @@ class _UsersScreenState extends State<UsersScreen> {
     _locationController.dispose();
     _usernameController.dispose();
     _passwordController.dispose();
-    _emailController.dispose();
     super.dispose();
   }
   
@@ -74,7 +72,6 @@ class _UsersScreenState extends State<UsersScreen> {
     String? phone,
     String? location,
     String? username,
-    String? email,
     String? shopId,
   }) {
     final l10n = AppLocalizations.of(context)!;
@@ -86,7 +83,6 @@ class _UsersScreenState extends State<UsersScreen> {
       _locationController.text = location ?? '';
       _usernameController.text = username ?? '';
       _passwordController.text = '';
-      _emailController.text = email ?? '';
     });
     
     showDialog(
@@ -173,21 +169,6 @@ class _UsersScreenState extends State<UsersScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  CustomTextField(
-                    controller: _emailController,
-                    labelText: l10n.email,
-                    keyboardType: TextInputType.emailAddress,
-                    enabled: !_isSubmitting,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return l10n.required;
-                      }
-                      if (!value.contains('@')) {
-                        return l10n.error;
-                      }
-                      return null;
-                    },
-                  ),
                   const SizedBox(height: 16),
                   Consumer<ShopProvider>(
                     builder: (context, shopProvider, child) {
@@ -245,7 +226,6 @@ class _UsersScreenState extends State<UsersScreen> {
                     'name': _nameController.text.trim(),
                     'phone': _phoneController.text.trim(),
                     'location': _locationController.text.trim(),
-                    'email': _emailController.text.trim(),
                     'role': 'salesman',
                   };
                   
@@ -394,7 +374,6 @@ class _UsersScreenState extends State<UsersScreen> {
                               Text('Username: ${user.username}'),
                               Text('Phone: ${user.phone}'),
                               Text('Location: ${user.location}'),
-                              Text('Email: ${user.email}'),
                               Consumer<ShopProvider>(
                                 builder: (context, shopProvider, child) {
                                   Shop? shop;
@@ -429,7 +408,6 @@ class _UsersScreenState extends State<UsersScreen> {
                                   phone: user.phone,
                                   location: user.location,
                                   username: user.username,
-                                  email: user.email,
                                   shopId: user.shopId,
                                 ),
                               ),

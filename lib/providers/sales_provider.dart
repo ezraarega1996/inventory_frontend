@@ -235,7 +235,7 @@ class SalesProvider with ChangeNotifier {
 
     try {
       final response = await Api.get(
-        'sales/available-quantity?itemId=$itemId&fractionId=$fractionId',
+        'sales/available-quantity/calculate?itemId=$itemId&fractionId=$fractionId',
       );
 
       print('Available quantity response: $response'); // Debug log

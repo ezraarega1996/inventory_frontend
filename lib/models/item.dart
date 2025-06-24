@@ -17,6 +17,7 @@ class Item {
   });
   
 factory Item.fromJson(Map<String, dynamic> json) {
+  print('Item.fromJson: $json');
   try {
     List<Fraction>? fractionsList;
 
@@ -36,7 +37,7 @@ factory Item.fromJson(Map<String, dynamic> json) {
       fractions: fractionsList,
     );
   } catch (e, stackTrace) {
-
+    print('Error parsing Item from JSON: $e');
     return Item(
       id: "",
       name: 'Unknown',

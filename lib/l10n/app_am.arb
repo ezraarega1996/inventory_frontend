@@ -506,5 +506,10 @@
     "pleaseEnterRatio": "እባክዎ መጠን ያስገቡ",
     "pleaseEnterPrice": "እባክዎ ዋጋ ያስገቡ",
     "addUnit": "ዕቃ ጨምር",
-    "existingUnits": "ያሉ ዕቃዎች"
+    "existingUnits": "ያሉ ዕቃዎች",
+    "selectShop": "ድህረ ቤት ይምረጡ",
+    "shop": "ድህረ ቤት",
+    "unknownShop": "ያልታወቀ ድህረ ቤት",
+    "addBoughtItem": "የተገዛ እቃ ጨምር",
+    "editBoughtItem": "የተገዛ እቃ አስተካክል"
 } 

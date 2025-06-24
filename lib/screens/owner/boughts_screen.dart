@@ -5,10 +5,11 @@ import 'package:inventory_frontend/models/item.dart';
 import 'package:inventory_frontend/models/fraction.dart';
 import 'package:inventory_frontend/providers/bought_provider.dart';
 import 'package:inventory_frontend/providers/item_provider.dart';
-import 'package:inventory_frontend/providers/user_provider.dart';
+import 'package:inventory_frontend/providers/shop_provider.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:inventory_frontend/widgets/fraction_dropdown.dart';
 
 class BoughtsScreen extends StatefulWidget {
   const BoughtsScreen({Key? key}) : super(key: key);
@@ -30,7 +31,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
   String? _editingBoughtId;
   String? _selectedItemId;
   String? _selectedFractionId;
-  String? _selectedSalesmanId;
+  String? _selectedShopId;
   bool _isLoading = true;
   bool _isSubmitting = false;
 
@@ -57,7 +58,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
     await Future.wait([
       context.read<BoughtProvider>().fetchBoughts(),
       context.read<ItemProvider>().fetchItems(),
-      context.read<UserProvider>().fetchUsers(),
+      context.read<ShopProvider>().getShops(),
     ]);
     if (mounted) {
       setState(() { _isLoading = false; });
@@ -82,14 +83,14 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
     double? quantity,
     String? location,
     DateTime? expiryDate,
-    String? salesmanId,
+    String? shopId,
   }) {
     final l10n = AppLocalizations.of(context)!;
     setState(() {
       _editingBoughtId = id;
       _selectedItemId = itemId;
       _selectedFractionId = fractionId;
-      _selectedSalesmanId = salesmanId;
+      _selectedShopId = shopId;
       _fractionNameController.text = fractionId ?? '';
       _fractionPurchasePriceController.text = fractionPurchasePrice?.toString() ?? '';
       _fractionSoldPriceController.text = fractionSoldPrice?.toString() ?? '';
@@ -110,23 +111,23 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Consumer<UserProvider>(
-                    builder: (context, userProvider, child) {
-                      final salesmen = userProvider.users.where((user) => user.role == 'salesman').toList();
+                  Consumer<ShopProvider>(
+                    builder: (context, shopProvider, child) {
+                      final shops = shopProvider.shops.where((shop) => shop.isActive).toList();
                       return DropdownButtonFormField<String>(
-                        value: _selectedSalesmanId,
+                        value: _selectedShopId,
                         decoration: InputDecoration(
-                          labelText: l10n.selectSalesman,
+                          labelText: l10n.selectShop,
                           border: const OutlineInputBorder(),
                         ),
-                        items: salesmen.map((salesman) {
+                        items: shops.map((shop) {
                           return DropdownMenuItem<String>(
-                            value: salesman.id,
-                            child: Text(salesman.name),
+                            value: shop.id,
+                            child: Text(shop.name),
                           );
                         }).toList(),
                         onChanged: _isSubmitting ? null : (value) {
-                          setDialogState(() { _selectedSalesmanId = value; });
+                          setDialogState(() { _selectedShopId = value; });
                         },
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -204,7 +205,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(fraction.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                          Text('${l10n.ratio}: ${fraction.ratio} | ${l10n.price}:  24${fraction.price}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                                          Text('${l10n.ratio}: ${fraction.ratio} | ${l10n.price}: ₹${fraction.price}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
                                         ],
                                       ),
                                     );
@@ -348,7 +349,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                       quantity: double.parse(_quantityController.text),
                       location: _locationController.text.trim(),
                       expiryDate: _expiryDate,
-                      salesmanId: _selectedSalesmanId,
+                      shopId: _selectedShopId,
                     );
                   } else {
                     success = await boughtProvider.updateBought(
@@ -359,7 +360,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                       quantity: double.parse(_quantityController.text),
                       location: _locationController.text.trim(),
                       expiryDate: _expiryDate,
-                      salesmanId: _selectedSalesmanId,
+                      shopId: _selectedShopId,
                     );
                   }
                   
@@ -449,8 +450,8 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : Consumer<BoughtProvider>(
-              builder: (context, boughtProvider, child) {
+          : Consumer2<BoughtProvider, ItemProvider>(
+              builder: (context, boughtProvider, itemProvider, child) {
                 if (boughtProvider.boughts.isEmpty) {
                   return Center(child: Text(l10n.noBoughtItems));
                 }
@@ -460,6 +461,33 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                     itemCount: boughtProvider.boughts.length,
                     itemBuilder: (context, index) {
                       final bought = boughtProvider.boughts[index];
+                      final item = bought.item ?? itemProvider.items.firstWhere(
+                        (i) => i.id == bought.itemId,
+                        orElse: () => Item(id: '', name: '', categoryId: '', fractions: []),
+                      );
+                      final itemFractions = item.fractions ?? [];
+                      // Default to bought's fractionId if not set
+                      final selectedFractionId = _selectedFractionIds[bought.id] ?? (itemFractions.isNotEmpty ? bought.fractionId : '');
+                      final boughtFraction = itemFractions.firstWhere(
+                        (f) => f.id == bought.fractionId,
+                        orElse: () => itemFractions.isNotEmpty
+                            ? itemFractions.first
+                            : Fraction(id: '', name: '', ratio: 1, price: 0, itemId: ''),
+                      );
+                      final selectedFraction = itemFractions.firstWhere(
+                        (f) => f.id == selectedFractionId,
+                        orElse: () => itemFractions.isNotEmpty
+                            ? itemFractions.first
+                            : Fraction(id: '', name: '', ratio: 1, price: 0, itemId: ''),
+                      );
+                      double? displayedQuantity = bought.quantity;
+                      double? displayedAvailableCount = bought.available_items_count;
+                      if (boughtFraction != null && selectedFraction != null) {
+                        displayedQuantity = bought.quantity * boughtFraction.ratio / selectedFraction.ratio;
+                        if (bought.available_items_count != null) {
+                          displayedAvailableCount = bought.available_items_count! * boughtFraction.ratio / selectedFraction.ratio;
+                        }
+                      }
                       return Card(
                         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         child: ListTile(
@@ -467,8 +495,10 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('${l10n.salesman}: ${bought.salesman?.name ?? l10n.unknownSalesman}'),
-                              Text('${l10n.quantity}: ${bought.quantity}'),
+                              Text('${l10n.shop}: ${bought.shop?.name ?? l10n.unknownShop}'),
+                              Text("Qunatity: $displayedQuantity ${selectedFraction.name}"),
+                              // Text(l10n.quantity(displayedQuantity, selectedFraction?.name ?? '')),
+                              Text(l10n.availableQuantity(displayedAvailableCount ?? 0, selectedFraction?.name ?? '')),
                               Text('${l10n.location}: ${bought.location}'),
                               if (bought.expiryDate != null)
                                 Text('${l10n.expiry}: ${DateFormat('yyyy-MM-dd').format(bought.expiryDate!)}'),
@@ -477,6 +507,17 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
+                              if (itemFractions.isNotEmpty)
+                                FractionDropdown(
+                                  fractions: itemFractions,
+                                  selectedFractionId: selectedFractionId,
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _selectedFractionIds[bought.id] = value;
+                                    });
+                                  },
+                                ),
+                              const SizedBox(width: 8),
                               IconButton(
                                 icon: const Icon(Icons.edit),
                                 onPressed: () => _showAddEditDialog(
@@ -488,7 +529,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                                   quantity: bought.quantity,
                                   location: bought.location,
                                   expiryDate: bought.expiryDate,
-                                  salesmanId: bought.salesmanId,
+                                  shopId: bought.shopId,
                                 ),
                               ),
                               IconButton(

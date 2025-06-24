@@ -30,20 +30,17 @@ class _SellItemScreenState extends State<SellItemScreen> {
   final _formKey = GlobalKey<FormState>();
   final _quantityController = TextEditingController();
   
-  Item? _selectedItem;
+  AvailableItem? _selectedAvailableItem;
   Fraction? _selectedFraction;
   double _expectedAmount = 0;
   double _availableQuantity = 0;
   bool _isLoading = true;
-  bool _isFetchingQuantity = false;
   String? _error;
   bool _isSubmitting = false;
 
   // Memoized providers
-  late final ItemProvider _itemProvider;
   late final AvailableItemProvider _availableItemProvider;
   late final SalesProvider _salesProvider;
-  late final AuthProvider _authProvider;
 
   @override
   void initState() {
@@ -53,38 +50,29 @@ class _SellItemScreenState extends State<SellItemScreen> {
   }
 
   void _initializeProviders() {
-    _itemProvider = Provider.of<ItemProvider>(context, listen: false);
     _availableItemProvider = Provider.of<AvailableItemProvider>(context, listen: false);
     _salesProvider = Provider.of<SalesProvider>(context, listen: false);
-    _authProvider = Provider.of<AuthProvider>(context, listen: false);
   }
 
   Future<void> _loadData() async {
     if (!mounted) return;
-    
     setState(() {
       _isLoading = true;
       _error = null;
     });
-
     try {
       await Future.wait([
-          _itemProvider.fetchItems(),
-         _availableItemProvider.fetchAvailableItems(),
+        _availableItemProvider.fetchAvailableItems(),
       ], eagerError: true);
-      
       if (!mounted) return;
-      
       setState(() {
         _isLoading = false;
       });
-
       // Setup pre-selected values after data is loaded
       _setupPreSelectedValues();
-          
+      // Debug: print assigned items
     } catch (e) {
       if (!mounted) return;
-      
       setState(() {
         _isLoading = false;
         _error = 'Failed to load data. Please try again.';
@@ -103,31 +91,20 @@ class _SellItemScreenState extends State<SellItemScreen> {
         final matchingAssignedItem = assignedItems.where((item) => item.id == widget.preSelectedItem!.id).firstOrNull;
         
         if (matchingAssignedItem != null) {
-          _selectedItem = matchingAssignedItem;
-        } else {
-          // If not found in assigned items, try to find in all items
-          final matchingItem = _itemProvider.items.where((item) => item.id == widget.preSelectedItem!.id).firstOrNull;
-          
-          if (matchingItem != null) {
-            _error = 'This item is not assigned to you';
-            _selectedItem = assignedItems.isNotEmpty ? assignedItems.first : null;
-          } else {
-            _error = 'Item not found';
-            _selectedItem = assignedItems.isNotEmpty ? assignedItems.first : null;
-          }
-        }
+          _selectedAvailableItem = matchingAssignedItem;
+        } 
       } catch (e) {
         debugPrint('Error finding pre-selected item: $e');
-        _selectedItem = null;
+        _selectedAvailableItem = null;
         _error = 'Error finding pre-selected item';
       }
     }
     
-    if (_selectedItem != null && widget.preSelectedFraction != null) {
+    if (_selectedAvailableItem != null && widget.preSelectedFraction != null) {
       try {
         // Find the matching fraction from the selected item's fractions
-        if (_selectedItem!.fractions != null && _selectedItem!.fractions!.isNotEmpty) {
-          final matchingFraction = _selectedItem!.fractions!.where(
+        if (_selectedAvailableItem!.item!.fractions != null && _selectedAvailableItem!.item!.fractions!.isNotEmpty) {
+          final matchingFraction = _selectedAvailableItem!.item!.fractions!.where(
             (fraction) => fraction.id == widget.preSelectedFraction!.id
           ).firstOrNull;
           
@@ -137,7 +114,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
             _fetchAvailableQuantity();
           } else {
             _error = 'Selected fraction not found for this item';
-            _selectedFraction = _selectedItem!.fractions!.first;
+            _selectedFraction = _selectedAvailableItem!.item!.fractions!.first;
           }
         } else {
           _error = 'No fractions available for this item';
@@ -157,31 +134,21 @@ class _SellItemScreenState extends State<SellItemScreen> {
   }
   
   Future<void> _fetchAvailableQuantity() async {
-    if (_selectedItem == null || _selectedFraction == null) return;
+    if (_selectedAvailableItem == null || _selectedFraction == null) return;
 
     try {
-      setState(() {
-        _isFetchingQuantity = true;
-        _error = null;
-      });
-
-      final availableQuantity = await _salesProvider.getAvailableQuantity(
-        _selectedItem!.id,
-        _selectedFraction!.id,
-      );
-
+      final availableQuantity = _selectedAvailableItem!.quantity / _selectedFraction!.ratio;
       if (!mounted) return;
 
       setState(() {
         _availableQuantity = double.parse(availableQuantity.toStringAsFixed(2));
-        _isFetchingQuantity = false;
       });
+      print("available quantity: $availableQuantity");      
+      print("available quantity state: $_availableQuantity");      
     } catch (e) {
       if (!mounted) return;
-      
       setState(() {
         _error = 'Failed to fetch available quantity. Please try again.';
-        _isFetchingQuantity = false;
         _availableQuantity = 0;
       });
       debugPrint('Error fetching available quantity: $e');
@@ -205,7 +172,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
   Future<void> _sellItem() async {
     final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) return;
-    if (_selectedItem == null || _selectedFraction == null) {
+    if (_selectedAvailableItem == null || _selectedFraction == null) {
       _showErrorSnackBar(l10n.pleaseSelectItemAndFraction);
       return;
     }
@@ -218,7 +185,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
 
     try {
       final success = await _salesProvider.createSale({
-        'itemId': _selectedItem!.id,
+        'itemId': _selectedAvailableItem!.item!.id,
         'fractionId': _selectedFraction!.id,
         'quantity': quantity,
         'amount': _expectedAmount,
@@ -229,6 +196,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
       if (success) {
         _showSuccessSnackBar(l10n.itemSoldSuccessfully);
         _resetForm();
+        await Provider.of<AvailableItemProvider>(context, listen: false).fetchAvailableItems();
       } else {
         _showErrorSnackBar(_salesProvider.error ?? l10n.failedToProcessSale);
       }
@@ -250,7 +218,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
       _quantityController.clear();
       _expectedAmount = 0;
       _availableQuantity = 0;
-      _selectedItem = null;
+      _selectedAvailableItem = null;
       _selectedFraction = null;
     });
   }
@@ -267,16 +235,13 @@ class _SellItemScreenState extends State<SellItemScreen> {
     );
   }
 
-  List<Item> _getAssignedItems() {
-    final availableItems = _availableItemProvider.getAvailableItemsForSalesman(_authProvider.user!.id);
-    return _itemProvider.items.where((item) {
-      return availableItems.any((availableItem) => availableItem.itemId == item.id);
-    }).toList();
+  List<AvailableItem> _getAssignedItems() {
+    return _availableItemProvider.availableItems;
   }
 
-  void _handleItemChange(Item? value) {
+  void _handleItemChange(AvailableItem? value) {
     setState(() {
-      _selectedItem = value;
+      _selectedAvailableItem = value;
       _selectedFraction = null;
       _quantityController.clear();
       _expectedAmount = 0;
@@ -318,6 +283,24 @@ class _SellItemScreenState extends State<SellItemScreen> {
     });
   }
 
+  double _getAvailableQuantityForSelected() {
+    final availableItems = _availableItemProvider.availableItems;
+    final availableItem = _selectedAvailableItem == null
+        ? null
+        : availableItems.firstWhere(
+            (ai) => ai.itemId == _selectedAvailableItem!.id,
+            orElse: () => AvailableItem(
+              id: '',
+              itemId: _selectedAvailableItem!.id,
+              businessId: '',
+              shopId: "",
+              quantity: 0,
+              soldPrice: 0,
+            ),
+          );
+    return availableItem?.quantity ?? 0;
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
@@ -351,7 +334,8 @@ class _SellItemScreenState extends State<SellItemScreen> {
       );
     }
 
-    final assignedItems = _getAssignedItems();
+    final availableItems = _availableItemProvider.availableItems;
+    final assignedItems = availableItems;
 
     if (assignedItems.isEmpty) {
       return Center(
@@ -361,6 +345,8 @@ class _SellItemScreenState extends State<SellItemScreen> {
         ),
       );
     }
+
+    final availableQuantity = _availableQuantity;
 
     return Scaffold(
       appBar: AppBar(
@@ -373,30 +359,30 @@ class _SellItemScreenState extends State<SellItemScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              DropdownButtonFormField<Item>(
-                value: _selectedItem,
+              DropdownButtonFormField<AvailableItem>(
+                value: _selectedAvailableItem,
                 decoration: InputDecoration(
                   labelText: l10n.selectItem,
                   border: const OutlineInputBorder(),
                 ),
-                items: assignedItems.map((item) {
-                  return DropdownMenuItem<Item>(
-                    value: item,
-                    child: Text(item.name),
+                items: assignedItems.map((availableItem) {
+                  return DropdownMenuItem<AvailableItem>(
+                    value: availableItem,
+                    child: Text(availableItem.item!.name),
                   );
                 }).toList(),
                 onChanged: _handleItemChange,
                 validator: (value) => value == null ? l10n.pleaseSelectItem : null,
               ),
               const SizedBox(height: 16),
-              if (_selectedItem != null)
+              if (_selectedAvailableItem != null)
                 DropdownButtonFormField<Fraction>(
                   value: _selectedFraction,
                   decoration: InputDecoration(
                     labelText: l10n.selectUnit,
                     border: const OutlineInputBorder(),
                   ),
-                  items: _selectedItem!.fractions?.map((fraction) {
+                  items: _selectedAvailableItem!.item!.fractions?.map((fraction) {
                     return DropdownMenuItem<Fraction>(
                       value: fraction,
                       child: Text('${fraction.name} - \$${fraction.price}'),
@@ -422,15 +408,15 @@ class _SellItemScreenState extends State<SellItemScreen> {
                   if (quantity <= 0) {
                     return l10n.quantityMustBeGreaterThanZero;
                   }
-                  if (quantity > _availableQuantity) {
-                    return l10n.availableQuantityIs(_availableQuantity);
+                  if (quantity > availableQuantity) {
+                    return l10n.availableQuantityIs(availableQuantity);
                   }
                   return null;
                 },
               ),
               const SizedBox(height: 16),
               Text(
-                l10n.availableQuantityWithLoading(_isFetchingQuantity ? l10n.loading : _availableQuantity.toString()),
+                l10n.availableQuantityWithLoading(availableQuantity.toString()),
                 style: const TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
