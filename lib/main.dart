@@ -110,8 +110,8 @@ class MyApp extends StatelessWidget {
             '/sell-item': (context) {
               final args = ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>?;
               return SellItemScreen(
-                preSelectedItem: args?['preSelectedItem'],
-                preSelectedFraction: args?['preSelectedFraction'],
+                preSelectedAvailableItem: args?['preSelectedItem'],
+                preSelectedAvailableFraction: args?['preSelectedFraction'],
               );
             },
             '/available-items': (context) => AvailableItemsScreen(),

@@ -6,9 +6,11 @@ import 'package:inventory_frontend/providers/available_item_provider.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/screens/owner/transactions_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:inventory_frontend/screens/salesman/sell_item_screen.dart';
 
 class AvailableItemsScreen extends StatefulWidget {
-  const AvailableItemsScreen({Key? key}) : super(key: key);
+  final String? shopId;
+  const AvailableItemsScreen({Key? key, this.shopId}) : super(key: key);
 
   @override
   State<AvailableItemsScreen> createState() => _AvailableItemsScreenState();
@@ -32,7 +34,7 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
     });
 
     final availableItemProvider = context.read<AvailableItemProvider>();
-    await availableItemProvider.fetchAvailableItems();
+    await availableItemProvider.fetchAvailableItems(shopId: widget.shopId);
 
     if (mounted) {
       setState(() {
@@ -55,20 +57,21 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
     );
   }
 
+  void _onSellItem(dynamic availableItem, dynamic selectedFraction) {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SellItemScreen(
+          preSelectedAvailableItem: availableItem,
+          preSelectedAvailableFraction: selectedFraction,
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(l10n.availableItems),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadAvailableItems,
-          ),
-        ],
-      ),
-      body: _isLoading
+    final Widget content = _isLoading
           ? const Center(child: CircularProgressIndicator())
           : Consumer<AvailableItemProvider>(
               builder: (context, availableItemProvider, child) {
@@ -126,6 +129,12 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                               Text(
                                 l10n.soldPrice(availableItem.soldPrice),
                               ),
+                              const SizedBox(height: 8),
+                              ElevatedButton.icon(
+                                onPressed: () => _onSellItem(availableItem, selectedFraction),
+                                icon: const Icon(Icons.point_of_sale),
+                                label: const Text('Sell'),
+                              ),
                             ],
                           ),
                           trailing: Row(
@@ -152,7 +161,24 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                   ),
                 );
               },
+            );
+
+    // If shopId is provided, don't show Scaffold or AppBar (for embedding in tabs)
+    if (widget.shopId != null) {
+      return content;
+    } else {
+      return Scaffold(
+        appBar: AppBar(
+          title: Text(l10n.availableItems),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.refresh),
+              onPressed: _loadAvailableItems,
             ),
-    );
+          ],
+        ),
+        body: content,
+      );
+    }
   }
 } 

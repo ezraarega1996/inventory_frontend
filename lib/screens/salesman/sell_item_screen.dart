@@ -13,13 +13,14 @@ import 'package:inventory_frontend/widgets/custom_text_field.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SellItemScreen extends StatefulWidget {
-  final Item? preSelectedItem;
-  final Fraction? preSelectedFraction;
+
+  final AvailableItem? preSelectedAvailableItem;
+  final Fraction? preSelectedAvailableFraction;
   
   const SellItemScreen({
     Key? key,
-    this.preSelectedItem,
-    this.preSelectedFraction,
+    this.preSelectedAvailableItem,
+    this.preSelectedAvailableFraction,
   }) : super(key: key);
 
   @override
@@ -82,47 +83,32 @@ class _SellItemScreenState extends State<SellItemScreen> {
   }
 
   void _setupPreSelectedValues() {
-    if (widget.preSelectedItem != null) {
+    // Priority: preSelectedAvailableItem and preSelectedAvailableFraction
+    if (widget.preSelectedAvailableItem != null) {
+      final assignedItems = _getAssignedItems();
       try {
-        // First get the assigned items
-        final assignedItems = _getAssignedItems();
-        
-        // Try to find the matching item in assigned items first
-        final matchingAssignedItem = assignedItems.where((item) => item.id == widget.preSelectedItem!.id).firstOrNull;
-        
-        if (matchingAssignedItem != null) {
-          _selectedAvailableItem = matchingAssignedItem;
-        } 
+        final matching = assignedItems.firstWhere(
+          (item) => item.id == widget.preSelectedAvailableItem!.id,
+        );
+        _selectedAvailableItem = matching;
       } catch (e) {
-        debugPrint('Error finding pre-selected item: $e');
-        _selectedAvailableItem = null;
-        _error = 'Error finding pre-selected item';
+        // No match found, leave as null
       }
     }
-    
-    if (_selectedAvailableItem != null && widget.preSelectedFraction != null) {
-      try {
-        // Find the matching fraction from the selected item's fractions
-        if (_selectedAvailableItem!.item!.fractions != null && _selectedAvailableItem!.item!.fractions!.isNotEmpty) {
-          final matchingFraction = _selectedAvailableItem!.item!.fractions!.where(
-            (fraction) => fraction.id == widget.preSelectedFraction!.id
-          ).firstOrNull;
-          
-          if (matchingFraction != null) {
-            _selectedFraction = matchingFraction;
-            _updateExpectedAmount();
-            _fetchAvailableQuantity();
-          } else {
-            _error = 'Selected fraction not found for this item';
-            _selectedFraction = _selectedAvailableItem!.item!.fractions!.first;
-          }
-        } else {
-          _error = 'No fractions available for this item';
+
+    if (_selectedAvailableItem != null) {
+      if (widget.preSelectedAvailableFraction != null) {
+        final fractions = _selectedAvailableItem!.item?.fractions ?? [];
+        try {
+          final matchingFraction = fractions.firstWhere(
+            (f) => f.id == widget.preSelectedAvailableFraction!.id,
+          );
+          _selectedFraction = matchingFraction;
+          _updateExpectedAmount();
+          _fetchAvailableQuantity();
+        } catch (e) {
+          // No match found, leave as null
         }
-      } catch (e) {
-        debugPrint('Error finding pre-selected fraction: $e');
-        _selectedFraction = null;
-        _error = 'Error finding pre-selected fraction';
       }
     }
   }

@@ -27,8 +27,6 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
       Navigator.of(context).push(
         MaterialPageRoute(
           builder: (_) => SellItemScreen(
-            preSelectedItem: widget.item,
-            preSelectedFraction: fraction,
           ),
         ),
       );
