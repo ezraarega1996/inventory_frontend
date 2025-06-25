@@ -172,6 +172,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
     try {
       final success = await _salesProvider.createSale({
         'itemId': _selectedAvailableItem!.item!.id,
+        'shopId': _selectedAvailableItem!.shopId,
         'fractionId': _selectedFraction!.id,
         'quantity': quantity,
         'amount': _expectedAmount,
