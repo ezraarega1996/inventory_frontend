@@ -24,7 +24,6 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
   final _fractionPurchasePriceController = TextEditingController();
   final _fractionSoldPriceController = TextEditingController();
   final _quantityController = TextEditingController();
-  final _locationController = TextEditingController();
   final _fractionIdController = TextEditingController();
   final Map<String, String> _selectedFractionIds = {}; // boughtId -> fractionId
   DateTime? _expiryDate;
@@ -47,7 +46,6 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
     _fractionPurchasePriceController.dispose();
     _fractionSoldPriceController.dispose();
     _quantityController.dispose();
-    _locationController.dispose();
     _fractionIdController.dispose();
     super.dispose();
   }
@@ -81,7 +79,6 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
     double? fractionPurchasePrice,
     double? fractionSoldPrice,
     double? quantity,
-    String? location,
     DateTime? expiryDate,
     String? shopId,
   }) {
@@ -95,7 +92,6 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
       _fractionPurchasePriceController.text = fractionPurchasePrice?.toString() ?? '';
       _fractionSoldPriceController.text = fractionSoldPrice?.toString() ?? '';
       _quantityController.text = quantity?.toString() ?? '';
-      _locationController.text = location ?? '';
       _expiryDate = expiryDate;
     });
 
@@ -279,17 +275,6 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  CustomTextField(
-                    controller: _locationController,
-                    labelText: l10n.location,
-                    enabled: !_isSubmitting,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return l10n.required;
-                      }
-                      return null;
-                    },
-                  ),
                   const SizedBox(height: 16),
                   ListTile(
                     title: Text(_expiryDate == null ? l10n.selectExpiryDate : '${l10n.expiryDate}: ${DateFormat('MMM dd, yyyy').format(_expiryDate!)}'),
@@ -347,7 +332,6 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                       fractionPurchasePrice: double.parse(_fractionPurchasePriceController.text),
                       fractionSoldPrice: double.parse(_fractionSoldPriceController.text),
                       quantity: double.parse(_quantityController.text),
-                      location: _locationController.text.trim(),
                       expiryDate: _expiryDate,
                       shopId: _selectedShopId,
                     );
@@ -358,7 +342,6 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                       fractionPurchasePrice: double.parse(_fractionPurchasePriceController.text),
                       fractionSoldPrice: double.parse(_fractionSoldPriceController.text),
                       quantity: double.parse(_quantityController.text),
-                      location: _locationController.text.trim(),
                       expiryDate: _expiryDate,
                       shopId: _selectedShopId,
                     );
@@ -496,10 +479,9 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('${l10n.shop}: ${bought.shop?.name ?? l10n.unknownShop}'),
-                              Text("Qunatity: $displayedQuantity ${selectedFraction.name}"),
-                              // Text(l10n.quantity(displayedQuantity, selectedFraction?.name ?? '')),
+                              //Text("${l10n.quantity}: $displayedQuantity ${selectedFraction.name}"),
+                              Text(l10n.quantity((displayedQuantity ?? 0), selectedFraction?.name ?? '')),
                               Text(l10n.availableQuantity(displayedAvailableCount ?? 0, selectedFraction?.name ?? '')),
-                              Text('${l10n.location}: ${bought.location}'),
                               if (bought.expiryDate != null)
                                 Text('${l10n.expiry}: ${DateFormat('yyyy-MM-dd').format(bought.expiryDate!)}'),
                             ],
@@ -527,7 +509,6 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                                   fractionPurchasePrice: bought.fractionPurchasePrice,
                                   fractionSoldPrice: bought.fractionSoldPrice,
                                   quantity: bought.quantity,
-                                  location: bought.location,
                                   expiryDate: bought.expiryDate,
                                   shopId: bought.shopId,
                                 ),

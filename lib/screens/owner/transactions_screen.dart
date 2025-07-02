@@ -245,6 +245,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  // Text(
+                                  //   'Salesman: ${trans.salesman?.name ?? 'Unknown Salesman'}',
+                                  // ),
                                   Text(
                                     'Quantity: ${convertedQuantity.toStringAsFixed(2)} ${selectedFraction?.name ?? ''}',
                                   ),

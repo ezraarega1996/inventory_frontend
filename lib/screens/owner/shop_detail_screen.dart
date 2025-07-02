@@ -40,6 +40,7 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> with SingleTickerPr
   }
 
   Future<void> _assignSalesperson(User salesperson) async {
+    final l10n = AppLocalizations.of(context)!;
     final shopProvider = Provider.of<ShopProvider>(context, listen: false);
     final success = await shopProvider.assignSalespersonToShop(
       widget.shop.id,
@@ -49,7 +50,7 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> with SingleTickerPr
     if (success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${salesperson.name} assigned to ${widget.shop.name}'),
+          content: Text(l10n.salespersonAssigned(salesperson.name, widget.shop.name)),
           backgroundColor: Colors.green,
         ),
       );
@@ -57,7 +58,7 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> with SingleTickerPr
     } else if (mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(shopProvider.error ?? 'Failed to assign salesperson'),
+          content: Text(shopProvider.error ?? l10n.failedToAssignSalesperson),
           backgroundColor: Colors.red,
         ),
       );
@@ -65,20 +66,21 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> with SingleTickerPr
   }
 
   Future<void> _removeSalesperson(User salesperson) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Remove Salesperson'),
-        content: Text('Are you sure you want to remove ${salesperson.name} from ${widget.shop.name}?'),
+        title: Text(l10n.removeSalespersonTitle),
+        content: Text(l10n.removeSalespersonContent(salesperson.name, widget.shop.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Remove'),
+            child: Text(l10n.remove),
           ),
         ],
       ),
@@ -94,7 +96,7 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> with SingleTickerPr
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('${salesperson.name} removed from ${widget.shop.name}'),
+            content: Text(l10n.salespersonRemoved(salesperson.name, widget.shop.name)),
             backgroundColor: Colors.green,
           ),
         );
@@ -102,7 +104,7 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> with SingleTickerPr
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(shopProvider.error ?? 'Failed to remove salesperson'),
+            content: Text(shopProvider.error ?? l10n.failedToRemoveSalesperson),
             backgroundColor: Colors.red,
           ),
         );
@@ -111,13 +113,14 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> with SingleTickerPr
   }
 
   void _showAssignSalespersonDialog() {
+    final l10n = AppLocalizations.of(context)!;
     final shopProvider = Provider.of<ShopProvider>(context, listen: false);
     final availableSalespeople = shopProvider.availableSalespeople;
 
     if (availableSalespeople.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No available salespeople to assign'),
+        SnackBar(
+          content: Text(l10n.noAvailableSalespeople),
           backgroundColor: Colors.orange,
         ),
       );
@@ -127,7 +130,7 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> with SingleTickerPr
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Assign Salesperson'),
+        title: Text(l10n.assignSalespersonTitle),
         content: SizedBox(
           width: double.maxFinite,
           child: ListView.builder(
@@ -159,7 +162,7 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> with SingleTickerPr
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
         ],
       ),
@@ -183,9 +186,9 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> with SingleTickerPr
         ],
         bottom: TabBar(
           controller: _tabController,
-          tabs: const [
-            Tab(text: 'Salespeople', icon: Icon(Icons.people)),
-            Tab(text: 'Available Items', icon: Icon(Icons.inventory_2)),
+          tabs: [
+            Tab(text: l10n.salespeopleTab, icon: const Icon(Icons.people)),
+            Tab(text: l10n.availableItemsTab, icon: const Icon(Icons.inventory_2)),
           ],
         ),
       ),
@@ -243,7 +246,7 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> with SingleTickerPr
                         Icon(Icons.calendar_today, color: Colors.grey.shade600),
                         const SizedBox(width: 8),
                         Text(
-                          'Created: ${widget.shop.createdAt.toString().split(' ')[0]}',
+                          '${l10n.createdLabel}: ${widget.shop.createdAt.toString().split(' ')[0]}',
                           style: TextStyle(color: Colors.grey.shade600),
                         ),
                       ],
@@ -271,6 +274,7 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> with SingleTickerPr
   }
 
   Widget _buildSalespeopleTab(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -278,13 +282,13 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> with SingleTickerPr
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text(
-              'Salespeople',
+              l10n.salespeopleTab,
               style: Theme.of(context).textTheme.headlineSmall,
             ),
             ElevatedButton.icon(
               onPressed: _showAssignSalespersonDialog,
               icon: const Icon(Icons.person_add),
-              label: const Text('Assign'),
+              label: Text(l10n.assignLabel),
             ),
           ],
         ),
@@ -311,7 +315,7 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> with SingleTickerPr
                         ),
                         const SizedBox(height: 16),
                         Text(
-                          'No salespeople assigned',
+                          l10n.noSalespeopleAssigned,
                           style: TextStyle(
                             fontSize: 16,
                             color: Colors.grey.shade600,
@@ -319,7 +323,7 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> with SingleTickerPr
                         ),
                         const SizedBox(height: 8),
                         Text(
-                          'Assign salespeople to this shop to get started',
+                          l10n.assignSalespeopleToShop,
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey.shade500,

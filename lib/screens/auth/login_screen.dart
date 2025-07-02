@@ -7,6 +7,9 @@ import 'package:inventory_frontend/screens/owner/owner_dashboard.dart';
 import 'package:inventory_frontend/screens/salesman/salesman_dashboard.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
+import 'package:inventory_frontend/widgets/language_selector.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
@@ -51,8 +54,9 @@ class _LoginScreenState extends State<LoginScreen> {
           );
         }
       } else {
+        final l10n = AppLocalizations.of(context)!;
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(authProvider.error ?? 'Login failed'))
+          SnackBar(content: Text(authProvider.error ?? l10n.loginFailed))
         );
       }
     }
@@ -61,6 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final l10n = AppLocalizations.of(context)!;
     
     return Scaffold(
       body: SafeArea(
@@ -73,10 +78,11 @@ class _LoginScreenState extends State<LoginScreen> {
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  const Text(
-                    'Manage your shop!',
+                  const LanguageSelector(),
+                  Text(
+                    l10n.loginSubtitle,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 26,
                       fontWeight: FontWeight.bold,
                       color: Colors.green,
@@ -88,10 +94,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     height: 300,
                   ),
                   const SizedBox(height: 24),
-                  const Text(
-                    'Login!',
+                  Text(
+                    l10n.loginTitle,
                     textAlign: TextAlign.center,
-                    style: TextStyle(
+                    style: const TextStyle(
                       fontSize: 22,
                       fontWeight: FontWeight.bold,
                     ),
@@ -99,11 +105,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 24),
                   CustomTextField(
                     controller: _usernameController,
-                    labelText: 'Username',
+                    labelText: l10n.usernameLabel,
                     prefixIcon: Icons.person,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your username';
+                        return l10n.usernameRequired;
                       }
                       return null;
                     },
@@ -111,7 +117,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 8),
                   CustomTextField(
                     controller: _passwordController,
-                    labelText: 'Password',
+                    labelText: l10n.passwordLabel,
                     prefixIcon: Icons.lock,
                     obscureText: _obscurePassword,
                     suffixIcon: IconButton(
@@ -126,14 +132,14 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
+                        return l10n.passwordRequired;
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 24),
                     CustomButton(
-                    text: 'Login',
+                    text: l10n.loginButton,
                     isLoading: authProvider.isLoading,
                     onPressed: _login,
                     textColor: Colors.white,
@@ -145,7 +151,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         MaterialPageRoute(builder: (_) => const BusinessRegistrationScreen())
                       );
                     },
-                    child: const Text('Register Your Business'),
+                    child: Text(l10n.registerBusiness),
                   ),
                 ],
               ),

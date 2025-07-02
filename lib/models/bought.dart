@@ -8,7 +8,6 @@ class Bought {
   final double fractionPurchasePrice;
   final double fractionSoldPrice;
   final double quantity;
-  final String location;
   final DateTime? expiryDate;
   final DateTime createdTime;
   final String itemId;
@@ -25,7 +24,6 @@ class Bought {
     required this.fractionPurchasePrice,
     required this.fractionSoldPrice,
     required this.quantity,
-    required this.location,
     this.expiryDate,
     required this.createdTime,
     required this.itemId,
@@ -43,7 +41,6 @@ class Bought {
       fractionPurchasePrice: (json['fractionPurchasePrice'] is num) ? (json['fractionPurchasePrice'] as num).toDouble() : 0.0,
       fractionSoldPrice: (json['fractionSoldPrice'] is num) ? (json['fractionSoldPrice'] as num).toDouble() : 0.0,
       quantity: double.tryParse(json['quantity'].toString()) ?? 0.0,
-      location: json['location'] ?? '',
       expiryDate: json['expiryDate'] != null ? DateTime.parse(json['expiryDate']) : null,
       createdTime: DateTime.parse(json['createdTime'] ?? DateTime.now().toIso8601String()),
       itemId: json['itemId'] ?? '',
@@ -67,7 +64,6 @@ class Bought {
       'fractionPurchasePrice': fractionPurchasePrice,
       'fractionSoldPrice': fractionSoldPrice,
       'quantity': quantity,
-      'location': location,
       'expiryDate': expiryDate?.toIso8601String(),
       'itemId': itemId,
       'shopId': shopId,
@@ -76,6 +72,6 @@ class Bought {
 
   @override
   String toString() {
-    return 'Bought(id: $id, fractionId: $fractionId, fractionPurchasePrice: $fractionPurchasePrice, fractionSoldPrice: $fractionSoldPrice, quantity: $quantity, location: $location, expiryDate: $expiryDate, createdTime: $createdTime, itemId: $itemId, item: $item, fraction: $fraction, shopId: $shopId, shop: $shop)';
+    return 'Bought(id: $id, fractionId: $fractionId, fractionPurchasePrice: $fractionPurchasePrice, fractionSoldPrice: $fractionSoldPrice, quantity: $quantity, expiryDate: $expiryDate, createdTime: $createdTime, itemId: $itemId, item: $item, fraction: $fraction, shopId: $shopId, shop: $shop)';
   }
 } 

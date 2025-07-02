@@ -38,7 +38,6 @@ class BoughtProvider with ChangeNotifier {
     required double fractionPurchasePrice,
     required double fractionSoldPrice,
     required double quantity,
-    required String location,
     DateTime? expiryDate,
     String? shopId,
   }) async {
@@ -48,7 +47,6 @@ class BoughtProvider with ChangeNotifier {
     print('fractionPurchasePrice: $fractionPurchasePrice');
     print('fractionSoldPrice: $fractionSoldPrice');
     print('quantity: $quantity');
-    print('location: $location');
     print('expiryDate: $expiryDate');
     print('shopId: $shopId');
     
@@ -63,7 +61,6 @@ class BoughtProvider with ChangeNotifier {
         'fractionPurchasePrice': fractionPurchasePrice,
         'fractionSoldPrice': fractionSoldPrice,
         'quantity': quantity,
-        'location': location,
         'expiryDate': expiryDate?.toIso8601String(),
         'shopId': shopId,
       };
@@ -96,7 +93,6 @@ class BoughtProvider with ChangeNotifier {
     double? fractionPurchasePrice,
     double? fractionSoldPrice,
     double? quantity,
-    String? location,
     DateTime? expiryDate,
     String? shopId,
   }) async {
@@ -110,7 +106,6 @@ class BoughtProvider with ChangeNotifier {
         'fractionPurchasePrice': fractionPurchasePrice,
         'fractionSoldPrice': fractionSoldPrice,
         'quantity': quantity,
-        'location': location,
         'expiryDate': expiryDate?.toIso8601String(),
         'shopId': shopId,
       });

@@ -109,6 +109,7 @@ class _ViewSalesScreenState extends State<ViewSalesScreen> {
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
+                                              Text('${sale.item?.name}(${sale.salesman?.name ?? 'Unknown Salesman'})'),
                                               Text(l10n.quantityWithUnit(
                                                 (sale.quantity * sale.fraction!.ratio / selectedFraction!.ratio).toString(),
                                                 selectedFraction?.name ?? ""

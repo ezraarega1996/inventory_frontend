@@ -7,7 +7,6 @@ class ItemBought {
   final double quantity;
   final double fractionPurchasePrice;
   final double fractionSoldPrice;
-  final String? location;
   final DateTime? expiryDate;
   final String businessId;
   final String? salesmanId;
@@ -23,7 +22,6 @@ class ItemBought {
     required this.quantity,
     required this.fractionPurchasePrice,
     required this.fractionSoldPrice,
-    this.location,
     this.expiryDate,
     required this.businessId,
     this.salesmanId,
@@ -42,7 +40,6 @@ class ItemBought {
       quantity: double.tryParse(json['quantity'].toString()) ?? 0.0,
       fractionPurchasePrice: double.tryParse(json['fractionPurchasePrice'].toString()) ?? 0.0,
       fractionSoldPrice: double.tryParse(json['fractionSoldPrice'].toString()) ?? 0.0,
-      location: json['location'],
       expiryDate: json['expiryDate'] != null ? DateTime.parse(json['expiryDate']) : null,
       businessId: json['businessId'],
       salesmanId: json['salesmanId'],
@@ -61,7 +58,6 @@ class ItemBought {
       'quantity': quantity,
       'fractionPurchasePrice': fractionPurchasePrice,
       'fractionSoldPrice': fractionSoldPrice,
-      'location': location,
       'expiryDate': expiryDate?.toIso8601String(),
       'businessId': businessId,
       'salesmanId': salesmanId,
@@ -74,6 +70,6 @@ class ItemBought {
 
   @override
   String toString() {
-    return 'ItemBought(id: $id, itemId: $itemId, fractionId: $fractionId, quantity: $quantity, fractionPurchasePrice: $fractionPurchasePrice, fractionSoldPrice: $fractionSoldPrice, location: $location, expiryDate: $expiryDate, businessId: $businessId, salesmanId: $salesmanId, createdAt: $createdAt, fraction: $fraction, availableItemId: $availableItemId, available_items_count: $available_items_count)';
+    return 'ItemBought(id: $id, itemId: $itemId, fractionId: $fractionId, quantity: $quantity, fractionPurchasePrice: $fractionPurchasePrice, fractionSoldPrice: $fractionSoldPrice, expiryDate: $expiryDate, businessId: $businessId, salesmanId: $salesmanId, createdAt: $createdAt, fraction: $fraction, availableItemId: $availableItemId, available_items_count: $available_items_count)';
   }
 } 

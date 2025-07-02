@@ -169,6 +169,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
       return;
     }
 
+    setState(() { _isSubmitting = true; });
     try {
       final success = await _salesProvider.createSale({
         'itemId': _selectedAvailableItem!.item!.id,
@@ -358,7 +359,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
                     child: Text(availableItem.item!.name),
                   );
                 }).toList(),
-                onChanged: _handleItemChange,
+                onChanged: _isSubmitting ? null : _handleItemChange,
                 validator: (value) => value == null ? l10n.pleaseSelectItem : null,
               ),
               const SizedBox(height: 16),
@@ -375,7 +376,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
                       child: Text('${fraction.name} - \$${fraction.price}'),
                     );
                   }).toList(),
-                  onChanged: _handleFractionChange,
+                  onChanged: _isSubmitting ? null : _handleFractionChange,
                   validator: (value) => value == null ? l10n.pleaseSelectUnit : null,
                 ),
               const SizedBox(height: 16),
@@ -384,6 +385,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
                 labelText: l10n.quantityLabel,
                 keyboardType: TextInputType.number,
                 onChanged: (_) => _updateExpectedAmount(),
+                enabled: !_isSubmitting,
                 validator: (value) {
                   if (value == null || value.isEmpty) {
                     return l10n.pleaseEnterQuantity;
@@ -419,12 +421,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
               ),
               const SizedBox(height: 24),
               CustomButton(
-                onPressed: _isSubmitting 
-                  ? () {} 
-                  : () {
-                      // ignore: unawaited_futures
-                      _sellItem();
-                    },
+                onPressed: _isSubmitting ? null : () { _sellItem(); },
                 text: _isSubmitting ? l10n.processing : l10n.sellItem,
                 isLoading: _isSubmitting,
               ),

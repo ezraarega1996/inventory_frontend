@@ -343,10 +343,10 @@ class _UsersScreenState extends State<UsersScreen> {
                 final users = userProvider.users.where((user) => user.role == 'salesman').toList();
                 
                 if (users.isEmpty) {
-                  return const Center(
+                  return Center(
                     child: Text(
-                      'No salespeople found',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                      l10n.noSalespeopleFound,
+                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                     ),
                   );
                 }
@@ -371,9 +371,9 @@ class _UsersScreenState extends State<UsersScreen> {
                           subtitle: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Username: ${user.username}'),
-                              Text('Phone: ${user.phone}'),
-                              Text('Location: ${user.location}'),
+                              Text(l10n.usernameWithValue(user.username)),
+                              Text(l10n.phoneWithValue(user.phone)),
+                              Text(l10n.locationWithValue(user.location)),
                               Consumer<ShopProvider>(
                                 builder: (context, shopProvider, child) {
                                   Shop? shop;
@@ -387,10 +387,13 @@ class _UsersScreenState extends State<UsersScreen> {
                                     }
                                   }
                                   return Text(
-                                    'Shop: ${shop?.name ?? 'No shop assigned'}',
+                                    l10n.shopWithValue(
+                                      shop?.name ?? l10n.noShopAssigned,
+                                    ),
                                     style: TextStyle(
                                       color: shop != null ? Colors.green : Colors.grey,
                                       fontWeight: shop != null ? FontWeight.bold : FontWeight.normal,
+                                   
                                     ),
                                   );
                                 },

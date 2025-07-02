@@ -89,7 +89,7 @@
     "topSellingItems": "ከፍተኛ የሚሸጡ እቃዎች",
     "menu": "ምናሌ",
     "salesPerson": "የሽያጭ ሰራተኛ",
-    "shops": "ድህረ ቤቶች",
+    "shops": "ሱቆች",
     "categories": "ምድቦች",
     "items": "እቃዎች",
     "storedItems": "የተከማቹ እቃዎች",
@@ -355,6 +355,17 @@
             }
         }
     },
+    "quantity": "ብዛት: {amount} {unit}",
+    "@quantity": {
+    "placeholders": {
+        "amount": {
+        "type": "double"
+        },
+        "unit": {
+        "type": "String"
+        }
+    }
+    },
     "quantityLabel": "ብዛት",
     "item": "እቃ",
     "fraction": "ክፍልፋይ",
@@ -511,5 +522,69 @@
     "shop": "ድህረ ቤት",
     "unknownShop": "ያልታወቀ ድህረ ቤት",
     "addBoughtItem": "የተገዛ እቃ ጨምር",
-    "editBoughtItem": "የተገዛ እቃ አስተካክል"
+    "editBoughtItem": "የተገዛ እቃ አስተካክል",
+    "loginTitle": "ግባ!",
+    "loginSubtitle": "መደብርዎን ያስተዳድሩ!",
+    "loginButton": "ግባ",
+    "registerBusiness": "ንግድዎን ይመዝግቡ",
+    "usernameLabel": "የተጠቃሚ ስም",
+    "passwordLabel": "የይለፍ ቃል",
+    "usernameRequired": "እባክዎ የተጠቃሚ ስምዎን ያስገቡ",
+    "passwordRequired": "እባክዎ የይለፍ ቃልዎን ያስገቡ",
+    "loginFailed": "መግባት አልተሳካም",
+    "noSalespeopleFound": "ምንም ሻጮች አልተገኙም",
+    "usernameWithValue": "የተጠቃሚ ስም: {username}",
+    "@usernameWithValue": {
+        "placeholders": {
+            "username": { "type": "String" }
+        }
+    },
+    "phoneWithValue": "ስልክ: {phone}",
+    "@phoneWithValue": {
+        "placeholders": {
+            "phone": { "type": "String" }
+        }
+    },
+    "locationWithValue": "አካታች: {location}",
+    "@locationWithValue": {
+        "placeholders": {
+            "location": { "type": "String" }
+        }
+    },
+    "shopWithValue": "ድህረ ቤት: {shop}",
+    "@shopWithValue": {
+        "placeholders": {
+            "shop": { "type": "String" }
+        }
+    },
+    "noShopAssigned": "የተመደበ ድህረ ቤት የለም",
+    "createNewShop": "አዲስ ሱቅ ፍጠር",
+    "shopNameLabel": "የሱቅ ስም",
+    "enterShopNameHint": "የሱቅ ስም ያስገቡ",
+    "pleaseEnterShopName": "እባክዎ የሱቅ ስም ያስገቡ",
+    "shopAddressLabel": "የሱቅ አድራሻ",
+    "enterShopAddressHint": "የሱቅ አድራሻ ያስገቡ",
+    "pleaseEnterShopAddress": "እባክዎ የሱቅ አድራሻ ያስገቡ",
+    "shopCreatedSuccess": "ሱቅ በተሳካ ሁኔታ ተፈጥሯል!",
+    "shopCreatedFailed": "ሱቅ መፍጠር አልተቻለም",
+    "deleteShopTitle": "ሱቅ ሰርዝ",
+    "deleteShopContent": "\"{shopName}\" ሱቅ ማጥፋት እርግጠኛ ነዎት? ይህ እርምጃ ማድረግ አይቻልም።",
+    "shopDeletedSuccess": "ሱቅ በተሳካ ሁኔታ ተሰርዟል",
+    "shopDeletedFailed": "ሱቅ መሰረዝ አልተቻለም",
+    "removeSalespersonTitle": "ሻጭን ያስወግዱ",
+    "removeSalespersonContent": "{salesperson}ን ከ{shop} ማስወገድ እርግጠኛ ነዎት?",
+    "cancel": "ይቅር",
+    "remove": "ያስወግዱ",
+    "assignSalespersonTitle": "ሻጭ ይመድቡ",
+    "noAvailableSalespeople": "ለመመደብ ምንም የተዘጋጀ ሻጭ የለም",
+    "salespeopleTab": "ሻጮች",
+    "availableItemsTab": "የሚገኙ እቃዎች",
+    "salespersonAssigned": "{salesperson} ወደ {shop} ተመድቧል",
+    "failedToAssignSalesperson": "ሻጭ መመደብ አልተቻለም",
+    "salespersonRemoved": "{salesperson} ከ{shop} ተወግዷል",
+    "failedToRemoveSalesperson": "ሻጭ ማስወገድ አልተቻለም",
+    "createdLabel": "ተፈጥሯል",
+    "assignLabel": "መድብ",
+    "noSalespeopleAssigned": "ምንም ሻጮች አልተመደቡም",
+    "assignSalespeopleToShop": "ሻጮችን ወደዚህ ሱቅ ለመመደብ ይጀምሩ"
 } 

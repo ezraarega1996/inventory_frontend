@@ -103,7 +103,6 @@ class _UsersScreenState extends State<UsersScreen> {
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Email: ${user.email}'),
                             Text('Role: ${user.role}'),
                             Text('Business: ${user.business?.name ?? 'N/A'}'),
                           ],

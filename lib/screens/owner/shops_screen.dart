@@ -20,6 +20,7 @@ class _ShopsScreenState extends State<ShopsScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _addressController = TextEditingController();
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -48,13 +49,12 @@ class _ShopsScreenState extends State<ShopsScreen> {
   }
 
   Future<void> _createShop() async {
+    final l10n = AppLocalizations.of(context)!;
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    setState(() {
-      _isLoading = true;
-    });
+    setState(() { _isSubmitting = true; });
 
     final shopProvider = Provider.of<ShopProvider>(context, listen: false);
     final success = await shopProvider.createShop(
@@ -62,15 +62,13 @@ class _ShopsScreenState extends State<ShopsScreen> {
       _addressController.text.trim(),
     );
 
-    setState(() {
-      _isLoading = false;
-    });
+    setState(() { _isSubmitting = false; });
 
     if (success) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Shop created successfully!'),
+          SnackBar(
+            content: Text(l10n.shopCreatedSuccess),
             backgroundColor: Colors.green,
           ),
         );
@@ -85,7 +83,7 @@ class _ShopsScreenState extends State<ShopsScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(shopProvider.error ?? 'Failed to create shop'),
+            content: Text(shopProvider.error ?? l10n.shopCreatedFailed),
             backgroundColor: Colors.red,
           ),
         );
@@ -94,20 +92,21 @@ class _ShopsScreenState extends State<ShopsScreen> {
   }
 
   Future<void> _deleteShop(Shop shop) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirmed = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Shop'),
-        content: Text('Are you sure you want to delete "${shop.name}"? This action cannot be undone.'),
+        title: Text(l10n.deleteShopTitle),
+        content: Text(l10n.deleteShopContent(shop.name)),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context, false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.pop(context, true),
             style: TextButton.styleFrom(foregroundColor: Colors.red),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -119,15 +118,15 @@ class _ShopsScreenState extends State<ShopsScreen> {
       
       if (success && mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Shop deleted successfully'),
+          SnackBar(
+            content: Text(l10n.shopDeletedSuccess),
             backgroundColor: Colors.green,
           ),
         );
       } else if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(shopProvider.error ?? 'Failed to delete shop'),
+            content: Text(shopProvider.error ?? l10n.shopDeletedFailed),
             backgroundColor: Colors.red,
           ),
         );
@@ -141,7 +140,7 @@ class _ShopsScreenState extends State<ShopsScreen> {
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Shops'),
+        title: Text(l10n.shops),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -170,7 +169,7 @@ class _ShopsScreenState extends State<ShopsScreen> {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Create New Shop',
+                          l10n.createNewShop,
                           style: Theme.of(context).textTheme.titleLarge?.copyWith(
                             fontWeight: FontWeight.bold,
                           ),
@@ -190,12 +189,13 @@ class _ShopsScreenState extends State<ShopsScreen> {
                     const SizedBox(height: 16),
                     CustomTextField(
                       controller: _nameController,
-                      labelText: 'Shop Name',
-                      hintText: 'Enter shop name',
+                      labelText: l10n.shopNameLabel,
+                      hintText: l10n.enterShopNameHint,
                       prefixIcon: Icons.store,
+                      enabled: !_isSubmitting,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Please enter a shop name';
+                          return l10n.pleaseEnterShopName;
                         }
                         return null;
                       },
@@ -203,56 +203,23 @@ class _ShopsScreenState extends State<ShopsScreen> {
                     const SizedBox(height: 16),
                     CustomTextField(
                       controller: _addressController,
-                      labelText: 'Shop Address',
-                      hintText: 'Enter shop address',
+                      labelText: l10n.shopAddressLabel,
+                      hintText: l10n.enterShopAddressHint,
                       prefixIcon: Icons.location_on,
+                      enabled: !_isSubmitting,
                       validator: (value) {
                         if (value == null || value.trim().isEmpty) {
-                          return 'Please enter a shop address';
+                          return l10n.pleaseEnterShopAddress;
                         }
                         return null;
                       },
                     ),
                     const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: CustomButton(
-                            onPressed: _isLoading ? () {} : () => _createShop(),
-                            text: _isLoading ? 'Creating...' : 'Create Shop',
-                            isLoading: _isLoading,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: CustomButton(
-                            onPressed: () {
-                              setState(() {
-                                _showRegistrationForm = false;
-                                _nameController.clear();
-                                _addressController.clear();
-                              });
-                            },
-                            text: 'Cancel',
-                            isOutlined: true,
-                          ),
-                        ),
-                      ],
+                    CustomButton(
+                      text: _isSubmitting ? l10n.processing : l10n.save,
+                      onPressed: _isSubmitting ? null : () { _createShop(); },
+                      isLoading: _isSubmitting,
                     ),
-                    if (Provider.of<ShopProvider>(context).error != null)
-                      Container(
-                        margin: const EdgeInsets.only(top: 12),
-                        padding: const EdgeInsets.all(12),
-                        decoration: BoxDecoration(
-                          color: Colors.red.shade50,
-                          borderRadius: BorderRadius.circular(8),
-                          border: Border.all(color: Colors.red.shade200),
-                        ),
-                        child: Text(
-                          Provider.of<ShopProvider>(context).error!,
-                          style: TextStyle(color: Colors.red.shade700),
-                        ),
-                      ),
                   ],
                 ),
               ),

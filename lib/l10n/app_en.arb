@@ -38,14 +38,14 @@
     "deleteItem": "Delete Item",
     "quantity": "Quantity: {amount} {unit}",
     "@quantity": {
-        "placeholders": {
-            "amount": {
-                "type": "double"
-            },
-            "unit": {
-                "type": "String"
-            }
+    "placeholders": {
+        "amount": {
+        "type": "double"
+        },
+        "unit": {
+        "type": "String"
         }
+    }
     },
     "quantityLabel": "Quantity",
     "price": "Price",
@@ -296,7 +296,6 @@
     "selectItem": "Select Item",
     "selectFraction": "Select Fraction",
     "purchasePrice": "Purchase Price",
-    "quantity": "Quantity",
     "location": "Location",
     "selectExpiryDate": "Select Expiry Date",
     "expiryDate": "Expiry Date",
@@ -503,5 +502,67 @@
     "selectFractionToContinue": "Please select a fraction to continue",
     "noFractionsAvailable": "No fractions available",
     "invalidNumber": "Please enter a valid number",
-    "ratio": "Ratio"
+    "ratio": "Ratio",
+    "loginTitle": "Login!",
+    "loginSubtitle": "Manage your shop!",
+    "loginButton": "Login",
+    "registerBusiness": "Register Your Business",
+    "usernameLabel": "Username",
+    "passwordLabel": "Password",
+    "usernameRequired": "Please enter your username",
+    "passwordRequired": "Please enter your password",
+    "loginFailed": "Login failed",
+    "noSalespeopleFound": "No salespeople found",
+    "usernameWithValue": "Username: {username}",
+    "@usernameWithValue": {
+        "placeholders": {
+            "username": { "type": "String" }
+        }
+    },
+    "phoneWithValue": "Phone: {phone}",
+    "@phoneWithValue": {
+        "placeholders": {
+            "phone": { "type": "String" }
+        }
+    },
+    "locationWithValue": "Location: {location}",
+    "@locationWithValue": {
+        "placeholders": {
+            "location": { "type": "String" }
+        }
+    },
+    "shopWithValue": "Shop: {shop}",
+    "@shopWithValue": {
+        "placeholders": {
+            "shop": { "type": "String" }
+        }
+    },
+    "noShopAssigned": "No shop assigned",
+    "createNewShop": "Create New Shop",
+    "shopNameLabel": "Shop Name",
+    "enterShopNameHint": "Enter shop name",
+    "pleaseEnterShopName": "Please enter a shop name",
+    "shopAddressLabel": "Shop Address",
+    "enterShopAddressHint": "Enter shop address",
+    "pleaseEnterShopAddress": "Please enter a shop address",
+    "shopCreatedSuccess": "Shop created successfully!",
+    "shopCreatedFailed": "Failed to create shop",
+    "deleteShopTitle": "Delete Shop",
+    "deleteShopContent": "Are you sure you want to delete \"{shopName}\"? This action cannot be undone.",
+    "shopDeletedSuccess": "Shop deleted successfully",
+    "shopDeletedFailed": "Failed to delete shop",
+    "removeSalespersonTitle": "Remove Salesperson",
+    "removeSalespersonContent": "Are you sure you want to remove {salesperson} from {shop}?",
+    "assignSalespersonTitle": "Assign Salesperson",
+    "noAvailableSalespeople": "No available salespeople to assign",
+    "salespeopleTab": "Salespeople",
+    "availableItemsTab": "Available Items",
+    "salespersonAssigned": "{salesperson} assigned to {shop}",
+    "failedToAssignSalesperson": "Failed to assign salesperson",
+    "salespersonRemoved": "{salesperson} removed from {shop}",
+    "failedToRemoveSalesperson": "Failed to remove salesperson",
+    "createdLabel": "Created",
+    "assignLabel": "Assign",
+    "noSalespeopleAssigned": "No salespeople assigned",
+    "assignSalespeopleToShop": "Assign salespeople to this shop to get started"
 } 

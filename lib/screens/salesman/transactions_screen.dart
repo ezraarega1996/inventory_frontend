@@ -215,7 +215,6 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           final transaction = _transactions[index];
                           final isBought = transaction['type'] == 'bought';
                           final dynamic trans = transaction['transaction'];
-
                           final transactionFraction = itemFractions.firstWhere(
                             (f) => f.id == trans.fractionId,
                             orElse: () => itemFractions.first,
@@ -248,6 +247,9 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
+                                  // Text(
+                                  //   'Salesman: ${trans.salesman?.name ?? 'Unknown Salesman'}',
+                                  // ),
                                   Text(
                                     l10n.quantity(
                                       convertedQuantity,
