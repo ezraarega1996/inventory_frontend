@@ -586,5 +586,17 @@
     "createdLabel": "ተፈጥሯል",
     "assignLabel": "መድብ",
     "noSalespeopleAssigned": "ምንም ሻጮች አልተመደቡም",
-    "assignSalespeopleToShop": "ሻጮችን ወደዚህ ሱቅ ለመመደብ ይጀምሩ"
+    "assignSalespeopleToShop": "ሻጮችን ወደዚህ ሱቅ ለመመደብ ይጀምሩ",
+    "boughtBy": "የገዛው: {name}",
+    "@boughtBy": {
+        "placeholders": {
+            "name": { "type": "String" }
+        }
+    },
+    "soldBy": "የሸጠው: {name}",
+    "@soldBy": {
+        "placeholders": {
+            "name": { "type": "String" }
+        }
+    }
 } 

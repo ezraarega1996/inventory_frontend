@@ -287,7 +287,6 @@
     "invalidNumber": "Please enter a valid number",
     "noFractionsAvailable": "No fractions available for this item",
     "chooseFraction": "Choose a fraction",
-    "ratio": "Ratio",
     "selectFractionToContinue": "Please select a fraction to continue",
     "notSet": "Not set",
     "addBoughtItem": "Add Bought Item",
@@ -564,5 +563,17 @@
     "createdLabel": "Created",
     "assignLabel": "Assign",
     "noSalespeopleAssigned": "No salespeople assigned",
-    "assignSalespeopleToShop": "Assign salespeople to this shop to get started"
+    "assignSalespeopleToShop": "Assign salespeople to this shop to get started",
+    "boughtBy": "Bought by: {name}",
+    "@boughtBy": {
+        "placeholders": {
+            "name": { "type": "String" }
+        }
+    },
+    "soldBy": "Sold by: {name}",
+    "@soldBy": {
+        "placeholders": {
+            "name": { "type": "String" }
+        }
+    }
 } 

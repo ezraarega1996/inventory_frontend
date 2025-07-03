@@ -245,14 +245,13 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                               subtitle: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  // Text(
-                                  //   'Salesman: ${trans.salesman?.name ?? 'Unknown Salesman'}',
-                                  // ),
+                                  if (!isBought)
+                                    Text(l10n.soldBy(trans.salesman?.name ?? l10n.unknownSalesman)),
                                   Text(
-                                    'Quantity: ${convertedQuantity.toStringAsFixed(2)} ${selectedFraction?.name ?? ''}',
+                                    l10n.quantity(convertedQuantity, selectedFraction?.name ?? ''),
                                   ),
                                   Text(
-                                    'Available Quantity: ${convertedAvailableQty.toStringAsFixed(2)} ${selectedFraction?.name ?? ''}',
+                                    l10n.availableQuantity(convertedAvailableQty, selectedFraction?.name ?? ''),
                                   ),
                                   Text(
                                     dateFormat.format(transaction['date']),
