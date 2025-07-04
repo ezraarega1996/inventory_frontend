@@ -130,7 +130,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                             style: const TextStyle(fontSize: 16),
                           ),
                           Text(
-                            'የሽያጭ ዋጋ: \$${widget.availableItem.soldPrice.toStringAsFixed(2)}',
+                            l10n.soldPrice(double.parse(selectedFraction.price.toStringAsFixed(2))),
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,

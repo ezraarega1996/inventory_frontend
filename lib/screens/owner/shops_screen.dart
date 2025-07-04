@@ -234,28 +234,28 @@ class _ShopsScreenState extends State<ShopsScreen> {
                       final shops = shopProvider.shops;
                       
                       if (shops.isEmpty) {
-                        return const Center(
+                        return Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              Icon(
+                              const Icon(
                                 Icons.store_outlined,
                                 size: 64,
                                 color: Colors.grey,
                               ),
-                              SizedBox(height: 16),
+                              const SizedBox(height: 16),
                               Text(
-                                'No shops found',
-                                style: TextStyle(
+                                l10n.noShopsFound,
+                                style: const TextStyle(
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                   color: Colors.grey,
                                 ),
                               ),
-                              SizedBox(height: 8),
+                              const SizedBox(height: 8),
                               Text(
-                                'Create your first shop to get started',
-                                style: TextStyle(color: Colors.grey),
+                                l10n.createFirstShopToGetStarted,
+                                style: const TextStyle(color: Colors.grey),
                               ),
                             ],
                           ),
@@ -295,7 +295,7 @@ class _ShopsScreenState extends State<ShopsScreen> {
                                       ),
                                       const SizedBox(width: 4),
                                       Text(
-                                        '${shop.salespeople?.length ?? 0} salespeople',
+                                        '${shop.salespeople?.length ?? 0} ${l10n.salespeople}',
                                         style: TextStyle(
                                           color: Colors.grey.shade600,
                                           fontSize: 12,
@@ -325,33 +325,33 @@ class _ShopsScreenState extends State<ShopsScreen> {
                                   }
                                 },
                                 itemBuilder: (context) => [
-                                  const PopupMenuItem(
+                                  PopupMenuItem(
                                     value: 'view',
                                     child: Row(
                                       children: [
-                                        Icon(Icons.visibility),
-                                        SizedBox(width: 8),
-                                        Text('View Details'),
+                                        const Icon(Icons.visibility),
+                                        const SizedBox(width: 8),
+                                        Text(l10n.viewDetails),
                                       ],
                                     ),
                                   ),
-                                  const PopupMenuItem(
+                                  PopupMenuItem(
                                     value: 'edit',
                                     child: Row(
                                       children: [
-                                        Icon(Icons.edit),
-                                        SizedBox(width: 8),
-                                        Text('Edit'),
+                                        const Icon(Icons.edit),
+                                        const SizedBox(width: 8),
+                                        Text(l10n.edit),
                                       ],
                                     ),
                                   ),
-                                  const PopupMenuItem(
+                                  PopupMenuItem(
                                     value: 'delete',
                                     child: Row(
                                       children: [
-                                        Icon(Icons.delete, color: Colors.red),
-                                        SizedBox(width: 8),
-                                        Text('Delete', style: TextStyle(color: Colors.red)),
+                                        const Icon(Icons.delete, color: Colors.red),
+                                        const SizedBox(width: 8),
+                                        Text(l10n.delete, style: const TextStyle(color: Colors.red)),
                                       ],
                                     ),
                                   ),

@@ -6,7 +6,7 @@ class LanguageProvider extends ChangeNotifier {
   final SharedPreferences _prefs;
   Locale _locale;
 
-  LanguageProvider(this._prefs) : _locale = Locale(_prefs.getString(_languageKey) ?? 'en');
+  LanguageProvider(this._prefs) : _locale = Locale(_prefs.getString(_languageKey) ?? 'am');
 
   Locale get locale => _locale;
 

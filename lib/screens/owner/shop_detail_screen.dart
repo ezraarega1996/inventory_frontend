@@ -184,13 +184,6 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> with SingleTickerPr
             },
           ),
         ],
-        bottom: TabBar(
-          controller: _tabController,
-          tabs: [
-            Tab(text: l10n.salespeopleTab, icon: const Icon(Icons.people)),
-            Tab(text: l10n.availableItemsTab, icon: const Icon(Icons.inventory_2)),
-          ],
-        ),
       ),
       body: Padding(
         padding: const EdgeInsets.all(16),
@@ -198,71 +191,22 @@ class _ShopDetailScreenState extends State<ShopDetailScreen> with SingleTickerPr
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Shop Information Card
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        CircleAvatar(
-                          backgroundColor: Colors.blue.shade100,
-                          radius: 30,
-                          child: Icon(
-                            Icons.store,
-                            size: 30,
-                            color: Colors.blue.shade700,
-                          ),
-                        ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                widget.shop.name,
-                                style: const TextStyle(
-                                  fontSize: 24,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              const SizedBox(height: 4),
-                              Text(
-                                widget.shop.address,
-                                style: TextStyle(
-                                  color: Colors.grey.shade600,
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Icon(Icons.calendar_today, color: Colors.grey.shade600),
-                        const SizedBox(width: 8),
-                        Text(
-                          '${l10n.createdLabel}: ${widget.shop.createdAt.toString().split(' ')[0]}',
-                          style: TextStyle(color: Colors.grey.shade600),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
             const SizedBox(height: 24),
+            // TabBar
+            TabBar(
+              controller: _tabController,
+              tabs: [
+                Tab(text: l10n.salespeopleTab, icon: const Icon(Icons.people)),
+                Tab(text: l10n.availableItemsTab, icon: const Icon(Icons.inventory_2)),
+              ],
+            ),
+            const SizedBox(height: 16),
+            // TabBarView
             Expanded(
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  // --- Salespeople Tab ---
                   _buildSalespeopleTab(context),
-                  // --- Available Items Tab ---
                   AvailableItemsScreen(shopId: widget.shop.id),
                 ],
               ),

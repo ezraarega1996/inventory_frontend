@@ -130,41 +130,6 @@ Future<void> _loadDashboardData() async {
                     ),
                   ],
                 ),
-                if (business != null && business.subscriptionStatus == 'trial') ...[
-                  const SizedBox(height: 16),
-                  Card(
-                    color: Colors.amber.shade100,
-                    child: Padding(
-                      padding: const EdgeInsets.all(16),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            l10n.trialPeriod,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            l10n.trialEndsOn(_formatDate(business.trialEndsAt)),
-                          ),
-                          const SizedBox(height: 8),
-                          TextButton(
-                            onPressed: () {
-                              setState(() {
-                                _selectedIndex = 5;
-                              });
-                            },
-                            child: Text(l10n.viewPlans),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 24),
 
                 Text(
                   l10n.todaysSalesBySalesman,
@@ -313,6 +278,17 @@ Future<void> _loadDashboardData() async {
               Navigator.pop(context);
             },
           ),
+                    ListTile(
+            leading: Icon(Icons.shop),
+            title: Text(l10n.shops),
+            selected: _selectedIndex == 8,
+            onTap: () {
+              setState(() {
+                _selectedIndex = 8;
+              });
+              Navigator.pop(context);
+            },
+          ),
           ListTile(
             leading: Icon(Icons.people),
             title: Text(l10n.salesPerson),
@@ -386,17 +362,6 @@ Future<void> _loadDashboardData() async {
             onTap: () {
               setState(() {
                 _selectedIndex = 5;
-              });
-              Navigator.pop(context);
-            },
-          ),
-          ListTile(
-            leading: Icon(Icons.shop),
-            title: Text(l10n.shops),
-            selected: _selectedIndex == 8,
-            onTap: () {
-              setState(() {
-                _selectedIndex = 8;
               });
               Navigator.pop(context);
             },

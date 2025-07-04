@@ -4,6 +4,7 @@ import 'package:inventory_frontend/models/fraction.dart';
 import 'package:provider/provider.dart';
 import 'package:inventory_frontend/providers/sales_provider.dart';
 import 'package:inventory_frontend/screens/owner/sale_detail_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SalesScreen extends StatefulWidget {
   const SalesScreen({Key? key}) : super(key: key);
@@ -32,19 +33,20 @@ class _SalesScreenState extends State<SalesScreen> {
   }
   
   Future<void> _deleteSale(String id) async {
+    final l10n = AppLocalizations.of(context)!;
     final confirm = await showDialog<bool>(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Delete Sale'),
-        content: const Text('Are you sure you want to delete this sale? This action cannot be undone.'),
+        title: Text(l10n.deleteSaleTitle),
+        content: Text(l10n.deleteSaleContent),
         actions: [
           TextButton(
             onPressed: () => Navigator.of(context).pop(false),
-            child: const Text('Cancel'),
+            child: Text(l10n.cancel),
           ),
           TextButton(
             onPressed: () => Navigator.of(context).pop(true),
-            child: const Text('Delete'),
+            child: Text(l10n.delete),
           ),
         ],
       ),
@@ -58,12 +60,12 @@ class _SalesScreenState extends State<SalesScreen> {
       
       if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Sale deleted successfully'))
+          SnackBar(content: Text(l10n.saleDeletedSuccess))
         );
         await _loadSales();
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(salesProvider.error ?? 'An error occurred'))
+          SnackBar(content: Text(salesProvider.error ?? l10n.error))
         );
       }
     }
@@ -82,9 +84,10 @@ class _SalesScreenState extends State<SalesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sales'),
+        title: Text(l10n.sales),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -97,7 +100,7 @@ class _SalesScreenState extends State<SalesScreen> {
           : Consumer<SalesProvider>(
               builder: (context, salesProvider, child) {
                 if (salesProvider.sales.isEmpty) {
-                  return const Center(child: Text('No sales found'));
+                  return Center(child: Text(l10n.noSalesFound));
                 }
                 return RefreshIndicator(
                   onRefresh: _loadSales,
@@ -122,22 +125,22 @@ class _SalesScreenState extends State<SalesScreen> {
                                     child: Column(
                                       crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        Text('${sale.item?.name}(${sale.salesman?.name ?? 'Unknown Salesman'})'),
+                                        Text('${sale.item?.name}(${sale.salesman?.name ?? l10n.unknownSalesman})'),
                                         Row(
                                           children: [
                                             Expanded(
-                                              child: Text('Quantity: ${sale.quantity * sale.fraction!.ratio / selectedFraction!.ratio} ${selectedFraction.name}'),
+                                              child: Text(l10n.quantityLabel + ': ${sale.quantity * sale.fraction!.ratio / selectedFraction!.ratio} ${selectedFraction.name}'),
                                             ),
                                           ],
                                         ),
                                         Row(
                                           children: [
                                             Expanded(
-                                              child: Text('Amount: \$${sale.soldPrice}'),
+                                              child: Text(l10n.amountLabel + ': ${l10n.currencySymbol}${sale.quantity * selectedFraction!.price}'),
                                             ),
                                             Expanded(
                                               child: sale.available_items_count != null
-                                                ? Text('Available: ${sale.available_items_count! * sale.fraction!.ratio / selectedFraction.ratio} ${selectedFraction.name}')
+                                                ? Text(l10n.availableLabel + ': ${sale.available_items_count! * sale.fraction!.ratio / selectedFraction.ratio} ${selectedFraction.name}')
                                                 : const SizedBox(),
                                             ),
                                           ],
@@ -145,7 +148,7 @@ class _SalesScreenState extends State<SalesScreen> {
                                         Row(
                                           children: [
                                             Expanded(
-                                              child: Text('Date: ${DateFormat('MMM dd, yyyy HH:mm').format(sale.createdAt)}'),
+                                              child: Text(l10n.dateLabel + ': ${DateFormat('MMM dd, yyyy HH:mm').format(sale.createdAt)}'),
                                             ),
                                           ],
                                         ),
@@ -169,16 +172,16 @@ class _SalesScreenState extends State<SalesScreen> {
                                         itemBuilder: (context) => [
                                           ...itemFractions.map((fraction) => PopupMenuItem<String>(
                                             value: fraction.id,
-                                            child: Text('View as ${fraction.name}'),
+                                            child: Text(l10n.viewAs(fraction.name)),
                                           )),
                                           const PopupMenuDivider(),
-                                          const PopupMenuItem<String>(
+                                          PopupMenuItem<String>(
                                             value: 'delete',
                                             child: Row(
                                               children: [
-                                                Icon(Icons.delete, color: Colors.red),
-                                                SizedBox(width: 8),
-                                                Text('Delete', style: TextStyle(color: Colors.red)),
+                                                const Icon(Icons.delete, color: Colors.red),
+                                                const SizedBox(width: 8),
+                                                Text(l10n.delete, style: TextStyle(color: Colors.red)),
                                               ],
                                             ),
                                           ),

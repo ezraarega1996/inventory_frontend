@@ -105,56 +105,82 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
 
                       return Card(
                         margin: const EdgeInsets.only(bottom: 16),
-                        child: ListTile(
-                          title: RichText(
-                            text: TextSpan(
-                              children: [
-                                TextSpan(
-                                  text: "${availableItem.item?.name ?? l10n.unknownItem} ",
-                                  style: const TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                    color: Colors.black,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          subtitle: Column(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(
-                                l10n.availableQuantity(displayedQuantity, selectedFraction?.name ?? ""),
+                              ListTile(
+                                title: Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text.rich(
+                                        TextSpan(
+                                          children: [
+                                            TextSpan(
+                                              text: availableItem.item?.name ?? l10n.unknownItem,
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.bold,
+                                                fontSize: 16,
+                                                color: Colors.black,
+                                              ),
+                                            ),
+                                            if (availableItem.shop?.name != null && availableItem.shop!.name.isNotEmpty)
+                                              TextSpan(
+                                                text: ' (${availableItem.shop!.name})',
+                                                style: const TextStyle(
+                                                  fontWeight: FontWeight.normal,
+                                                  fontSize: 15,
+                                                  color: Colors.blueGrey,
+                                                ),
+                                              ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 8),
+                                    Text(
+                                      l10n.soldPrice(double.parse(selectedFraction.price.toStringAsFixed(2))),
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.w500,
+                                        fontSize: 15,
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              Text(
-                                l10n.soldPrice(availableItem.soldPrice),
+                              Padding(
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                child: Row(
+                                  children: [
+                                    if (itemFractions.isNotEmpty)
+                                      Expanded(
+                                        child: FractionDropdown(
+                                          fractions: itemFractions,
+                                          selectedFractionId: selectedFractionId,
+                                          onChanged: (value) => _updateSelectedFraction(availableItem.id, value),
+                                        ),
+                                      ),
+                                    const SizedBox(width: 8),
+                                    IconButton(
+                                      icon: const Icon(Icons.history),
+                                      onPressed: () => _navigateToTransactions(availableItem),
+                                      tooltip: l10n.viewTransactions,
+                                    ),
+                                    const SizedBox(width: 8),
+                                    ElevatedButton.icon(
+                                      onPressed: () => _onSellItem(availableItem, selectedFraction),
+                                      icon: const Icon(Icons.point_of_sale),
+                                      label: Text(l10n.sellItem),
+                                      style: ElevatedButton.styleFrom(minimumSize: const Size(70, 36), padding: const EdgeInsets.symmetric(horizontal: 8)),
+                                    ),
+                                  ],
+                                ),
                               ),
                               const SizedBox(height: 8),
-                              ElevatedButton.icon(
-                                onPressed: () => _onSellItem(availableItem, selectedFraction),
-                                icon: const Icon(Icons.point_of_sale),
-                                label: const Text('Sell'),
-                              ),
                             ],
                           ),
-                          trailing: Row(
-                            mainAxisSize: MainAxisSize.min,
-                            children: [
-                              if (itemFractions.isNotEmpty)
-                                FractionDropdown(
-                                  fractions: itemFractions,
-                                  selectedFractionId: selectedFractionId,
-                                  onChanged: (value) => _updateSelectedFraction(availableItem.id, value),
-                                ),
-                              const SizedBox(width: 8),
-                              IconButton(
-                                icon: const Icon(Icons.history),
-                                onPressed: () => _navigateToTransactions(availableItem),
-                                tooltip: l10n.viewTransactions,
-                              ),
-                            ],
-                          ),
-                          onTap: () => _navigateToTransactions(availableItem),
                         ),
                       );
                     },

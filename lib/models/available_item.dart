@@ -2,6 +2,7 @@ import 'package:inventory_frontend/models/item.dart';
 import 'package:inventory_frontend/models/user.dart';
 import 'package:inventory_frontend/models/item_bought.dart';
 import 'package:inventory_frontend/models/sold_item.dart';
+import 'package:inventory_frontend/models/shop.dart';
 
 class AvailableItem {
   final String id;
@@ -13,6 +14,7 @@ class AvailableItem {
   final Item? item;
   final List<ItemBought>? boughtTransactions;
   final List<SoldItem>? soldTransactions;
+  final Shop? shop;
 
   AvailableItem({
     required this.id,
@@ -24,6 +26,7 @@ class AvailableItem {
     this.item,
     this.boughtTransactions,
     this.soldTransactions,
+    this.shop,
   });
 
   factory AvailableItem.fromJson(Map<String, dynamic> json) {
@@ -52,6 +55,7 @@ class AvailableItem {
               .map((e) => SoldItem.fromJson(e))
               .toList()
           : null,
+      shop: json['shop'] != null ? Shop.fromJson(json['shop']) : null,
     );
   }
 
@@ -66,11 +70,12 @@ class AvailableItem {
       'item': item?.toJson(),
       'boughtTransactions': boughtTransactions?.map((transaction) => transaction.toJson()).toList(),
       'soldTransactions': soldTransactions?.map((transaction) => transaction.toJson()).toList(),
+      'shop': shop?.toJson(),
     };
   }
 
   @override
   String toString() {
-    return 'AvailableItem(id: $id, itemId: $itemId, businessId: $businessId, quantity: $quantity, soldPrice: $soldPrice, item: $item, boughtTransactions: $boughtTransactions, soldTransactions: $soldTransactions)';
+    return 'AvailableItem(id: $id, itemId: $itemId, businessId: $businessId, quantity: $quantity, soldPrice: $soldPrice, item: $item, boughtTransactions: $boughtTransactions, soldTransactions: $soldTransactions, shop: $shop)';
   }
 } 
