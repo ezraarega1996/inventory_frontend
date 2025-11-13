@@ -23,7 +23,8 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
   final _formKey = GlobalKey<FormState>();
   final _nameController = TextEditingController();
   final _ratioController = TextEditingController();
-  final _priceController = TextEditingController();
+  final _sellingPriceController = TextEditingController();
+  final _purchasePriceController = TextEditingController();
   bool _isUnit = false;
   bool _hasUnitFraction = false;
   bool _isLoading = true;
@@ -44,7 +45,8 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
   void dispose() {
     _nameController.dispose();
     _ratioController.dispose();
-    _priceController.dispose();
+    _sellingPriceController.dispose();
+    _purchasePriceController.dispose();
     super.dispose();
   }
 
@@ -58,14 +60,16 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
         widget.item.id,
         _nameController.text,
         double.parse(_ratioController.text),
-        double.parse(_priceController.text),
+        double.parse(_sellingPriceController.text),
+        double.parse(_purchasePriceController.text),
         isUnit: _isUnit,
       );
 
       if (success) {
         _nameController.clear();
         _ratioController.clear();
-        _priceController.clear();
+        _sellingPriceController.clear();
+        _purchasePriceController.clear();
         setState(() => _isUnit = false);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(content: Text(l10n.fractionAddedSuccessfully)),
@@ -89,7 +93,8 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
         fraction.id,
         _nameController.text,
         double.parse(_ratioController.text),
-        double.parse(_priceController.text),
+        double.parse(_sellingPriceController.text),
+        double.parse(_purchasePriceController.text),
         isUnit: _isUnit,
       );
 
@@ -189,8 +194,23 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
                   ),
                   const SizedBox(height: 16),
                   CustomTextField(
-                    controller: _priceController,
-                    labelText: l10n.price,
+                    controller: _sellingPriceController,
+                    labelText: l10n.soldPriceLabel,
+                    keyboardType: TextInputType.number,
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return l10n.pleaseEnterPrice;
+                      }
+                      if (double.tryParse(value) == null) {
+                        return l10n.pleaseEnterValidNumber;
+                      }
+                      return null;
+                    },
+                  ),
+                  const SizedBox(height: 16),
+                  CustomTextField(
+                    controller: _purchasePriceController,
+                    labelText: l10n.purchasePrice,
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -240,7 +260,16 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
                       return Card(
                         child: ListTile(
                           title: Text(fraction.name),
-                          subtitle: Text(l10n.ratioAndPrice(fraction.ratio, fraction.price)),
+                              subtitle: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(l10n.ratioAndPrice(fraction.ratio, fraction.sellingPrice)),
+                                  const SizedBox(height: 4),
+                                  Text("something"),
+                                  Text('${l10n.soldPriceLabel}: \u0024${fraction.sellingPrice.toStringAsFixed(2)}'),
+                                  Text('${l10n.purchasePrice}: \u0024${fraction.purchasePrice.toStringAsFixed(2)}'),
+                                ],
+                              ),
                           trailing: Row(
                             mainAxisSize: MainAxisSize.min,
                             children: [
@@ -249,7 +278,8 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
                                 onPressed: () {
                                   _nameController.text = fraction.name;
                                   _ratioController.text = fraction.ratio.toString();
-                                  _priceController.text = fraction.price.toString();
+                                      _sellingPriceController.text = fraction.sellingPrice.toString();
+                                      _purchasePriceController.text = fraction.purchasePrice.toString();
                                   _isUnit = fraction.isUnit;
                                   _updateFraction(fraction);
                                 },

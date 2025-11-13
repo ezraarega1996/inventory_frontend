@@ -111,7 +111,15 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                   return Card(
                     child: ListTile(
                       title: Text(fraction.name),
-                      subtitle: Text(l10n.ratioAndPrice(fraction.ratio, fraction.price)),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(l10n.ratioAndPrice(fraction.ratio, fraction.sellingPrice)),
+                          const SizedBox(height: 4),
+                          Text('${l10n.soldPriceLabel}: \u0024${fraction.sellingPrice.toStringAsFixed(2)}'),
+                          Text('${l10n.purchasePrice}: \u0024${fraction.purchasePrice.toStringAsFixed(2)}'),
+                        ],
+                      ),
                     ),
                   );
                 },

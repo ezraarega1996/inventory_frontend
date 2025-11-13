@@ -110,7 +110,7 @@ class ItemProvider with ChangeNotifier {
     }
   }
   
-  Future<bool> createFraction(String itemId, String name, double ratio, double price, {bool isUnit = false}) async {
+  Future<bool> createFraction(String itemId, String name, double ratio, double sellingPrice, double purchasePrice, {bool isUnit = false}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -120,7 +120,8 @@ class ItemProvider with ChangeNotifier {
         'itemId': itemId,
         'name': name,
         'ratio': ratio,
-        'price': price,
+        'sellingPrice': sellingPrice,
+        'purchasePrice': purchasePrice,
         'isUnit': isUnit,
       });
       
@@ -153,7 +154,7 @@ class ItemProvider with ChangeNotifier {
     }
   }
   
-  Future<bool> updateFraction(String id, String name, double ratio, double price, {bool isUnit = false}) async {
+  Future<bool> updateFraction(String id, String name, double ratio, double sellingPrice, double purchasePrice, {bool isUnit = false}) async {
     _isLoading = true;
     _error = null;
     notifyListeners();
@@ -162,7 +163,8 @@ class ItemProvider with ChangeNotifier {
       final response = await Api.put('fractions/$id', {
         'name': name,
         'ratio': ratio,
-        'price': price,
+        'sellingPrice': sellingPrice,
+        'purchasePrice': purchasePrice,
         'isUnit': isUnit,
       });
       

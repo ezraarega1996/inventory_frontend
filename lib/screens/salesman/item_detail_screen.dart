@@ -119,7 +119,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                           child: ListTile(
                             title: Text(fraction.name),
                             subtitle: Text('Ratio: ${fraction.ratio}'),
-                            trailing: Text('\$${fraction.price}'),
+                            trailing: Text('\$${fraction.sellingPrice}'),
                             onTap: () => _navigateToSellScreen(fraction),
                           ),
                         );

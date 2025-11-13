@@ -130,7 +130,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                             style: const TextStyle(fontSize: 16),
                           ),
                           Text(
-                            l10n.soldPrice(double.parse(selectedFraction.price.toStringAsFixed(2))),
+                            l10n.soldPrice(double.parse(selectedFraction.sellingPrice.toStringAsFixed(2))),
                             style: const TextStyle(
                               fontSize: 16,
                               fontWeight: FontWeight.bold,
@@ -226,6 +226,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           if (transactionFraction != null && selectedFraction != null) {
                             convertedAvailableQty = trans.available_items_count * transactionFraction.ratio / selectedFraction.ratio;
                           }
+                          
+                          // Format to 2 decimal places for display
+                          final formattedQuantity = double.parse(convertedQuantity.toStringAsFixed(2));
+                          final formattedAvailableQty = double.parse(convertedAvailableQty.toStringAsFixed(2));
 
                           return Card(
                             color: isBought ? Colors.blue.shade50 : Colors.green.shade50,
@@ -248,10 +252,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                   if (!isBought)
                                     Text(l10n.soldBy(trans.salesman?.name ?? l10n.unknownSalesman)),
                                   Text(
-                                    l10n.quantity(convertedQuantity, selectedFraction?.name ?? ''),
+                                    l10n.quantity(formattedQuantity, selectedFraction?.name ?? ''),
                                   ),
                                   Text(
-                                    l10n.availableQuantity(convertedAvailableQty, selectedFraction?.name ?? ''),
+                                    l10n.availableQuantity(formattedAvailableQty, selectedFraction?.name ?? ''),
                                   ),
                                   Text(
                                     dateFormat.format(transaction['date']),

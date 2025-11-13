@@ -2,7 +2,8 @@ class Fraction {
   final String id;
   final String name;
   final double ratio;
-  final double price;
+  final double sellingPrice;
+  final double purchasePrice;
   final String itemId;
   final bool isUnit;
   
@@ -10,7 +11,8 @@ class Fraction {
     required this.id,
     required this.name,
     required this.ratio,
-    required this.price,
+    required this.sellingPrice,
+    required this.purchasePrice,
     required this.itemId,
     this.isUnit = false,
   });
@@ -20,7 +22,8 @@ class Fraction {
       id: json['id'],
       name: json['name'],
       ratio: json['ratio'].toDouble(),
-      price: json['price'].toDouble(),
+      sellingPrice: (json['sellingPrice'] ?? json['price']).toDouble(),
+      purchasePrice: (json['purchasePrice'] ?? 0).toDouble(),
       itemId: json['itemId'],
       isUnit: json['isUnit'] ?? false,
     );
@@ -31,7 +34,8 @@ class Fraction {
       'id': id,
       'name': name,
       'ratio': ratio,
-      'price': price,
+      'sellingPrice': sellingPrice,
+      'purchasePrice': purchasePrice,
       'itemId': itemId,
       'isUnit': isUnit,
     };
@@ -39,6 +43,6 @@ class Fraction {
 
   @override
   String toString() {
-    return 'Fraction(id: $id, name: $name, ratio: $ratio, price: $price, itemId: $itemId, isUnit: $isUnit)';
+    return 'Fraction(id: $id, name: $name, ratio: $ratio, sellingPrice: $sellingPrice, purchasePrice: $purchasePrice, itemId: $itemId, isUnit: $isUnit)';
   }
 }

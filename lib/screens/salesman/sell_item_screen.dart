@@ -151,7 +151,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
 
     final quantity = double.tryParse(_quantityController.text) ?? 0;
     setState(() {
-      _expectedAmount = quantity * _selectedFraction!.price;
+      _expectedAmount = quantity * _selectedFraction!.sellingPrice;
     });
   }
 
@@ -373,7 +373,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
                   items: _selectedAvailableItem!.item!.fractions?.map((fraction) {
                     return DropdownMenuItem<Fraction>(
                       value: fraction,
-                      child: Text('${fraction.name} - \$${fraction.price}'),
+                      child: Text('${fraction.name} - \$${fraction.sellingPrice}'),
                     );
                   }).toList(),
                   onChanged: _isSubmitting ? null : _handleFractionChange,

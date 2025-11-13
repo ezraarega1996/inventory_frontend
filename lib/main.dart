@@ -32,7 +32,7 @@ void main() async {
         ChangeNotifierProvider.value(value: languageProvider),
         Provider(
           create: (_) => BusinessService(
-            baseUrl: 'https://localhost:5000/api',
+            baseUrl: 'https://54.91.234.164:5000/api',
           ),
         ),
         ChangeNotifierProxyProvider<BusinessService, BusinessProvider>(

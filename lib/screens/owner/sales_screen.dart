@@ -136,7 +136,7 @@ class _SalesScreenState extends State<SalesScreen> {
                                         Row(
                                           children: [
                                             Expanded(
-                                              child: Text(l10n.amountLabel + ': ${l10n.currencySymbol}${sale.quantity * selectedFraction!.price}'),
+                                              child: Text(l10n.amountLabel + ': ${l10n.currencySymbol}${sale.quantity * selectedFraction!.sellingPrice}'),
                                             ),
                                             Expanded(
                                               child: sale.available_items_count != null

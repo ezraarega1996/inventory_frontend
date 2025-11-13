@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_frontend/models/fraction.dart';
 import 'package:inventory_frontend/widgets/fraction_dropdown.dart';
 import 'package:provider/provider.dart';
 import 'package:inventory_frontend/providers/available_item_provider.dart';
-import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/screens/owner/transactions_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:inventory_frontend/screens/salesman/sell_item_screen.dart';
@@ -104,13 +102,15 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                           : availableItem.quantity;
 
                       return Card(
-                        margin: const EdgeInsets.only(bottom: 16),
+                        margin: const EdgeInsets.only(bottom: 8),
                         child: Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
+                          padding: const EdgeInsets.symmetric(vertical: 4.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               ListTile(
+                                dense: true,
+                                contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
                                 title: Row(
                                   children: [
                                     Expanded(
@@ -121,7 +121,7 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                                               text: availableItem.item?.name ?? l10n.unknownItem,
                                               style: const TextStyle(
                                                 fontWeight: FontWeight.bold,
-                                                fontSize: 16,
+                                                fontSize: 15,
                                                 color: Colors.black,
                                               ),
                                             ),
@@ -130,7 +130,7 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                                                 text: ' (${availableItem.shop!.name})',
                                                 style: const TextStyle(
                                                   fontWeight: FontWeight.normal,
-                                                  fontSize: 15,
+                                                  fontSize: 14,
                                                   color: Colors.blueGrey,
                                                 ),
                                               ),
@@ -140,18 +140,39 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                                     ),
                                     const SizedBox(width: 8),
                                     Text(
-                                      l10n.soldPrice(double.parse(selectedFraction.price.toStringAsFixed(2))),
+                                      l10n.soldPrice(double.parse(selectedFraction.sellingPrice.toStringAsFixed(2))),
                                       style: const TextStyle(
                                         fontWeight: FontWeight.w500,
-                                        fontSize: 15,
+                                        fontSize: 14,
                                         color: Colors.green,
                                       ),
                                     ),
                                   ],
                                 ),
+                                subtitle: Padding(
+                                  padding: const EdgeInsets.only(top: 4.0),
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.inventory_2,
+                                        size: 14,
+                                        color: Colors.blue[600],
+                                      ),
+                                      const SizedBox(width: 4),
+                                      Text(
+                                        '${displayedQuantity.toStringAsFixed(2)} ${selectedFraction.name}',
+                                        style: TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500,
+                                          color: Colors.blue[600],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
                               Padding(
-                                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                                padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 4.0),
                                 child: Row(
                                   children: [
                                     if (itemFractions.isNotEmpty)
@@ -164,21 +185,23 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                                       ),
                                     const SizedBox(width: 8),
                                     IconButton(
-                                      icon: const Icon(Icons.history),
+                                      icon: const Icon(Icons.history, size: 20),
                                       onPressed: () => _navigateToTransactions(availableItem),
                                       tooltip: l10n.viewTransactions,
+                                      padding: const EdgeInsets.all(4),
+                                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
                                     ),
-                                    const SizedBox(width: 8),
+                                    const SizedBox(width: 4),
                                     ElevatedButton.icon(
                                       onPressed: () => _onSellItem(availableItem, selectedFraction),
-                                      icon: const Icon(Icons.point_of_sale),
-                                      label: Text(l10n.sellItem),
-                                      style: ElevatedButton.styleFrom(minimumSize: const Size(70, 36), padding: const EdgeInsets.symmetric(horizontal: 8)),
+                                      icon: const Icon(Icons.point_of_sale, size: 16),
+                                      label: Text(l10n.sellItem, style: const TextStyle(fontSize: 12)),
+                                      style: ElevatedButton.styleFrom(minimumSize: const Size(60, 28), padding: const EdgeInsets.symmetric(horizontal: 6)),
                                     ),
                                   ],
                                 ),
                               ),
-                              const SizedBox(height: 8),
+                              const SizedBox(height: 4),
                             ],
                           ),
                         ),

@@ -201,7 +201,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(fraction.name, style: const TextStyle(fontWeight: FontWeight.bold)),
-                                          Text('${l10n.ratio}: ${fraction.ratio} | ${l10n.price}: ₹${fraction.price}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                                          Text('${l10n.ratio}: ${fraction.ratio} | ${l10n.soldPriceLabel}: ₹${fraction.sellingPrice}', style: const TextStyle(fontSize: 12, color: Colors.grey)),
                                         ],
                                       ),
                                     );
@@ -211,8 +211,8 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                                       _selectedFractionId = value;
                                       final fraction = item.fractions?.firstWhere((f) => f.id == value);
                                       if (fraction != null) {
-                                        _fractionPurchasePriceController.text = fraction.price.toString();
-                                        _fractionSoldPriceController.text = fraction.price.toString();
+                                        _fractionPurchasePriceController.text = fraction.purchasePrice.toString();
+                                        _fractionSoldPriceController.text = fraction.sellingPrice.toString();
                                       }
                                     });
                                   },
@@ -455,13 +455,13 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                         (f) => f.id == bought.fractionId,
                         orElse: () => itemFractions.isNotEmpty
                             ? itemFractions.first
-                            : Fraction(id: '', name: '', ratio: 1, price: 0, itemId: ''),
+                            : Fraction(id: '', name: '', ratio: 1, sellingPrice: 0, purchasePrice: 0, itemId: ''),
                       );
                       final selectedFraction = itemFractions.firstWhere(
                         (f) => f.id == selectedFractionId,
                         orElse: () => itemFractions.isNotEmpty
                             ? itemFractions.first
-                            : Fraction(id: '', name: '', ratio: 1, price: 0, itemId: ''),
+                            : Fraction(id: '', name: '', ratio: 1, sellingPrice: 0, purchasePrice: 0, itemId: ''),
                       );
                       double? displayedQuantity = bought.quantity;
                       double? displayedAvailableCount = bought.available_items_count;
