@@ -12,7 +12,18 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:inventory_frontend/widgets/fraction_dropdown.dart';
 
 class BoughtsScreen extends StatefulWidget {
-  const BoughtsScreen({Key? key}) : super(key: key);
+  final String? filterItemId;
+  final String? filterFractionId;
+  final DateTime? filterStart;
+  final DateTime? filterEnd;
+
+  const BoughtsScreen({
+    Key? key,
+    this.filterItemId,
+    this.filterFractionId,
+    this.filterStart,
+    this.filterEnd,
+  }) : super(key: key);
 
   @override
   State<BoughtsScreen> createState() => _BoughtsScreenState();
@@ -461,15 +472,41 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
           ? const Center(child: CircularProgressIndicator())
           : Consumer2<BoughtProvider, ItemProvider>(
               builder: (context, boughtProvider, itemProvider, child) {
-                if (boughtProvider.boughts.isEmpty) {
+                // Apply optional filters from Summary screen
+                final allBoughts = boughtProvider.boughts;
+                final filteredBoughts = allBoughts.where((b) {
+                  if (widget.filterItemId != null && b.itemId != widget.filterItemId) {
+                    return false;
+                  }
+                  if (widget.filterFractionId != null && b.fractionId != widget.filterFractionId) {
+                    return false;
+                  }
+                  if (widget.filterStart != null) {
+                    if (b.createdTime.isBefore(widget.filterStart!)) return false;
+                  }
+                  if (widget.filterEnd != null) {
+                    final endInclusive = DateTime(
+                      widget.filterEnd!.year,
+                      widget.filterEnd!.month,
+                      widget.filterEnd!.day,
+                      23,
+                      59,
+                      59,
+                    );
+                    if (b.createdTime.isAfter(endInclusive)) return false;
+                  }
+                  return true;
+                }).toList();
+
+                if (filteredBoughts.isEmpty) {
                   return Center(child: Text(l10n.noBoughtItems));
                 }
                 return RefreshIndicator(
                   onRefresh: _loadBoughts,
                   child: ListView.builder(
-                    itemCount: boughtProvider.boughts.length,
+                    itemCount: filteredBoughts.length,
                     itemBuilder: (context, index) {
-                      final bought = boughtProvider.boughts[index];
+                      final bought = filteredBoughts[index];
                       final item = bought.item ?? itemProvider.items.firstWhere(
                         (i) => i.id == bought.itemId,
                         orElse: () => Item(id: '', name: '', categoryId: '', fractions: []),
