@@ -93,8 +93,18 @@ class _ViewSalesScreenState extends State<ViewSalesScreen> {
                                 final sale = salesProvider.sales[index];
                                 final itemFractions = sale.item?.fractions ?? [];
                                 String selectedFractionId = _selectedFractionIds[sale.id] ?? sale.fraction?.id ?? '';
-                                Fraction? selectedFraction = itemFractions.firstWhere(
+                                final selectedFraction = itemFractions.firstWhere(
                                   (f) => f.id == selectedFractionId,
+                                  orElse: () => itemFractions.isNotEmpty
+                                      ? itemFractions.first
+                                      : Fraction(
+                                          id: '',
+                                          name: '',
+                                          ratio: 1,
+                                          sellingPrice: 0,
+                                          purchasePrice: 0,
+                                          itemId: '',
+                                        ),
                                 );
                                 return Card(
                                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
@@ -111,14 +121,19 @@ class _ViewSalesScreenState extends State<ViewSalesScreen> {
                                             children: [
                                               Text('${sale.item?.name}(${sale.salesman?.name ?? 'Unknown Salesman'})'),
                                               Text(l10n.quantityWithUnit(
-                                                (sale.quantity * sale.fraction!.ratio / selectedFraction!.ratio).toString(),
-                                                selectedFraction?.name ?? ""
+                                                (sale.quantity * sale.fraction!.ratio / selectedFraction.ratio).toString(),
+                                                selectedFraction.name,
                                               )),
                                               Text(l10n.amountWithCurrency(sale.soldPrice.toString())),
+                                              if (sale.profit != null)
+                                                Text(
+                                                  'Profit: \$${sale.profit!.toStringAsFixed(2)}',
+                                                  style: const TextStyle(fontWeight: FontWeight.w600),
+                                                ),
                                               sale.available_items_count != null
                                                 ? Text(l10n.availableItemsWithUnit(
-                                                    (sale.available_items_count! * sale.fraction!.ratio / selectedFraction!.ratio).toString(),
-                                                    selectedFraction?.name ?? ""
+                                                    (sale.available_items_count! * sale.fraction!.ratio / selectedFraction.ratio).toString(),
+                                                    selectedFraction.name,
                                                   ))
                                                 : const SizedBox.shrink(),
                                               Text(l10n.dateWithFormat(dateFormat.format(sale.createdAt))),

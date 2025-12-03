@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:inventory_frontend/screens/salesman/salesman_dashboard.dart';
 import 'package:provider/provider.dart';
 import 'package:inventory_frontend/models/fraction.dart';
-import 'package:inventory_frontend/models/item.dart';
 import 'package:inventory_frontend/models/available_item.dart';
-import 'package:inventory_frontend/providers/item_provider.dart';
 import 'package:inventory_frontend/providers/sales_provider.dart';
 import 'package:inventory_frontend/providers/available_item_provider.dart';
-import 'package:inventory_frontend/providers/auth_provider.dart';
+import 'package:inventory_frontend/providers/item_provider.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -30,6 +27,8 @@ class SellItemScreen extends StatefulWidget {
 class _SellItemScreenState extends State<SellItemScreen> {
   final _formKey = GlobalKey<FormState>();
   final _quantityController = TextEditingController();
+  final _sellingPriceController = TextEditingController();
+  final _purchasePriceController = TextEditingController();
   
   AvailableItem? _selectedAvailableItem;
   Fraction? _selectedFraction;
@@ -42,6 +41,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
   // Memoized providers
   late final AvailableItemProvider _availableItemProvider;
   late final SalesProvider _salesProvider;
+  late final ItemProvider _itemProvider;
 
   @override
   void initState() {
@@ -53,6 +53,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
   void _initializeProviders() {
     _availableItemProvider = Provider.of<AvailableItemProvider>(context, listen: false);
     _salesProvider = Provider.of<SalesProvider>(context, listen: false);
+    _itemProvider = Provider.of<ItemProvider>(context, listen: false);
   }
 
   Future<void> _loadData() async {
@@ -104,6 +105,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
             (f) => f.id == widget.preSelectedAvailableFraction!.id,
           );
           _selectedFraction = matchingFraction;
+          _updatePriceFields(matchingFraction);
           _updateExpectedAmount();
           _fetchAvailableQuantity();
         } catch (e) {
@@ -116,6 +118,8 @@ class _SellItemScreenState extends State<SellItemScreen> {
   @override
   void dispose() {
     _quantityController.dispose();
+    _sellingPriceController.dispose();
+    _purchasePriceController.dispose();
     super.dispose();
   }
   
@@ -150,8 +154,9 @@ class _SellItemScreenState extends State<SellItemScreen> {
     }
 
     final quantity = double.tryParse(_quantityController.text) ?? 0;
+    final sellingPrice = double.tryParse(_sellingPriceController.text) ?? _selectedFraction!.sellingPrice;
     setState(() {
-      _expectedAmount = quantity * _selectedFraction!.sellingPrice;
+      _expectedAmount = quantity * sellingPrice;
     });
   }
 
@@ -164,6 +169,14 @@ class _SellItemScreenState extends State<SellItemScreen> {
     }
 
     final quantity = double.parse(_quantityController.text);
+    final sellingPrice = double.tryParse(_sellingPriceController.text);
+    final purchasePrice = double.tryParse(_purchasePriceController.text);
+
+    if (sellingPrice == null || purchasePrice == null) {
+      _showErrorSnackBar(l10n.pleaseEnterValidNumber);
+      return;
+    }
+
     if (quantity > _availableQuantity) {
       _showErrorSnackBar(l10n.availableQuantityIs(_availableQuantity));
       return;
@@ -171,12 +184,21 @@ class _SellItemScreenState extends State<SellItemScreen> {
 
     setState(() { _isSubmitting = true; });
     try {
+      await _maybeUpdateFractionPrices(
+        sellingPrice,
+        purchasePrice,
+      );
+
+      // Calculate profit for this sale
+      final profit = (sellingPrice - purchasePrice) * quantity;
+
       final success = await _salesProvider.createSale({
         'itemId': _selectedAvailableItem!.item!.id,
         'shopId': _selectedAvailableItem!.shopId,
         'fractionId': _selectedFraction!.id,
         'quantity': quantity,
         'amount': _expectedAmount,
+        'profit': profit,
       });
 
       if (!mounted) return;
@@ -209,6 +231,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
       _selectedAvailableItem = null;
       _selectedFraction = null;
     });
+    _updatePriceFields(null);
   }
 
   void _showErrorSnackBar(String message) {
@@ -235,6 +258,53 @@ class _SellItemScreenState extends State<SellItemScreen> {
       _expectedAmount = 0;
       _availableQuantity = 0;
     });
+    _updatePriceFields(null);
+  }
+
+  void _updatePriceFields(Fraction? fraction) {
+    if (fraction == null) {
+      _sellingPriceController.clear();
+      _purchasePriceController.clear();
+      return;
+    }
+    _sellingPriceController.text = fraction.sellingPrice.toStringAsFixed(2);
+    _purchasePriceController.text = fraction.purchasePrice.toStringAsFixed(2);
+    _updateExpectedAmount();
+  }
+
+  Future<void> _maybeUpdateFractionPrices(double newSellingPrice, double newPurchasePrice) async {
+    final fraction = _selectedFraction;
+    if (fraction == null) return;
+
+    final sellingChanged = (newSellingPrice - fraction.sellingPrice).abs() > 0.0001;
+    final purchaseChanged = (newPurchasePrice - fraction.purchasePrice).abs() > 0.0001;
+
+    if (!sellingChanged && !purchaseChanged) return;
+
+    final updated = await _itemProvider.updateFraction(
+      fraction.id,
+      fraction.name,
+      fraction.ratio,
+      newSellingPrice,
+      newPurchasePrice,
+      isUnit: fraction.isUnit,
+    );
+
+    if (!updated) {
+      throw Exception('Failed to update fraction prices');
+    }
+
+    setState(() {
+      _selectedFraction = Fraction(
+        id: fraction.id,
+        name: fraction.name,
+        ratio: fraction.ratio,
+        sellingPrice: newSellingPrice,
+        purchasePrice: newPurchasePrice,
+        itemId: fraction.itemId,
+        isUnit: fraction.isUnit,
+      );
+    });
   }
 
   void _handleFractionChange(Fraction? value) {
@@ -244,6 +314,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
         _expectedAmount = 0;
         _availableQuantity = 0;
       });
+      _updatePriceFields(null);
       return;
     }
 
@@ -252,6 +323,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
       _expectedAmount = 0;
       _availableQuantity = 0;
     });
+    _updatePriceFields(value);
 
     // Use Future.microtask to ensure the state update is complete before fetching
     Future.microtask(() async {
@@ -269,24 +341,6 @@ class _SellItemScreenState extends State<SellItemScreen> {
         debugPrint('Error in fraction change: $e');
       }
     });
-  }
-
-  double _getAvailableQuantityForSelected() {
-    final availableItems = _availableItemProvider.availableItems;
-    final availableItem = _selectedAvailableItem == null
-        ? null
-        : availableItems.firstWhere(
-            (ai) => ai.itemId == _selectedAvailableItem!.id,
-            orElse: () => AvailableItem(
-              id: '',
-              itemId: _selectedAvailableItem!.id,
-              businessId: '',
-              shopId: "",
-              quantity: 0,
-              soldPrice: 0,
-            ),
-          );
-    return availableItem?.quantity ?? 0;
   }
 
   @override
@@ -379,6 +433,23 @@ class _SellItemScreenState extends State<SellItemScreen> {
                   onChanged: _isSubmitting ? null : _handleFractionChange,
                   validator: (value) => value == null ? l10n.pleaseSelectUnit : null,
                 ),
+              if (_selectedFraction != null) ...[
+                const SizedBox(height: 16),
+                CustomTextField(
+                  controller: _sellingPriceController,
+                  labelText: l10n.soldPriceLabel,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  enabled: !_isSubmitting,
+                  onChanged: (_) => _updateExpectedAmount(),
+                ),
+                const SizedBox(height: 16),
+                CustomTextField(
+                  controller: _purchasePriceController,
+                  labelText: l10n.purchasePrice,
+                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                  enabled: !_isSubmitting,
+                ),
+              ],
               const SizedBox(height: 16),
               CustomTextField(
                 controller: _quantityController,

@@ -113,10 +113,24 @@ class _SalesScreenState extends State<SalesScreen> {
                         margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                         child: StatefulBuilder(
                           builder: (context, setState) {
-                            String selectedFractionId = _selectedFractionIds[sale.id] ?? sale.fraction?.id ?? '';
-                            Fraction? selectedFraction = sale.item?.fractions?.firstWhere(
-                              (f) => f.id == selectedFractionId,
-                            );
+                            // Default to the fraction used in the sale
+                            String selectedFractionId =
+                                _selectedFractionIds[sale.id] ?? sale.fractionId;
+
+                            final itemFractions = sale.item?.fractions ?? <Fraction>[];
+                            final Fraction selectedFraction = itemFractions.isNotEmpty
+                                ? itemFractions.firstWhere(
+                                    (f) => f.id == selectedFractionId,
+                                    orElse: () => itemFractions.first,
+                                  )
+                                : Fraction(
+                                    id: '',
+                                    name: '',
+                                    ratio: 1,
+                                    sellingPrice: 0,
+                                    purchasePrice: 0,
+                                    itemId: '',
+                                  );
                             return ListTile(
                               subtitle: Row(
                                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -129,19 +143,37 @@ class _SalesScreenState extends State<SalesScreen> {
                                         Row(
                                           children: [
                                             Expanded(
-                                              child: Text(l10n.quantityLabel + ': ${sale.quantity * sale.fraction!.ratio / selectedFraction!.ratio} ${selectedFraction.name}'),
+                                              child: Text(
+                                                '${l10n.quantityLabel}: ${sale.quantity * (sale.fraction?.ratio ?? selectedFraction.ratio) / selectedFraction.ratio} ${selectedFraction.name}',
+                                              ),
                                             ),
                                           ],
                                         ),
                                         Row(
                                           children: [
                                             Expanded(
-                                              child: Text(l10n.amountLabel + ': ${l10n.currencySymbol}${sale.quantity * selectedFraction!.sellingPrice}'),
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                    l10n.amountLabel +
+                                                        ': ${l10n.currencySymbol}${sale.quantity * selectedFraction.sellingPrice}',
+                                                  ),
+                                                  if (sale.profit != null)
+                                                    Text(
+                                                      'Profit: ${l10n.currencySymbol}${sale.profit!.toStringAsFixed(2)}',
+                                                      style: const TextStyle(fontWeight: FontWeight.w600),
+                                                    ),
+                                                ],
+                                              ),
                                             ),
                                             Expanded(
                                               child: sale.available_items_count != null
-                                                ? Text(l10n.availableLabel + ': ${sale.available_items_count! * sale.fraction!.ratio / selectedFraction.ratio} ${selectedFraction.name}')
-                                                : const SizedBox(),
+                                                  ? Text(
+                                                      l10n.availableLabel +
+                                                          ': ${sale.available_items_count! * (sale.fraction?.ratio ?? selectedFraction.ratio) / selectedFraction.ratio} ${selectedFraction.name}',
+                                                    )
+                                                  : const SizedBox(),
                                             ),
                                           ],
                                         ),

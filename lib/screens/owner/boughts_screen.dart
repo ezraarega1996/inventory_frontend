@@ -324,13 +324,39 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(l10n.noFractionsAvailable)));
                     return;
                   }
+
+                  // Parse new prices from the form
+                  final newPurchasePrice = double.parse(_fractionPurchasePriceController.text);
+                  final newSellingPrice = double.parse(_fractionSoldPriceController.text);
+
+                  // If prices have changed, update them in the fractions table first
+                  bool fractionUpdateSuccess = true;
+                  if (fraction.purchasePrice != newPurchasePrice || fraction.sellingPrice != newSellingPrice) {
+                    fractionUpdateSuccess = await itemProvider.updateFraction(
+                      fraction.id,
+                      fraction.name,
+                      fraction.ratio,
+                      newSellingPrice,
+                      newPurchasePrice,
+                      isUnit: fraction.isUnit,
+                    );
+                  }
+
+                  if (!fractionUpdateSuccess) {
+                    if (!mounted) return;
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text(itemProvider.error ?? l10n.error)),
+                    );
+                    return;
+                  }
+
                   bool success;
                   if (_editingBoughtId == null) {
                     success = await boughtProvider.createBought(
                       itemId: _selectedItemId!,
                       fractionId: _selectedFractionId!,
-                      fractionPurchasePrice: double.parse(_fractionPurchasePriceController.text),
-                      fractionSoldPrice: double.parse(_fractionSoldPriceController.text),
+                      fractionPurchasePrice: newPurchasePrice,
+                      fractionSoldPrice: newSellingPrice,
                       quantity: double.parse(_quantityController.text),
                       expiryDate: _expiryDate,
                       shopId: _selectedShopId,
@@ -339,8 +365,8 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                     success = await boughtProvider.updateBought(
                       id: _editingBoughtId!,
                       fractionId: _selectedFractionId!,
-                      fractionPurchasePrice: double.parse(_fractionPurchasePriceController.text),
-                      fractionSoldPrice: double.parse(_fractionSoldPriceController.text),
+                      fractionPurchasePrice: newPurchasePrice,
+                      fractionSoldPrice: newSellingPrice,
                       quantity: double.parse(_quantityController.text),
                       expiryDate: _expiryDate,
                       shopId: _selectedShopId,
