@@ -33,6 +33,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
   AvailableItem? _selectedAvailableItem;
   Fraction? _selectedFraction;
   double _expectedAmount = 0;
+  double _profit = 0;
   double _availableQuantity = 0;
   bool _isLoading = true;
   String? _error;
@@ -149,14 +150,18 @@ class _SellItemScreenState extends State<SellItemScreen> {
     if (_selectedFraction == null || _quantityController.text.isEmpty) {
       setState(() {
         _expectedAmount = 0;
+        _profit = 0;
       });
       return;
     }
 
     final quantity = double.tryParse(_quantityController.text) ?? 0;
     final sellingPrice = double.tryParse(_sellingPriceController.text) ?? _selectedFraction!.sellingPrice;
+    final purchasePrice = double.tryParse(_purchasePriceController.text) ?? _selectedFraction!.purchasePrice;
+
     setState(() {
       _expectedAmount = quantity * sellingPrice;
+      _profit = (sellingPrice - purchasePrice) * quantity;
     });
   }
 
@@ -189,16 +194,13 @@ class _SellItemScreenState extends State<SellItemScreen> {
         purchasePrice,
       );
 
-      // Calculate profit for this sale
-      final profit = (sellingPrice - purchasePrice) * quantity;
-
       final success = await _salesProvider.createSale({
         'itemId': _selectedAvailableItem!.item!.id,
         'shopId': _selectedAvailableItem!.shopId,
         'fractionId': _selectedFraction!.id,
         'quantity': quantity,
         'amount': _expectedAmount,
-        'profit': profit,
+        'profit': _profit,
       });
 
       if (!mounted) return;
@@ -490,6 +492,16 @@ class _SellItemScreenState extends State<SellItemScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+              const SizedBox(height: 8),
+              if (_selectedFraction != null)
+                Text(
+                  'Profit: ${l10n.currencySymbol}${_profit.toStringAsFixed(2)}',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.green,
+                  ),
+                ),
               const SizedBox(height: 24),
               CustomButton(
                 onPressed: _isSubmitting ? null : () { _sellItem(); },
