@@ -8,12 +8,12 @@ class FractionDropdown extends StatelessWidget {
   final double maxWidth;
 
   const FractionDropdown({
-    Key? key,
+    super.key,
     required this.fractions,
     required this.selectedFractionId,
     required this.onChanged,
     this.maxWidth = 140,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

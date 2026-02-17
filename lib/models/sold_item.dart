@@ -9,6 +9,7 @@ class SoldItem {
   final double quantity;
   final double soldPrice;
   final String businessId;
+  final String? shopId;
   final String? salesmanId;
   final DateTime createdAt;
   final Fraction? fraction;
@@ -25,6 +26,7 @@ class SoldItem {
     required this.quantity,
     required this.soldPrice,
     required this.businessId,
+    this.shopId,
     this.salesmanId,
     required this.createdAt,
     this.fraction,
@@ -37,6 +39,8 @@ class SoldItem {
 
   factory SoldItem.fromJson(Map<String, dynamic> json) {
     print('Parsing SoldItem: $json'); // Debug log
+
+    final soldPriceRaw = json['soldPrice'] ?? json['amount'] ?? json['expectedAmount'];
     return SoldItem(
       id: json['id'],
       itemId: json['itemId'],
@@ -46,12 +50,13 @@ class SoldItem {
           : (json['quantity'] is int)
               ? (json['quantity'] as int).toDouble()
               : json['quantity'],
-      soldPrice: (json['soldPrice'] == null)
+      soldPrice: (soldPriceRaw == null)
           ? 0.0
-          : (json['soldPrice'] is int)
-              ? (json['soldPrice'] as int).toDouble()
-              : json['soldPrice'],
+          : (soldPriceRaw is num)
+              ? soldPriceRaw.toDouble()
+              : double.tryParse(soldPriceRaw.toString()) ?? 0.0,
       businessId: json['businessId'],
+      shopId: json['shopId'],
       salesmanId: json['salesmanId'],
       createdAt: DateTime.parse(json['createdAt']),
       item: json['Item'] != null ? Item.fromJson(json['Item']) : null,
@@ -80,6 +85,7 @@ class SoldItem {
       'quantity': quantity,
       'soldPrice': soldPrice,
       'businessId': businessId,
+      'shopId': shopId,
       'salesmanId': salesmanId,
       'createdAt': createdAt.toIso8601String(),
       'fraction': fraction?.toJson(),
@@ -93,6 +99,6 @@ class SoldItem {
 
   @override
   String toString() {
-    return 'SoldItem(id: $id, itemId: $itemId, fractionId: $fractionId, quantity: $quantity, soldPrice: $soldPrice, businessId: $businessId, salesmanId: $salesmanId, createdAt: $createdAt, fraction: $fraction, item: $item, available_items_count: $available_items_count, availableItemId: $availableItemId)';
+    return 'SoldItem(id: $id, itemId: $itemId, fractionId: $fractionId, quantity: $quantity, soldPrice: $soldPrice, businessId: $businessId, shopId: $shopId, salesmanId: $salesmanId, createdAt: $createdAt, fraction: $fraction, item: $item, available_items_count: $available_items_count, availableItemId: $availableItemId)';
   }
 }

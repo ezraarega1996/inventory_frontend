@@ -38,8 +38,12 @@ class Bought {
     return Bought(
       id: json['id'] ?? '',
       fractionId: json['fractionId'] ?? '',
-      fractionPurchasePrice: (json['fractionPurchasePrice'] is num) ? (json['fractionPurchasePrice'] as num).toDouble() : 0.0,
-      fractionSoldPrice: (json['fractionSoldPrice'] is num) ? (json['fractionSoldPrice'] as num).toDouble() : 0.0,
+      fractionPurchasePrice: (json['fractionPurchasePrice'] is num)
+          ? (json['fractionPurchasePrice'] as num).toDouble()
+          : double.tryParse(json['fractionPurchasePrice']?.toString() ?? '') ?? 0.0,
+      fractionSoldPrice: (json['fractionSoldPrice'] is num)
+          ? (json['fractionSoldPrice'] as num).toDouble()
+          : double.tryParse(json['fractionSoldPrice']?.toString() ?? '') ?? 0.0,
       quantity: double.tryParse(json['quantity'].toString()) ?? 0.0,
       expiryDate: json['expiryDate'] != null ? DateTime.parse(json['expiryDate']) : null,
       createdTime: DateTime.parse(json['createdTime'] ?? DateTime.now().toIso8601String()),

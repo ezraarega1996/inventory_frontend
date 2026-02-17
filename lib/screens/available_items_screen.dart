@@ -8,7 +8,7 @@ import 'package:inventory_frontend/screens/salesman/sell_item_screen.dart';
 
 class AvailableItemsScreen extends StatefulWidget {
   final String? shopId;
-  const AvailableItemsScreen({Key? key, this.shopId}) : super(key: key);
+  const AvailableItemsScreen({super.key, this.shopId});
 
   @override
   State<AvailableItemsScreen> createState() => _AvailableItemsScreenState();

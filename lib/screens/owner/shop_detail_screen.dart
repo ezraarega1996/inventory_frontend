@@ -19,7 +19,7 @@ class ShopDetailScreen extends StatefulWidget {
 
 class _ShopDetailScreenState extends State<ShopDetailScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  bool _isLoading = false;
+  final bool _isLoading = false;
 
   @override
   void initState() {

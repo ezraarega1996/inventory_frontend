@@ -30,13 +30,13 @@ factory Item.fromJson(Map<String, dynamic> json) {
     return Item(
       id: json['id'],
       name: json['name'],
-      categoryId: json['categoryId'] != null ? json['categoryId']: "Unknown",
+      categoryId: json['categoryId'] ?? "Unknown",
       category: json['Category'] != null
           ? Category.fromJson(json['Category'])
           : null,
       fractions: fractionsList,
     );
-  } catch (e, stackTrace) {
+  } catch (e) {
     print('Error parsing Item from JSON: $e');
     return Item(
       id: "",

@@ -12,14 +12,14 @@ import 'package:inventory_frontend/screens/owner/users_screen.dart';
 import 'package:inventory_frontend/screens/owner/boughts_screen.dart';
 import 'package:inventory_frontend/screens/available_items_screen.dart';
 import 'package:inventory_frontend/screens/owner/shops_screen.dart';
-import 'package:inventory_frontend/screens/owner/summary_screen.dart';
+import 'package:inventory_frontend/screens/summary_screen.dart';
 import 'package:inventory_frontend/widgets/dashboard_card.dart';
 import 'package:inventory_frontend/widgets/dashboard_chart.dart';
 import 'package:inventory_frontend/widgets/language_selector.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class OwnerDashboard extends StatefulWidget {
-  const OwnerDashboard({Key? key}) : super(key: key);
+  const OwnerDashboard({super.key});
 
   @override
   State<OwnerDashboard> createState() => _OwnerDashboardState();

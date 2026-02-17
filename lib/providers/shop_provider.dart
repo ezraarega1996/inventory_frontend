@@ -2,7 +2,6 @@ import 'package:flutter/foundation.dart';
 import 'package:inventory_frontend/models/shop.dart';
 import 'package:inventory_frontend/models/user.dart';
 import 'package:inventory_frontend/utils/api.dart';
-import 'package:inventory_frontend/utils/storage.dart';
 
 class ShopProvider with ChangeNotifier {
   List<Shop> _shops = [];

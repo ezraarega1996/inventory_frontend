@@ -18,12 +18,12 @@ class BoughtsScreen extends StatefulWidget {
   final DateTime? filterEnd;
 
   const BoughtsScreen({
-    Key? key,
+    super.key,
     this.filterItemId,
     this.filterFractionId,
     this.filterStart,
     this.filterEnd,
-  }) : super(key: key);
+  });
 
   @override
   State<BoughtsScreen> createState() => _BoughtsScreenState();
@@ -528,7 +528,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                       );
                       double? displayedQuantity = bought.quantity;
                       double? displayedAvailableCount = bought.available_items_count;
-                      if (boughtFraction != null && selectedFraction != null) {
+                      if (selectedFraction != null) {
                         displayedQuantity = bought.quantity * boughtFraction.ratio / selectedFraction.ratio;
                         if (bought.available_items_count != null) {
                           displayedAvailableCount = bought.available_items_count! * boughtFraction.ratio / selectedFraction.ratio;
@@ -543,8 +543,8 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                             children: [
                               Text('${l10n.shop}: ${bought.shop?.name ?? l10n.unknownShop}'),
                               //Text("${l10n.quantity}: $displayedQuantity ${selectedFraction.name}"),
-                              Text(l10n.quantity((displayedQuantity ?? 0), selectedFraction?.name ?? '')),
-                              Text(l10n.availableQuantity(displayedAvailableCount ?? 0, selectedFraction?.name ?? '')),
+                              Text(l10n.quantity((displayedQuantity ?? 0), selectedFraction.name ?? '')),
+                              Text(l10n.availableQuantity(displayedAvailableCount ?? 0, selectedFraction.name ?? '')),
                               if (bought.expiryDate != null)
                                 Text('${l10n.expiry}: ${DateFormat('yyyy-MM-dd').format(bought.expiryDate!)}'),
                             ],

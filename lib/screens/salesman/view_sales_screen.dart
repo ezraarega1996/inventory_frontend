@@ -7,7 +7,7 @@ import 'package:inventory_frontend/screens/salesman/sale_detail_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ViewSalesScreen extends StatefulWidget {
-  const ViewSalesScreen({Key? key}) : super(key: key);
+  const ViewSalesScreen({super.key});
 
   @override
   State<ViewSalesScreen> createState() => _ViewSalesScreenState();

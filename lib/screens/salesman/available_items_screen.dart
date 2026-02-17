@@ -8,7 +8,7 @@ import 'package:inventory_frontend/screens/owner/transactions_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AvailableItemsScreen extends StatefulWidget {
-  const AvailableItemsScreen({Key? key}) : super(key: key);
+  const AvailableItemsScreen({super.key});
 
   @override
   State<AvailableItemsScreen> createState() => _AvailableItemsScreenState();
@@ -121,7 +121,7 @@ class _AvailableItemsScreenState extends State<AvailableItemsScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                l10n.availableQuantity(displayedQuantity, selectedFraction?.name ?? ""),
+                                l10n.availableQuantity(displayedQuantity, selectedFraction.name ?? ""),
                               ),
                               Text(
                                 l10n.soldPrice(availableItem.soldPrice),

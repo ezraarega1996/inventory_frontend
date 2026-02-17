@@ -7,7 +7,7 @@ import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:url_launcher/url_launcher.dart' as url_launcher;
 
 class SubscriptionScreen extends StatefulWidget {
-  const SubscriptionScreen({Key? key}) : super(key: key);
+  const SubscriptionScreen({super.key});
 
   @override
   State<SubscriptionScreen> createState() => _SubscriptionScreenState();

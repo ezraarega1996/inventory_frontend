@@ -6,7 +6,7 @@ import 'package:inventory_frontend/screens/admin/users_screen.dart';
 import 'package:inventory_frontend/screens/auth/login_screen.dart';
 
 class AdminDashboard extends StatefulWidget {
-  const AdminDashboard({Key? key}) : super(key: key);
+  const AdminDashboard({super.key});
 
   @override
   State<AdminDashboard> createState() => _AdminDashboardState();

@@ -16,9 +16,9 @@ class TransactionsScreen extends StatefulWidget {
   final AvailableItem availableItem;
   
   const TransactionsScreen({
-    Key? key,
+    super.key,
     required this.availableItem,
-  }) : super(key: key);
+  });
 
   @override
   State<TransactionsScreen> createState() => _TransactionsScreenState();
@@ -133,7 +133,7 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           ),
                           const SizedBox(height: 8),
                           Text(
-                            l10n.availableQuantity(displayedQuantity, selectedFraction?.name ?? ""),
+                            l10n.availableQuantity(displayedQuantity, selectedFraction.name ?? ""),
                             style: const TextStyle(fontSize: 16),
                           ),
                           Text(
@@ -221,11 +221,11 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                           );
 
                           double convertedQuantity = trans.quantity;
-                          if (transactionFraction != null && selectedFraction != null) {
+                          if (selectedFraction != null) {
                             convertedQuantity = trans.quantity * transactionFraction.ratio / selectedFraction.ratio;
                           }
                           double convertedAvailableQty = trans.available_items_count;
-                          if (transactionFraction != null && selectedFraction != null) {
+                          if (selectedFraction != null) {
                             convertedAvailableQty = trans.available_items_count * transactionFraction.ratio / selectedFraction.ratio;
                           }
                           
@@ -256,10 +256,10 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
                                   if (!isBought)
                                     Text(l10n.soldBy(trans.salesman?.name ?? l10n.unknownSalesman)),
                                   Text(
-                                    l10n.quantity(formattedQuantity, selectedFraction?.name ?? ''),
+                                    l10n.quantity(formattedQuantity, selectedFraction.name ?? ''),
                                   ),
                                   Text(
-                                    l10n.availableQuantity(formattedAvailableQty, selectedFraction?.name ?? ''),
+                                    l10n.availableQuantity(formattedAvailableQty, selectedFraction.name ?? ''),
                                   ),
                                   Text(
                                     dateFormat.format(transaction['date']),

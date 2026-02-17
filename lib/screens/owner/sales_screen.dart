@@ -10,7 +10,7 @@ import 'package:inventory_frontend/screens/owner/sale_detail_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SalesScreen extends StatefulWidget {
-  const SalesScreen({Key? key}) : super(key: key);
+  const SalesScreen({super.key});
 
   @override
   State<SalesScreen> createState() => _SalesScreenState();
@@ -187,8 +187,7 @@ class _SalesScreenState extends State<SalesScreen> {
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            l10n.amountLabel +
-                                                ': ${l10n.currencySymbol}${sale.quantity * selectedFraction.sellingPrice}',
+                                            '${l10n.amountLabel}: ${l10n.currencySymbol}${sale.quantity * selectedFraction.sellingPrice}',
                                           ),
                                           if (sale.profit != null)
                                             Text(
@@ -201,8 +200,7 @@ class _SalesScreenState extends State<SalesScreen> {
                                     Expanded(
                                       child: sale.available_items_count != null
                                           ? Text(
-                                              l10n.availableLabel +
-                                                  ': ${sale.available_items_count! * (sale.fraction?.ratio ?? selectedFraction.ratio) / selectedFraction.ratio} ${selectedFraction.name}',
+                                              '${l10n.availableLabel}: ${sale.available_items_count! * (sale.fraction?.ratio ?? selectedFraction.ratio) / selectedFraction.ratio} ${selectedFraction.name}',
                                             )
                                           : const SizedBox(),
                                     ),
@@ -211,7 +209,7 @@ class _SalesScreenState extends State<SalesScreen> {
                                 Row(
                                   children: [
                                     Expanded(
-                                      child: Text(l10n.dateLabel + ': ${DateFormat('MMM dd, yyyy HH:mm').format(sale.createdAt)}'),
+                                      child: Text('${l10n.dateLabel}: ${DateFormat('MMM dd, yyyy HH:mm').format(sale.createdAt)}'),
                                     ),
                                   ],
                                 ),

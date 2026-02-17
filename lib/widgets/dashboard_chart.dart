@@ -6,9 +6,9 @@ class DashboardChart extends StatelessWidget {
   final List<dynamic> data;
   
   const DashboardChart({
-    Key? key,
+    super.key,
     required this.data,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

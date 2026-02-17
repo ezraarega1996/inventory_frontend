@@ -13,12 +13,12 @@ class FilteredSalesHistoryScreen extends StatefulWidget {
   final DateTime end;
 
   const FilteredSalesHistoryScreen({
-    Key? key,
+    super.key,
     required this.itemId,
     this.fractionId,
     required this.start,
     required this.end,
-  }) : super(key: key);
+  });
 
   @override
   State<FilteredSalesHistoryScreen> createState() => _FilteredSalesHistoryScreenState();

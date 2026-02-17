@@ -9,7 +9,7 @@ import 'package:inventory_frontend/screens/owner/sales_screen.dart';
 import 'package:inventory_frontend/screens/owner/users_screen.dart';
 
 class OwnerHomeScreen extends StatefulWidget {
-  const OwnerHomeScreen({Key? key}) : super(key: key);
+  const OwnerHomeScreen({super.key});
 
   @override
   State<OwnerHomeScreen> createState() => _OwnerHomeScreenState();

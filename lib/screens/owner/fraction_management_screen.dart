@@ -11,9 +11,9 @@ class FractionManagementScreen extends StatefulWidget {
   final Item item;
 
   const FractionManagementScreen({
-    Key? key,
+    super.key,
     required this.item,
-  }) : super(key: key);
+  });
 
   @override
   State<FractionManagementScreen> createState() => _FractionManagementScreenState();
@@ -27,7 +27,7 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
   final _purchasePriceController = TextEditingController();
   bool _isUnit = false;
   bool _hasUnitFraction = false;
-  bool _isLoading = true;
+  final bool _isLoading = true;
 
   @override
   void initState() {

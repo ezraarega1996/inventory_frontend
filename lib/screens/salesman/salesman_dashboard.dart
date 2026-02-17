@@ -8,10 +8,11 @@ import 'package:inventory_frontend/screens/salesman/view_sales_screen.dart';
 import 'package:inventory_frontend/screens/available_items_screen.dart';
 import 'package:inventory_frontend/widgets/dashboard_card.dart';
 import 'package:inventory_frontend/widgets/language_selector.dart';
+import 'package:inventory_frontend/screens/summary_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SalesmanDashboard extends StatefulWidget {
-  const SalesmanDashboard({Key? key}) : super(key: key);
+  const SalesmanDashboard({super.key});
 
   @override
   State<SalesmanDashboard> createState() => _SalesmanDashboardState();
@@ -84,6 +85,15 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
         return const SellItemScreen();
       case 3:
         return const ViewSalesScreen();
+      case 4:
+        final authProvider = context.read<AuthProvider>();
+        final shopId = authProvider.user?.shopId ?? authProvider.user?.shop?.id;
+        print("shopId is: $shopId");
+        
+        return SummaryScreen(
+          fixedShopId: shopId,
+          allowShopSwitch: false,
+        );
       default:
         return _buildDashboard();
     }
@@ -135,6 +145,24 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
                       icon: Icons.today,
                       color: Colors.orange,
                     ),
+                    const SizedBox(height: 24),
+                    ElevatedButton.icon(
+                      onPressed: () {
+                        final authProvider = context.read<AuthProvider>();
+                        final shopId = authProvider.user?.shopId ?? authProvider.user?.shop?.id;
+                        print("shopId is: $shopId");
+                        Navigator.of(context).push(
+                          MaterialPageRoute(
+                            builder: (_) => SummaryScreen(
+                              fixedShopId: shopId,
+                              allowShopSwitch: false,
+                            ),
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.table_chart),
+                      label: Text(l10n.transactions),
+                    ),
                   ],
                 ),
               ),
@@ -174,7 +202,7 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
                         radius: 30,
                         backgroundColor: Colors.white,
                         child: Text(
-                          authProvider.user?.name?.substring(0, 1).toUpperCase() ?? 'S',
+                          authProvider.user?.name.substring(0, 1).toUpperCase() ?? 'S',
                           style: TextStyle(
                             fontSize: 24,
                             color: Theme.of(context).primaryColor,
@@ -236,6 +264,16 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
                   selectedColor: Colors.purple,
                   onTap: () {
                     setState(() => _selectedIndex = 3);
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.table_chart, color: Colors.teal),
+                  title: Text("Summary"),
+                  selected: _selectedIndex == 4,
+                  selectedColor: Colors.teal,
+                  onTap: () {
+                    setState(() => _selectedIndex = 4);
                     Navigator.pop(context);
                   },
                 ),

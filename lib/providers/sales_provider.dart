@@ -2,10 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/foundation.dart';
 import 'package:inventory_frontend/models/sold_item.dart';
 import 'package:inventory_frontend/utils/api.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:inventory_frontend/config.dart';
-import 'package:inventory_frontend/models/user.dart';
 import 'package:inventory_frontend/models/sales_data.dart';
 
 class SalesProvider with ChangeNotifier {

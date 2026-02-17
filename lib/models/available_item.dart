@@ -1,5 +1,4 @@
 import 'package:inventory_frontend/models/item.dart';
-import 'package:inventory_frontend/models/user.dart';
 import 'package:inventory_frontend/models/item_bought.dart';
 import 'package:inventory_frontend/models/sold_item.dart';
 import 'package:inventory_frontend/models/shop.dart';
