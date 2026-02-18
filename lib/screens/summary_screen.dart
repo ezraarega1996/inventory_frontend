@@ -11,6 +11,7 @@ import 'package:inventory_frontend/providers/bought_provider.dart';
 import 'package:inventory_frontend/providers/available_item_provider.dart';
 import 'package:inventory_frontend/providers/sales_provider.dart';
 import 'package:inventory_frontend/providers/shop_provider.dart';
+import 'package:inventory_frontend/screens/owner/transactions_screen.dart';
 
 class SummaryScreen extends StatefulWidget {
   /// When provided, the screen will lock to this shop and (by default)
@@ -37,6 +38,17 @@ class _SummaryScreenState extends State<SummaryScreen> {
   bool _isLoading = true;
   final Map<String, String> _selectedUnitIds = {}; // key: itemId_fractionId -> fractionId
   String? _selectedShopId;
+
+  bool _isSameDay(DateTime a, DateTime b) {
+    return a.year == b.year && a.month == b.month && a.day == b.day;
+  }
+
+  String _formatDateOrToday(DateTime date, DateFormat fmt) {
+    final today = DateTime.now();
+    final todayDate = DateTime(today.year, today.month, today.day);
+    final d = DateTime(date.year, date.month, date.day);
+    return _isSameDay(d, todayDate) ? 'Today' : fmt.format(d);
+  }
 
   double _calcBoughtAmount(
     List<Bought> boughts,
@@ -72,7 +84,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
   void _initDates() {
     final now = DateTime.now();
     _endDate = DateTime(now.year, now.month, now.day);
-    _startDate = _endDate!.subtract(const Duration(days: 7));
+    _startDate = _endDate!.subtract(const Duration(days: 0));
   }
 
   Future<void> _loadShops() async {
@@ -317,7 +329,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
                                   child: OutlinedButton.icon(
                                     onPressed: _pickStartDate,
                                     icon: const Icon(Icons.date_range),
-                                    label: Text('From: ${dateFormat.format(start)}'),
+                                    label: Text('From: ${_formatDateOrToday(start, dateFormat)}'),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -325,7 +337,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
                                   child: OutlinedButton.icon(
                                     onPressed: _pickEndDate,
                                     icon: const Icon(Icons.date_range),
-                                    label: Text('To:   ${dateFormat.format(end)}'),
+                                    label: Text('To:   ${_formatDateOrToday(end, dateFormat)}'),
                                   ),
                                 ),
                               ],
@@ -382,17 +394,20 @@ class _SummaryScreenState extends State<SummaryScreen> {
                                 child: SingleChildScrollView(
                                   scrollDirection: Axis.horizontal,
                                   child: DataTable(
-                                    columns: const [
-                                      DataColumn(label: Text('Item')),
-                                      DataColumn(label: Text('Unit')),
-                                      DataColumn(label: Text('Prev Qty')),
-                                      DataColumn(label: Text('Bought')),
-                                      DataColumn(label: Text('Bought Amt')),
-                                      DataColumn(label: Text('Sold')),
-                                      DataColumn(label: Text('Sold Amt')),
-                                      DataColumn(label: Text('Net')),
-                                      DataColumn(label: Text('Remaining')),
-                                      DataColumn(label: Text('Profit')),
+                                    columns: [
+                                      const DataColumn(label: Text('Item')),
+                                      const DataColumn(label: Text('Unit')),
+                                      const DataColumn(label: Text('Prev Qty')),
+                                      const DataColumn(label: Text('Bought')),
+                                      if (widget.allowShopSwitch)
+                                        const DataColumn(label: Text('Bought Amt')),
+                                      const DataColumn(label: Text('Sold')),
+                                      const DataColumn(label: Text('Sold Amt')),
+                                      if (widget.allowShopSwitch)
+                                        const DataColumn(label: Text('Net')),
+                                      const DataColumn(label: Text('Remaining')),
+                                      if (widget.allowShopSwitch)
+                                        const DataColumn(label: Text('Profit')),
                                     ],
                                     rows: effectiveSummaries.map((s) {
                                       final key = '${s.itemId}_${s.baseFractionId}';
@@ -446,6 +461,39 @@ class _SummaryScreenState extends State<SummaryScreen> {
                                               (s.previousQuantity * ratioFactor)
                                                   .toStringAsFixed(2),
                                             ),
+                                            onTap: () {
+                                              final availableItemProvider =
+                                                  context.read<AvailableItemProvider>();
+                                              final match = availableItemProvider.availableItems
+                                                  .where((ai) =>
+                                                      ai.shopId == currentShopId &&
+                                                      ai.itemId == s.itemId)
+                                                  .toList();
+
+                                              if (match.isEmpty) {
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text('No item found in available items'),
+                                                  ),
+                                                );
+                                                return;
+                                              }
+
+                                              final cutoff = DateTime(
+                                                start.year,
+                                                start.month,
+                                                start.day,
+                                              );
+
+                                              Navigator.of(context).push(
+                                                MaterialPageRoute(
+                                                  builder: (_) => TransactionsScreen(
+                                                    availableItem: match.first,
+                                                    showBefore: cutoff,
+                                                  ),
+                                                ),
+                                              );
+                                            },
                                           ),
                                           DataCell(
                                             Text(
@@ -465,13 +513,14 @@ class _SummaryScreenState extends State<SummaryScreen> {
                                               );
                                             },
                                           ),
-                                          DataCell(
-                                            Text(
-                                              currencyFormat.format(
-                                                s.boughtAmountInPeriod,
+                                          if (widget.allowShopSwitch)
+                                            DataCell(
+                                              Text(
+                                                currencyFormat.format(
+                                                  s.boughtAmountInPeriod,
+                                                ),
                                               ),
                                             ),
-                                          ),
                                           DataCell(
                                             Text(
                                               (s.soldInPeriod * ratioFactor)
@@ -484,6 +533,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
                                                       FilteredSalesHistoryScreen(
                                                     itemId: s.itemId,
                                                     fractionId: s.baseFractionId,
+                                                    shopId: currentShopId,
                                                     start: start,
                                                     end: end,
                                                   ),
@@ -498,20 +548,22 @@ class _SummaryScreenState extends State<SummaryScreen> {
                                               ),
                                             ),
                                           ),
-                                          DataCell(
-                                            Text(currencyFormat.format(netIncome)),
-                                          ),
+                                          if (widget.allowShopSwitch)
+                                            DataCell(
+                                              Text(currencyFormat.format(netIncome)),
+                                            ),
                                           DataCell(
                                             Text(
                                               (s.remainingNow * ratioFactor)
                                                   .toStringAsFixed(2),
                                             ),
                                           ),
-                                          DataCell(
-                                            Text(
-                                              s.profitInPeriod.toStringAsFixed(2),
+                                          if (widget.allowShopSwitch)
+                                            DataCell(
+                                              Text(
+                                                s.profitInPeriod.toStringAsFixed(2),
+                                              ),
                                             ),
-                                          ),
                                         ],
                                       );
                                     }).toList(),

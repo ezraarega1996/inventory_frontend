@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:inventory_frontend/models/available_item.dart';
 import 'package:inventory_frontend/models/fraction.dart';
+import 'package:inventory_frontend/providers/available_item_provider.dart';
 import 'package:inventory_frontend/providers/sales_provider.dart';
 import 'package:inventory_frontend/screens/owner/sale_detail_screen.dart';
+import 'package:inventory_frontend/screens/salesman/sell_item_screen.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:provider/provider.dart';
 
 class FilteredSalesHistoryScreen extends StatefulWidget {
   final String itemId;
   final String? fractionId;
+  final String? shopId;
   final DateTime start;
   final DateTime end;
 
@@ -16,6 +20,7 @@ class FilteredSalesHistoryScreen extends StatefulWidget {
     super.key,
     required this.itemId,
     this.fractionId,
+    this.shopId,
     required this.start,
     required this.end,
   });
@@ -28,10 +33,72 @@ class _FilteredSalesHistoryScreenState extends State<FilteredSalesHistoryScreen>
   final Map<String, String> _selectedFractionIds = {};
   bool _isLoading = false;
 
+  AvailableItem? _sellAvailableItem;
+  Fraction? _sellFraction;
+
   @override
   void initState() {
     super.initState();
     _loadSales();
+    _loadSellContext();
+  }
+
+  Future<void> _loadSellContext() async {
+    try {
+      final availableItemProvider = context.read<AvailableItemProvider>();
+      await availableItemProvider.fetchAvailableItems(shopId: widget.shopId);
+
+      final candidates = widget.shopId != null && widget.shopId!.isNotEmpty
+          ? availableItemProvider.availableItems.where((ai) => ai.shopId == widget.shopId).toList()
+          : availableItemProvider.availableItems;
+
+      final match = candidates.where((ai) => ai.itemId == widget.itemId).toList();
+      if (match.isEmpty) return;
+
+      final availableItem = match.first;
+      final fractions = availableItem.item?.fractions ?? <Fraction>[];
+
+      Fraction? fraction;
+      if (widget.fractionId != null && widget.fractionId!.isNotEmpty) {
+        try {
+          fraction = fractions.firstWhere((f) => f.id == widget.fractionId);
+        } catch (_) {
+          fraction = null;
+        }
+      }
+
+      fraction ??= fractions.where((f) => f.isUnit).isNotEmpty
+          ? fractions.firstWhere((f) => f.isUnit)
+          : (fractions.isNotEmpty ? fractions.first : null);
+
+      if (!mounted) return;
+      setState(() {
+        _sellAvailableItem = availableItem;
+        _sellFraction = fraction;
+      });
+    } catch (_) {
+      // Ignore: sell button will still show but will error gracefully on tap
+    }
+  }
+
+  void _onSellPressed() {
+    final l10n = AppLocalizations.of(context)!;
+
+    if (_sellAvailableItem == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.noItemsFound)),
+      );
+      return;
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => SellItemScreen(
+          preSelectedAvailableItem: _sellAvailableItem,
+          preSelectedAvailableFraction: _sellFraction,
+        ),
+      ),
+    );
   }
 
   Future<void> _loadSales() async {
@@ -73,6 +140,10 @@ class _FilteredSalesHistoryScreenState extends State<FilteredSalesHistoryScreen>
             onPressed: _isLoading ? null : _loadSales,
           ),
         ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _onSellPressed,
+        child: const Icon(Icons.add),
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())

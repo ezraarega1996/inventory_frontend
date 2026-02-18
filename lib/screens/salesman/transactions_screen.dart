@@ -14,10 +14,12 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class TransactionsScreen extends StatefulWidget {
   final AvailableItem availableItem;
+  final DateTime? showBefore;
   
   const TransactionsScreen({
     super.key,
     required this.availableItem,
+    this.showBefore,
   });
 
   @override
@@ -78,6 +80,13 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       }
     }
 
+    if (widget.showBefore != null) {
+      transactions.removeWhere((t) {
+        final DateTime d = t['date'] as DateTime;
+        return !d.isBefore(widget.showBefore!);
+      });
+    }
+
     transactions.sort((a, b) => b['date'].compareTo(a['date']));
     return transactions;
   }
@@ -93,9 +102,19 @@ class _TransactionsScreenState extends State<TransactionsScreen> {
       orElse: () => itemFractions.first,
     );
 
-    final displayedQuantity = selectedFraction != null
-        ? widget.availableItem.quantity / selectedFraction.ratio
-        : widget.availableItem.quantity;
+    final double displayedQuantity;
+    if (widget.showBefore != null && _transactions.isNotEmpty) {
+      final dynamic trans = _transactions.first['transaction'];
+      final transactionFraction = itemFractions.firstWhere(
+        (f) => f.id == trans.fractionId,
+        orElse: () => itemFractions.first,
+      );
+      displayedQuantity = trans.available_items_count *
+          transactionFraction.ratio /
+          selectedFraction.ratio;
+    } else {
+      displayedQuantity = widget.availableItem.quantity / selectedFraction.ratio;
+    }
 
     final dateFormat = DateFormat('yyyy-MM-dd HH:mm');
 
