@@ -4,6 +4,7 @@ import 'package:inventory_frontend/models/business.dart';
 import 'package:inventory_frontend/providers/business_provider.dart';
 import 'package:inventory_frontend/screens/admin/business_detail_screen.dart';
 import 'package:inventory_frontend/utils/api.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BusinessesScreen extends StatefulWidget {
   const BusinessesScreen({super.key});
@@ -56,15 +57,16 @@ class _BusinessesScreenState extends State<BusinessesScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: _loadBusinesses,
         child: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-            ? Center(child: Text('Error: $_error'))
+            ? Center(child: Text(l10n.errorWithDetails(_error!)))
             : _businesses.isEmpty
-              ? const Center(child: Text('No businesses found'))
+              ? Center(child: Text(l10n.noBusinessesFound))
               : ListView.builder(
                   itemCount: _businesses.length,
                   itemBuilder: (context, index) {
@@ -76,12 +78,12 @@ class _BusinessesScreenState extends State<BusinessesScreen> {
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Email: ${business.email ?? 'N/A'}'),
-                            Text('Plan: ${business.subscriptionPlan}'),
-                            Text('Status: ${business.subscriptionStatus}'),
+                            Text(l10n.emailWithValue(business.email ?? l10n.na)),
+                            Text(l10n.planWithValue(business.subscriptionPlan)),
+                            Text(l10n.statusWithValue(business.subscriptionStatus)),
                           ],
                         ),
-                        trailing: Icon(Icons.arrow_forward_ios),
+                        trailing: const Icon(Icons.arrow_forward_ios),
                         onTap: () => _viewBusinessDetails(business),
                         isThreeLine: true,
                       ),

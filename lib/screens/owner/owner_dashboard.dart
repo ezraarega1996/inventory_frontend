@@ -17,6 +17,7 @@ import 'package:inventory_frontend/widgets/dashboard_card.dart';
 import 'package:inventory_frontend/widgets/dashboard_chart.dart';
 import 'package:inventory_frontend/widgets/language_selector.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
+import 'package:intl/intl.dart';
 
 class OwnerDashboard extends StatefulWidget {
   const OwnerDashboard({super.key});
@@ -46,12 +47,17 @@ Future<void> _loadDashboardData() async {
   final authProvider = context.read<AuthProvider>();
   final businessProvider = context.read<BusinessProvider>();
 
-  await salesProvider.fetchDashboardStats();
-  await salesProvider.fetchTodaySales(); // <-- Add this line
-  if (authProvider.user?.businessId != null) {
-    await businessProvider.loadCurrentBusiness(
-      authProvider.user!.businessId!,
-    );
+  try {
+    await Future.wait([
+      salesProvider.fetchDashboardStats(),
+      salesProvider.fetchTodaySales(),
+      if (authProvider.user?.businessId != null)
+        businessProvider.loadCurrentBusiness(
+          authProvider.user!.businessId!,
+        ),
+    ]);
+  } catch (_) {
+    // Providers already track error state.
   }
 
   if (mounted) {
@@ -111,6 +117,8 @@ Future<void> _loadDashboardData() async {
         final stats = salesProvider.dashboardStats;
         final business = businessProvider.currentBusiness;
         final l10n = AppLocalizations.of(context)!;
+        final currency = NumberFormat('#,##0.00');
+        final currencySymbol = l10n.currencySymbol;
 
         return RefreshIndicator(
           onRefresh: _loadDashboardData,
@@ -130,42 +138,63 @@ Future<void> _loadDashboardData() async {
                     IconButton(
                       icon: const Icon(Icons.refresh),
                       onPressed: _loadDashboardData,
+                      tooltip: l10n.refresh,
                     ),
                   ],
                 ),
-
-                Text(
-                  l10n.todaysSalesBySalesman,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                if (salesProvider.todaySalesData.isEmpty)
-                  Text(l10n.noSalesToday),
-                ...salesProvider.todaySalesData.map((salesData) => Card(
-                      child: ListTile(
-                        title: Text(salesData.salesmanName ?? 'Unknown'),
-                        trailing: Text(
-                          '₹${salesData.totalAmount.toStringAsFixed(2)}',
-                          style: const TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 16,
-                          ),
-                        ),
+                if (business != null)
+                  Padding(
+                    padding: const EdgeInsets.only(top: 4.0, bottom: 12.0),
+                    child: Text(
+                      business.name,
+                      style: TextStyle(
+                        color: Theme.of(context).textTheme.bodySmall?.color,
+                        fontSize: 14,
                       ),
-                    )),
-                
-                const SizedBox(height: 24),
+                    ),
+                  )
+                else
+                  const SizedBox(height: 12),
+
                 if (_isLoading)
-                  const Center(child: CircularProgressIndicator())
+                  const Padding(
+                    padding: EdgeInsets.symmetric(vertical: 24.0),
+                    child: Center(child: CircularProgressIndicator()),
+                  )
+                else if (salesProvider.error != null)
+                  Card(
+                    color: Theme.of(context).colorScheme.errorContainer,
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.error_outline,
+                            color: Theme.of(context).colorScheme.onErrorContainer,
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: Text(
+                              salesProvider.error!,
+                              style: TextStyle(
+                                color: Theme.of(context).colorScheme.onErrorContainer,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  )
                 else if (stats != null)
                   Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Row(
                         children: [
                           Expanded(
                             child: DashboardCard(
                               title: l10n.totalSales,
-                              value: '\$${stats['totalSales']?.toStringAsFixed(2) ?? '0.00'}',
+                              value: '$currencySymbol${currency.format((stats['totalSales'] ?? 0).toDouble())}',
                               icon: Icons.attach_money,
                               color: Colors.green,
                             ),
@@ -181,47 +210,84 @@ Future<void> _loadDashboardData() async {
                           ),
                         ],
                       ),
+
+                      const SizedBox(height: 24),
+                      Text(
+                        l10n.todaysSalesBySalesman,
+                        style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+                      const SizedBox(height: 12),
+                      if (salesProvider.todaySalesData.isEmpty)
+                        Text(l10n.noSalesToday)
+                      else
+                        Column(
+                          children: salesProvider.todaySalesData.map((salesData) {
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              child: ListTile(
+                                leading: const Icon(Icons.person_outline),
+                                title: Text(salesData.salesmanName ?? l10n.unknownSalesman),
+                                trailing: Text(
+                                  '$currencySymbol${currency.format(salesData.totalAmount)}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ),
+                            );
+                          }).toList(),
+                        ),
+
                       const SizedBox(height: 24),
                       Text(
                         l10n.salesTrend,
                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 12),
                       SizedBox(
                         height: 200,
-                        child: DashboardChart(data: stats['salesByDay'] ?? []),
+                        child: DashboardChart(
+                          data: stats['salesByDay'] ?? [],
+                          emptyText: l10n.noData,
+                          currencySymbol: currencySymbol,
+                        ),
                       ),
+
                       const SizedBox(height: 24),
                       Text(
                         l10n.topSellingItems,
                         style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                       ),
-                      const SizedBox(height: 16),
-                      ListView.builder(
-                        shrinkWrap: true,
-                        physics: const NeverScrollableScrollPhysics(),
-                        itemCount: (stats['topItems'] as List?)?.length ?? 0,
-                        itemBuilder: (context, index) {
-                          final item = (stats['topItems'] as List)[index];
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 8),
-                            child: ListTile(
-                              title: Text(
-                                item['Item']['name'],
-                                style: const TextStyle(fontWeight: FontWeight.bold),
-                              ),
-                              subtitle: Text('Quantity: ${item['totalQuantity']}'),
-                              trailing: Text(
-                                '\$${item['totalAmount']?.toStringAsFixed(2) ?? '0.00'}',
-                                style: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.green,
+                      const SizedBox(height: 12),
+                      if (((stats['topItems'] as List?)?.isEmpty ?? true))
+                        Text(l10n.noItemsFound)
+                      else
+                        ListView.builder(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: (stats['topItems'] as List?)?.length ?? 0,
+                          itemBuilder: (context, index) {
+                            final item = (stats['topItems'] as List)[index];
+                            return Card(
+                              margin: const EdgeInsets.only(bottom: 8),
+                              child: ListTile(
+                                title: Text(
+                                  item['Item']['name'],
+                                  style: const TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                subtitle: Text('${l10n.quantityLabel}: ${item['totalQuantity']}'),
+                                trailing: Text(
+                                  '$currencySymbol${currency.format((item['totalAmount'] ?? 0).toDouble())}',
+                                  style: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.green,
+                                  ),
                                 ),
                               ),
-                            ),
-                          );
-                        },
-                      ),
+                            );
+                          },
+                        ),
                     ],
                   ),
               ],
@@ -281,7 +347,18 @@ Future<void> _loadDashboardData() async {
               Navigator.pop(context);
             },
           ),
-                    ListTile(
+          ListTile(
+            leading: const Icon(Icons.summarize),
+            title: Text(l10n.summary),
+            selected: _selectedIndex == 9,
+            onTap: () {
+              setState(() {
+                _selectedIndex = 9;
+              });
+              Navigator.pop(context);
+            },
+          ),
+          ListTile(
             leading: Icon(Icons.shop),
             title: Text(l10n.shops),
             selected: _selectedIndex == 8,
@@ -358,17 +435,7 @@ Future<void> _loadDashboardData() async {
               Navigator.pop(context);
             },
           ),
-          ListTile(
-            leading: const Icon(Icons.summarize),
-            title: const Text('Summary'),
-            selected: _selectedIndex == 9,
-            onTap: () {
-              setState(() {
-                _selectedIndex = 9;
-              });
-              Navigator.pop(context);
-            },
-          ),
+
           ListTile(
             leading: Icon(Icons.card_membership),
             title: Text(l10n.subscription),

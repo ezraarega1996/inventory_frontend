@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
-import 'package:inventory_frontend/models/bought.dart';
 import 'package:inventory_frontend/models/fraction.dart';
-import 'package:inventory_frontend/models/sold_item.dart';
-import 'package:inventory_frontend/providers/bought_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:inventory_frontend/providers/sales_provider.dart';
 import 'package:inventory_frontend/screens/owner/sale_detail_screen.dart';
@@ -31,7 +28,6 @@ class _SalesScreenState extends State<SalesScreen> {
     setState(() { _isLoading = true; });
     await Future.wait([
       context.read<SalesProvider>().fetchSales(),
-      context.read<BoughtProvider>().fetchBoughts(),
     ]);
     if (mounted) {
       setState(() { _isLoading = false; });
@@ -103,28 +99,7 @@ class _SalesScreenState extends State<SalesScreen> {
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
-          : DefaultTabController(
-              length: 2,
-              child: Column(
-                children: [
-                  TabBar(
-                    labelColor: Theme.of(context).colorScheme.primary,
-                    tabs: [
-                      Tab(text: l10n.sales),
-                      const Tab(text: 'Summary'),
-                    ],
-                  ),
-                  Expanded(
-                    child: TabBarView(
-                      children: [
-                        _buildSalesList(l10n),
-                        _buildSummaryTab(l10n),
-                      ],
-                    ),
-                  ),
-                ],
-              ),
-            ),
+          : _buildSalesList(l10n),
     );
   }
 
@@ -263,177 +238,4 @@ class _SalesScreenState extends State<SalesScreen> {
       },
     );
   }
-
-  Widget _buildSummaryTab(AppLocalizations l10n) {
-    return Consumer2<SalesProvider, BoughtProvider>(
-      builder: (context, salesProvider, boughtProvider, child) {
-        final summaries = _buildTransactionSummaries(
-          boughtProvider.boughts,
-          salesProvider.sales,
-        );
-
-        if (summaries.isEmpty) {
-          return Center(child: Text('No transaction summary yet.'));
-        }
-
-        final dateFormat = DateFormat('MMM dd, yyyy HH:mm');
-
-        return RefreshIndicator(
-          onRefresh: _loadSales,
-          child: SingleChildScrollView(
-            physics: const AlwaysScrollableScrollPhysics(),
-            child: SingleChildScrollView(
-              scrollDirection: Axis.horizontal,
-              child: DataTable(
-                columns: const [
-                  DataColumn(label: Text('Date')),
-                  DataColumn(label: Text('Item')),
-                  DataColumn(label: Text('Fraction')),
-                  DataColumn(label: Text('Prev Qty')),
-                  DataColumn(label: Text('Bought')),
-                  DataColumn(label: Text('Sold')),
-                  DataColumn(label: Text('Remaining')),
-                  DataColumn(label: Text('Profit')),
-                ],
-                rows: summaries.map((summary) {
-                  return DataRow(
-                    cells: [
-                      DataCell(Text(dateFormat.format(summary.date))),
-                      DataCell(Text(summary.itemName)),
-                      DataCell(Text(summary.fractionName)),
-                      DataCell(Text(summary.previousQuantity.toStringAsFixed(2))),
-                      DataCell(Text(summary.boughtQuantity.toStringAsFixed(2))),
-                      DataCell(Text(summary.soldQuantity.toStringAsFixed(2))),
-                      DataCell(Text(summary.remainingQuantity.toStringAsFixed(2))),
-                      DataCell(
-                        summary.profit != null
-                            ? Text('${l10n.currencySymbol}${summary.profit!.toStringAsFixed(2)}')
-                            : const Text('-'),
-                      ),
-                    ],
-                  );
-                }).toList(),
-              ),
-            ),
-          ),
-        );
-      },
-    );
-  }
-
-  List<_TransactionSummary> _buildTransactionSummaries(
-    List<Bought> boughts,
-    List<SoldItem> sales,
-  ) {
-    final events = <_TransactionEvent>[];
-
-    for (final bought in boughts) {
-      events.add(_TransactionEvent(
-        date: bought.createdTime,
-        itemId: bought.itemId,
-        fractionId: bought.fractionId,
-        itemName: bought.item?.name ?? 'Unknown',
-        fractionName: bought.fraction?.name ?? 'Unknown',
-        quantity: bought.quantity,
-        profit: null,
-        type: _TransactionType.bought,
-      ));
-    }
-
-    for (final sale in sales) {
-      events.add(_TransactionEvent(
-        date: sale.createdAt,
-        itemId: sale.itemId,
-        fractionId: sale.fractionId,
-        itemName: sale.item?.name ?? 'Unknown',
-        fractionName: sale.fraction?.name ?? 'Unknown',
-        quantity: sale.quantity,
-        profit: sale.profit,
-        type: _TransactionType.sold,
-      ));
-    }
-
-    events.sort((a, b) => a.date.compareTo(b.date));
-
-    final stockTracker = <String, double>{};
-    final summaries = <_TransactionSummary>[];
-
-    for (final event in events) {
-      final key = '${event.itemId}_${event.fractionId}';
-      final previous = stockTracker[key] ?? 0;
-      double boughtQty = 0;
-      double soldQty = 0;
-      double? profit;
-
-      if (event.type == _TransactionType.bought) {
-        boughtQty = event.quantity;
-        stockTracker[key] = previous + boughtQty;
-      } else {
-        soldQty = event.quantity;
-        stockTracker[key] = previous - soldQty;
-        profit = event.profit;
-      }
-
-      final remaining = stockTracker[key] ?? 0;
-
-      summaries.add(_TransactionSummary(
-        date: event.date,
-        itemName: event.itemName,
-        fractionName: event.fractionName,
-        previousQuantity: previous,
-        boughtQuantity: boughtQty,
-        soldQuantity: soldQty,
-        remainingQuantity: remaining,
-        profit: profit,
-      ));
-    }
-
-    return summaries;
-  }
-}
-
-enum _TransactionType { bought, sold }
-
-class _TransactionEvent {
-  final DateTime date;
-  final String itemId;
-  final String fractionId;
-  final String itemName;
-  final String fractionName;
-  final double quantity;
-  final double? profit;
-  final _TransactionType type;
-
-  _TransactionEvent({
-    required this.date,
-    required this.itemId,
-    required this.fractionId,
-    required this.itemName,
-    required this.fractionName,
-    required this.quantity,
-    required this.profit,
-    required this.type,
-  });
-}
-
-class _TransactionSummary {
-  final DateTime date;
-  final String itemName;
-  final String fractionName;
-  final double previousQuantity;
-  final double boughtQuantity;
-  final double soldQuantity;
-  final double remainingQuantity;
-  final double? profit;
-
-  _TransactionSummary({
-    required this.date,
-    required this.itemName,
-    required this.fractionName,
-    required this.previousQuantity,
-    required this.boughtQuantity,
-    required this.soldQuantity,
-    required this.remainingQuantity,
-    required this.profit,
-  });
 }

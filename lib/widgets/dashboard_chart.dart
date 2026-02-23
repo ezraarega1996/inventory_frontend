@@ -4,17 +4,21 @@ import 'package:intl/intl.dart';
 
 class DashboardChart extends StatelessWidget {
   final List<dynamic> data;
+  final String? emptyText;
+  final String currencySymbol;
   
   const DashboardChart({
     super.key,
     required this.data,
+    this.emptyText,
+    this.currencySymbol = '\$',
   });
 
   @override
   Widget build(BuildContext context) {
     if (data.isEmpty) {
-      return const Center(
-        child: Text('No data available'),
+      return Center(
+        child: Text(emptyText ?? ''),
       );
     }
     
@@ -66,7 +70,7 @@ class DashboardChart extends StatelessWidget {
               interval: maxY / 5,
               getTitlesWidget: (value, meta) {
                 return Text(
-                  '\$${value.toInt()}',
+                  '$currencySymbol${value.toInt()}',
                   style: const TextStyle(
                     fontSize: 10,
                   ),

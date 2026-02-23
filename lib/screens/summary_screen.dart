@@ -12,6 +12,7 @@ import 'package:inventory_frontend/providers/available_item_provider.dart';
 import 'package:inventory_frontend/providers/sales_provider.dart';
 import 'package:inventory_frontend/providers/shop_provider.dart';
 import 'package:inventory_frontend/screens/owner/transactions_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SummaryScreen extends StatefulWidget {
   /// When provided, the screen will lock to this shop and (by default)
@@ -43,11 +44,11 @@ class _SummaryScreenState extends State<SummaryScreen> {
     return a.year == b.year && a.month == b.month && a.day == b.day;
   }
 
-  String _formatDateOrToday(DateTime date, DateFormat fmt) {
+  String _formatDateOrTodayLabel(DateTime date, DateFormat fmt, String todayLabel) {
     final today = DateTime.now();
     final todayDate = DateTime(today.year, today.month, today.day);
     final d = DateTime(date.year, date.month, date.day);
-    return _isSameDay(d, todayDate) ? 'Today' : fmt.format(d);
+    return _isSameDay(d, todayDate) ? todayLabel : fmt.format(d);
   }
 
   double _calcBoughtAmount(
@@ -196,6 +197,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final dateFormat = DateFormat('yyyy-MM-dd');
     final shopProvider = context.watch<ShopProvider>();
     final shops = shopProvider.shops;
@@ -206,7 +208,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Summary'),
+        title: Text(l10n.summary),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -222,16 +224,16 @@ class _SummaryScreenState extends State<SummaryScreen> {
                 final end = _endDate;
 
                 if (start == null || end == null) {
-                  return const Center(child: Text('Please select a date range'));
+                  return Center(child: Text(l10n.pleaseSelectDateRange));
                 }
 
                 // When no fixed shop is provided (owner view), we require shops.
                 if (shops.isEmpty && widget.fixedShopId == null) {
-                  return const Center(child: Text('No shops available'));
+                  return Center(child: Text(l10n.noShopsAvailable));
                 }
 
                 if (currentShopId == null || currentShopId.isEmpty) {
-                  return const Center(child: Text('Please select a shop'));
+                  return Center(child: Text(l10n.pleaseSelectShop));
                 }
 
                 final filteredBoughts = boughtProvider.boughts
@@ -303,9 +305,9 @@ class _SummaryScreenState extends State<SummaryScreen> {
                             if (shops.isNotEmpty && widget.allowShopSwitch)
                               DropdownButtonFormField<String>(
                                 value: currentShopId,
-                                decoration: const InputDecoration(
-                                  labelText: 'Shop',
-                                  border: OutlineInputBorder(),
+                                decoration: InputDecoration(
+                                  labelText: l10n.shop,
+                                  border: const OutlineInputBorder(),
                                 ),
                                 items: shops
                                     .map(
@@ -329,7 +331,11 @@ class _SummaryScreenState extends State<SummaryScreen> {
                                   child: OutlinedButton.icon(
                                     onPressed: _pickStartDate,
                                     icon: const Icon(Icons.date_range),
-                                    label: Text('From: ${_formatDateOrToday(start, dateFormat)}'),
+                                    label: Text(
+                                      l10n.fromDate(
+                                        _formatDateOrTodayLabel(start, dateFormat, l10n.today),
+                                      ),
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 8),
@@ -337,7 +343,11 @@ class _SummaryScreenState extends State<SummaryScreen> {
                                   child: OutlinedButton.icon(
                                     onPressed: _pickEndDate,
                                     icon: const Icon(Icons.date_range),
-                                    label: Text('To:   ${_formatDateOrToday(end, dateFormat)}'),
+                                    label: Text(
+                                      l10n.toDate(
+                                        _formatDateOrTodayLabel(end, dateFormat, l10n.today),
+                                      ),
+                                    ),
                                   ),
                                 ),
                               ],
@@ -348,36 +358,49 @@ class _SummaryScreenState extends State<SummaryScreen> {
                                 padding: const EdgeInsets.all(12.0),
                                 child: Row(
                                   children: [
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          const Text('Bought Amount'),
-                                          const SizedBox(height: 4),
-                                          Text(currencyFormat.format(totalBoughtAmount)),
-                                        ],
+                                    if (widget.allowShopSwitch)
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(l10n.netIncome),
+                                            const SizedBox(height: 4),
+                                            Text(currencyFormat.format(netIncome)),
+                                          ],
+                                        ),
                                       ),
-                                    ),
+                                      if (widget.allowShopSwitch)
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text(l10n.boughtAmount),
+                                              const SizedBox(height: 4),
+                                              Text(currencyFormat.format(totalBoughtAmount)),
+                                            ],
+                                          ),
+                                        ),
                                     Expanded(
                                       child: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
-                                          const Text('Sold Amount'),
+                                          Text(l10n.soldAmount),
                                           const SizedBox(height: 4),
                                           Text(currencyFormat.format(totalSoldAmount)),
                                         ],
                                       ),
                                     ),
-                                    Expanded(
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          const Text('Net Income'),
-                                          const SizedBox(height: 4),
-                                          Text(currencyFormat.format(netIncome)),
-                                        ],
+                                    if (widget.allowShopSwitch)
+                                      Expanded(
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Text(l10n.netIncome),
+                                            const SizedBox(height: 4),
+                                            Text(currencyFormat.format(netIncome)),
+                                          ],
+                                        ),
                                       ),
-                                    ),
                                   ],
                                 ),
                               ),
@@ -395,19 +418,19 @@ class _SummaryScreenState extends State<SummaryScreen> {
                                   scrollDirection: Axis.horizontal,
                                   child: DataTable(
                                     columns: [
-                                      const DataColumn(label: Text('Item')),
-                                      const DataColumn(label: Text('Unit')),
-                                      const DataColumn(label: Text('Prev Qty')),
-                                      const DataColumn(label: Text('Bought')),
+                                      DataColumn(label: Text(l10n.item)),
+                                      DataColumn(label: Text(l10n.unit)),
+                                      DataColumn(label: Text(l10n.prevQty)),
+                                      DataColumn(label: Text(l10n.bought)),
                                       if (widget.allowShopSwitch)
-                                        const DataColumn(label: Text('Bought Amt')),
-                                      const DataColumn(label: Text('Sold')),
-                                      const DataColumn(label: Text('Sold Amt')),
+                                        DataColumn(label: Text(l10n.boughtAmt)),
+                                      DataColumn(label: Text(l10n.sold)),
+                                      DataColumn(label: Text(l10n.soldAmt)),
                                       if (widget.allowShopSwitch)
-                                        const DataColumn(label: Text('Net')),
-                                      const DataColumn(label: Text('Remaining')),
+                                        DataColumn(label: Text(l10n.net)),
+                                      DataColumn(label: Text(l10n.remaining)),
                                       if (widget.allowShopSwitch)
-                                        const DataColumn(label: Text('Profit')),
+                                        DataColumn(label: Text(l10n.profit)),
                                     ],
                                     rows: effectiveSummaries.map((s) {
                                       final key = '${s.itemId}_${s.baseFractionId}';
@@ -472,8 +495,8 @@ class _SummaryScreenState extends State<SummaryScreen> {
 
                                               if (match.isEmpty) {
                                                 ScaffoldMessenger.of(context).showSnackBar(
-                                                  const SnackBar(
-                                                    content: Text('No item found in available items'),
+                                                  SnackBar(
+                                                    content: Text(l10n.noItemFoundInAvailableItems),
                                                   ),
                                                 );
                                                 return;
@@ -508,6 +531,7 @@ class _SummaryScreenState extends State<SummaryScreen> {
                                                     filterFractionId: s.baseFractionId,
                                                     filterStart: start,
                                                     filterEnd: end,
+                                                    initialShopId: currentShopId,
                                                   ),
                                                 ),
                                               );
@@ -572,9 +596,9 @@ class _SummaryScreenState extends State<SummaryScreen> {
                               ),
                             ),
                             if (effectiveSummaries.isEmpty)
-                              const Padding(
-                                padding: EdgeInsets.all(12.0),
-                                child: Text('No data for selected period'),
+                              Padding(
+                                padding: const EdgeInsets.all(12.0),
+                                child: Text(l10n.noDataForSelectedPeriod),
                               ),
                           ],
                         ),

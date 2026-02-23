@@ -4,6 +4,7 @@ import 'package:inventory_frontend/providers/auth_provider.dart';
 import 'package:inventory_frontend/screens/admin/businesses_screen.dart';
 import 'package:inventory_frontend/screens/admin/users_screen.dart';
 import 'package:inventory_frontend/screens/auth/login_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class AdminDashboard extends StatefulWidget {
   const AdminDashboard({super.key});
@@ -46,10 +47,11 @@ class _AdminDashboardState extends State<AdminDashboard> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final l10n = AppLocalizations.of(context)!;
     
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Admin Dashboard'),
+        title: Text(l10n.adminDashboard),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -61,14 +63,14 @@ class _AdminDashboardState extends State<AdminDashboard> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _selectedIndex,
         onTap: _onItemTapped,
-        items: const [
+        items: [
           BottomNavigationBarItem(
-            icon: Icon(Icons.business),
-            label: 'Businesses',
+            icon: const Icon(Icons.business),
+            label: l10n.businessesLabel,
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.people),
-            label: 'Users',
+            icon: const Icon(Icons.people),
+            label: l10n.users,
           ),
         ],
       ),

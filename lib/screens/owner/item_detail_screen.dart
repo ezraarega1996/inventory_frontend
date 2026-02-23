@@ -116,8 +116,11 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                         children: [
                           Text(l10n.ratioAndPrice(fraction.ratio, fraction.sellingPrice)),
                           const SizedBox(height: 4),
-                          Text('${l10n.soldPriceLabel}: \u0024${fraction.sellingPrice.toStringAsFixed(2)}'),
-                          Text('${l10n.purchasePrice}: \u0024${fraction.purchasePrice.toStringAsFixed(2)}'),
+                          Text('${l10n.soldPriceLabel}: \$${fraction.sellingPrice.toStringAsFixed(2)}'),
+                          Text('${l10n.purchasePrice}: \$${fraction.purchasePrice.toStringAsFixed(2)}'),
+                          Text(
+                            '${l10n.profitMargin}: ${fraction.sellingPrice == 0 ? 0 : ((fraction.sellingPrice - fraction.purchasePrice) / fraction.sellingPrice * 100).toStringAsFixed(2)}%',
+                          ),
                         ],
                       ),
                     ),

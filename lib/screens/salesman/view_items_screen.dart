@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:inventory_frontend/models/item.dart';
 import 'package:inventory_frontend/providers/item_provider.dart';
 import 'package:inventory_frontend/screens/salesman/item_detail_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ViewItemsScreen extends StatefulWidget {
   const ViewItemsScreen({super.key});
@@ -40,8 +41,9 @@ class _ViewItemsScreenState extends State<ViewItemsScreen> {
       await itemProvider.fetchItems();
     } catch (e) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading items: ${e.toString()}')),
+        SnackBar(content: Text(l10n.errorLoadingItems(e.toString()))),
       );
     } finally {
       if (mounted) {
@@ -62,9 +64,10 @@ class _ViewItemsScreenState extends State<ViewItemsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Available Items'),
+        title: Text(l10n.availableItems),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -94,7 +97,7 @@ class _ViewItemsScreenState extends State<ViewItemsScreen> {
                       child: TextField(
                         controller: _searchController,
                         decoration: InputDecoration(
-                          labelText: 'Search Items',
+                          labelText: l10n.searchItems,
                           prefixIcon: const Icon(Icons.search),
                           suffixIcon: _searchQuery.isNotEmpty
                             ? IconButton(
@@ -120,7 +123,7 @@ class _ViewItemsScreenState extends State<ViewItemsScreen> {
                       child: RefreshIndicator(
                         onRefresh: _loadItems,
                         child: filteredItems.isEmpty
-                          ? const Center(child: Text('No items found'))
+                          ? Center(child: Text(l10n.noItemsFound))
                           : ListView.builder(
                               itemCount: filteredItems.length,
                               itemBuilder: (context, index) {
@@ -129,7 +132,7 @@ class _ViewItemsScreenState extends State<ViewItemsScreen> {
                                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                                   child: ListTile(
                                     title: Text(item.name),
-                                    subtitle: Text(item.category?.name ?? 'No category'),
+                                    subtitle: Text(item.category?.name ?? l10n.noCategory),
                                     trailing: const Icon(Icons.arrow_forward_ios),
                                     onTap: () => _viewItemDetails(item),
                                   ),

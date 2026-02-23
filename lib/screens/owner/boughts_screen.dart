@@ -6,6 +6,7 @@ import 'package:inventory_frontend/models/fraction.dart';
 import 'package:inventory_frontend/providers/bought_provider.dart';
 import 'package:inventory_frontend/providers/item_provider.dart';
 import 'package:inventory_frontend/providers/shop_provider.dart';
+import 'package:inventory_frontend/providers/auth_provider.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -16,6 +17,7 @@ class BoughtsScreen extends StatefulWidget {
   final String? filterFractionId;
   final DateTime? filterStart;
   final DateTime? filterEnd;
+  final String? initialShopId;
 
   const BoughtsScreen({
     super.key,
@@ -23,6 +25,7 @@ class BoughtsScreen extends StatefulWidget {
     this.filterFractionId,
     this.filterStart,
     this.filterEnd,
+    this.initialShopId,
   });
 
   @override
@@ -49,6 +52,40 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
   void initState() {
     super.initState();
     _loadAll();
+  }
+
+  void _maybePrefillPricesFromSelectedFraction({
+    required String? itemId,
+    required String? fractionId,
+  }) {
+    if (itemId == null || fractionId == null) return;
+    if (_fractionPurchasePriceController.text.isNotEmpty ||
+        _fractionSoldPriceController.text.isNotEmpty) {
+      return;
+    }
+
+    final itemProvider = context.read<ItemProvider>();
+    Item? item;
+    try {
+      item = itemProvider.items.firstWhere((i) => i.id == itemId);
+    } catch (_) {
+      item = null;
+    }
+    final fraction = item?.fractions?.firstWhere(
+      (f) => f.id == fractionId,
+      orElse: () => Fraction(
+        id: '',
+        name: '',
+        ratio: 1,
+        sellingPrice: 0,
+        purchasePrice: 0,
+        itemId: '',
+      ),
+    );
+    if (fraction == null || fraction.id.isEmpty) return;
+
+    _fractionPurchasePriceController.text = fraction.purchasePrice.toString();
+    _fractionSoldPriceController.text = fraction.sellingPrice.toString();
   }
 
   @override
@@ -93,18 +130,29 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
     DateTime? expiryDate,
     String? shopId,
   }) {
+    final isOwner = context.read<AuthProvider>().isOwner;
+    if (id == null && !isOwner) {
+      return;
+    }
     final l10n = AppLocalizations.of(context)!;
     setState(() {
       _editingBoughtId = id;
       _selectedItemId = itemId;
       _selectedFractionId = fractionId;
-      _selectedShopId = shopId;
+      _selectedShopId = shopId ?? widget.initialShopId;
       _fractionNameController.text = fractionId ?? '';
       _fractionPurchasePriceController.text = fractionPurchasePrice?.toString() ?? '';
       _fractionSoldPriceController.text = fractionSoldPrice?.toString() ?? '';
       _quantityController.text = quantity?.toString() ?? '';
       _expiryDate = expiryDate;
     });
+
+    if (_editingBoughtId == null) {
+      _maybePrefillPricesFromSelectedFraction(
+        itemId: _selectedItemId,
+        fractionId: _selectedFractionId,
+      );
+    }
 
     showDialog(
       context: context,
@@ -458,6 +506,7 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final canAddBought = context.watch<AuthProvider>().isOwner;
     return Scaffold(
       appBar: AppBar(
         title: Text(l10n.boughtItems),
@@ -547,6 +596,8 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                               Text(l10n.availableQuantity(displayedAvailableCount ?? 0, selectedFraction.name ?? '')),
                               if (bought.expiryDate != null)
                                 Text('${l10n.expiry}: ${DateFormat('yyyy-MM-dd').format(bought.expiryDate!)}'),
+                              Text('${l10n.dateLabel}: ${DateFormat('yyyy-MM-dd').format(bought.createdTime)}'),
+
                             ],
                           ),
                           trailing: Row(
@@ -589,10 +640,16 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                 );
               },
             ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () => _showAddEditDialog(),
-        child: const Icon(Icons.add),
-      ),
+      floatingActionButton: canAddBought
+          ? FloatingActionButton(
+              onPressed: () => _showAddEditDialog(
+                itemId: widget.filterItemId,
+                fractionId: widget.filterFractionId,
+                shopId: widget.initialShopId,
+              ),
+              child: const Icon(Icons.add),
+            )
+          : null,
     );
   }
 }

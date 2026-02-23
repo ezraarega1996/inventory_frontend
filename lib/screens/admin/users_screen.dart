@@ -3,6 +3,7 @@ import 'package:inventory_frontend/models/user.dart';
 import 'package:inventory_frontend/utils/api.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class UsersScreen extends StatefulWidget {
   const UsersScreen({super.key});
@@ -48,12 +49,14 @@ class _UsersScreenState extends State<UsersScreen> {
   }
   
   void _viewUserDetails(User user) {
+    final l10n = AppLocalizations.of(context)!;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text('Viewing details for ${user.name}'))
+      SnackBar(content: Text(l10n.viewingDetailsFor(user.name)))
     );
   }
   
   Future<void> _toggleUserStatus(User user) async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
       _isLoading = true;
       _error = null;
@@ -67,7 +70,7 @@ class _UsersScreenState extends State<UsersScreen> {
       await _loadUsers();
       
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('User status updated successfully'))
+        SnackBar(content: Text(l10n.userStatusUpdatedSuccessfully))
       );
     } catch (e) {
       setState(() {
@@ -76,22 +79,23 @@ class _UsersScreenState extends State<UsersScreen> {
       });
       
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $_error'))
+        SnackBar(content: Text(l10n.errorWithDetails(_error ?? '')))
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       body: RefreshIndicator(
         onRefresh: _loadUsers,
         child: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-            ? Center(child: Text('Error: $_error'))
+            ? Center(child: Text(l10n.errorWithDetails(_error!)))
             : _users.isEmpty
-              ? const Center(child: Text('No users found'))
+              ? Center(child: Text(l10n.noUsersFound))
               : ListView.builder(
                   itemCount: _users.length,
                   itemBuilder: (context, index) {
@@ -103,8 +107,8 @@ class _UsersScreenState extends State<UsersScreen> {
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            Text('Role: ${user.role}'),
-                            Text('Business: ${user.business?.name ?? 'N/A'}'),
+                            Text(l10n.roleWithValue(user.role)),
+                            Text(l10n.businessWithValue(user.business?.name ?? l10n.na)),
                           ],
                         ),
                         trailing: Row(

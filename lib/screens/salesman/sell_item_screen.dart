@@ -5,6 +5,7 @@ import 'package:inventory_frontend/models/available_item.dart';
 import 'package:inventory_frontend/providers/sales_provider.dart';
 import 'package:inventory_frontend/providers/available_item_provider.dart';
 import 'package:inventory_frontend/providers/item_provider.dart';
+import 'package:inventory_frontend/providers/auth_provider.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
@@ -348,6 +349,7 @@ class _SellItemScreenState extends State<SellItemScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context)!;
+    final isOwner = context.watch<AuthProvider>().isOwner;
     if (_isLoading) {
       return Scaffold(
         body: Center(
@@ -444,13 +446,15 @@ class _SellItemScreenState extends State<SellItemScreen> {
                   enabled: !_isSubmitting,
                   onChanged: (_) => _updateExpectedAmount(),
                 ),
-                const SizedBox(height: 16),
-                CustomTextField(
-                  controller: _purchasePriceController,
-                  labelText: l10n.purchasePrice,
-                  keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                  enabled: !_isSubmitting,
-                ),
+                if (isOwner) ...[
+                  const SizedBox(height: 16),
+                  CustomTextField(
+                    controller: _purchasePriceController,
+                    labelText: l10n.purchasePrice,
+                    keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                    enabled: !_isSubmitting,
+                  ),
+                ],
               ],
               const SizedBox(height: 16),
               CustomTextField(
@@ -493,9 +497,9 @@ class _SellItemScreenState extends State<SellItemScreen> {
                 ),
               ),
               const SizedBox(height: 8),
-              if (_selectedFraction != null)
+              if (_selectedFraction != null && isOwner)
                 Text(
-                  'Profit: ${l10n.currencySymbol}${_profit.toStringAsFixed(2)}',
+                  l10n.profitWithAmount('${l10n.currencySymbol}${_profit.toStringAsFixed(2)}'),
                   style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:inventory_frontend/models/business.dart';
 import 'package:inventory_frontend/utils/api.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class BusinessDetailScreen extends StatefulWidget {
   final Business business;
@@ -48,6 +49,7 @@ class _BusinessDetailScreenState extends State<BusinessDetailScreen> {
   }
   
   Future<void> _updateSubscription(String status) async {
+    final l10n = AppLocalizations.of(context)!;
     setState(() {
       _isLoading = true;
       _error = null;
@@ -69,7 +71,7 @@ class _BusinessDetailScreenState extends State<BusinessDetailScreen> {
       if (!mounted) return;
       
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Subscription status updated to $status'))
+        SnackBar(content: Text(l10n.subscriptionStatusUpdatedTo(status)))
       );
       
       // Return to previous screen with updated business
@@ -83,13 +85,14 @@ class _BusinessDetailScreenState extends State<BusinessDetailScreen> {
       if (!mounted) return;
       
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $_error'))
+        SnackBar(content: Text(l10n.errorWithDetails(_error ?? '')))
       );
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     final business = widget.business;
     
     return Scaffold(
@@ -109,20 +112,20 @@ class _BusinessDetailScreenState extends State<BusinessDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Business Information',
-                          style: TextStyle(
+                        Text(
+                          l10n.businessInformation,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 16),
-                        _buildInfoRow('ID', business.id),
-                        _buildInfoRow('Name', business.name),
-                        _buildInfoRow('Email', business.email ?? 'N/A'),
-                        _buildInfoRow('Phone', business.phone ?? 'N/A'),
-                        _buildInfoRow('Address', business.address ?? 'N/A'),
-                        _buildInfoRow('Active', business.isActive ? 'Yes' : 'No'),
+                        _buildInfoRow(l10n.idLabel, business.id),
+                        _buildInfoRow(l10n.nameLabel, business.name),
+                        _buildInfoRow(l10n.emailLabel, business.email ?? l10n.na),
+                        _buildInfoRow(l10n.phoneLabel, business.phone ?? l10n.na),
+                        _buildInfoRow(l10n.addressLabel, business.address ?? l10n.na),
+                        _buildInfoRow(l10n.activeLabel, business.isActive ? l10n.yes : l10n.no),
                       ],
                     ),
                   ),
@@ -134,26 +137,26 @@ class _BusinessDetailScreenState extends State<BusinessDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(
-                          'Subscription Information',
-                          style: TextStyle(
+                        Text(
+                          l10n.subscriptionInformation,
+                          style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
                           ),
                         ),
                         const SizedBox(height: 16),
-                        _buildInfoRow('Plan', business.subscriptionPlan),
-                        _buildInfoRow('Status', business.subscriptionStatus),
+                        _buildInfoRow(l10n.planLabel, business.subscriptionPlan),
+                        _buildInfoRow(l10n.statusLabel, business.subscriptionStatus),
                         if (business.trialEndsAt != null)
-                          _buildInfoRow('Trial Ends', _formatDate(business.trialEndsAt!)),
+                          _buildInfoRow(l10n.trialEndsLabel, _formatDate(business.trialEndsAt!)),
                         if (business.subscriptionEndsAt != null)
-                          _buildInfoRow('Subscription Ends', _formatDate(business.subscriptionEndsAt!)),
+                          _buildInfoRow(l10n.subscriptionEndsLabel, _formatDate(business.subscriptionEndsAt!)),
                         const SizedBox(height: 16),
                         Row(
                           children: [
                             Expanded(
                               child: CustomButton(
-                                text: 'Activate',
+                                text: l10n.activate,
                                 onPressed: () => _updateSubscription('active'),
                                 color: Colors.green,
                               ),
@@ -161,7 +164,7 @@ class _BusinessDetailScreenState extends State<BusinessDetailScreen> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: CustomButton(
-                                text: 'Suspend',
+                                text: l10n.suspend,
                                 onPressed: () => _updateSubscription('expired'),
                                 color: Colors.orange,
                               ),
@@ -169,7 +172,7 @@ class _BusinessDetailScreenState extends State<BusinessDetailScreen> {
                             const SizedBox(width: 8),
                             Expanded(
                               child: CustomButton(
-                                text: 'Cancel',
+                                text: l10n.cancelSubscription,
                                 onPressed: () => _updateSubscription('cancelled'),
                                 color: Colors.red,
                               ),
@@ -187,7 +190,7 @@ class _BusinessDetailScreenState extends State<BusinessDetailScreen> {
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Text(
-                        'Error loading stats: $_error',
+                        l10n.errorLoadingData(_error ?? ''),
                         style: TextStyle(color: Colors.red.shade900),
                       ),
                     ),
@@ -199,18 +202,18 @@ class _BusinessDetailScreenState extends State<BusinessDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Business Statistics',
-                            style: TextStyle(
+                          Text(
+                            l10n.businessStatistics,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           const SizedBox(height: 16),
-                          _buildInfoRow('Users', _stats['userCount']?.toString() ?? '0'),
-                          _buildInfoRow('Items', _stats['itemCount']?.toString() ?? '0'),
-                          _buildInfoRow('Total Sales', '\$${_stats['totalSales']?.toString() ?? '0'}'),
-                          _buildInfoRow('Sales Count', _stats['salesCount']?.toString() ?? '0'),
+                          _buildInfoRow(l10n.users, _stats['userCount']?.toString() ?? '0'),
+                          _buildInfoRow(l10n.items, _stats['itemCount']?.toString() ?? '0'),
+                          _buildInfoRow(l10n.totalSales, '\$${_stats['totalSales']?.toString() ?? '0'}'),
+                          _buildInfoRow(l10n.salesCount, _stats['salesCount']?.toString() ?? '0'),
                         ],
                       ),
                     ),

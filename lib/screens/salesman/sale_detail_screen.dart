@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:inventory_frontend/models/sold_item.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class SaleDetailScreen extends StatefulWidget {
   final SoldItem sale;
@@ -20,9 +21,10 @@ class _SaleDetailScreenState extends State<SaleDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sale Details'),
+        title: Text(l10n.saleDetails),
         actions: [
           IconButton(
             icon: const Icon(Icons.refresh),
@@ -55,16 +57,16 @@ class _SaleDetailScreenState extends State<SaleDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Sale Information',
-                            style: TextStyle(
+                          Text(
+                            l10n.saleInformation,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           const SizedBox(height: 16),
-                          _buildInfoRow('Sale ID', widget.sale.id),
-                          _buildInfoRow('Date', dateFormat.format(widget.sale.createdAt)),
+                          _buildInfoRow(l10n.saleIdLabel, widget.sale.id),
+                          _buildInfoRow(l10n.dateLabel, dateFormat.format(widget.sale.createdAt)),
                         ],
                       ),
                     ),
@@ -76,17 +78,17 @@ class _SaleDetailScreenState extends State<SaleDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Item Information',
-                            style: TextStyle(
+                          Text(
+                            l10n.itemInformation,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           const SizedBox(height: 16),
-                          _buildInfoRow('Item', widget.sale.item?.name ?? 'Unknown'),
-                          _buildInfoRow('Fraction', widget.sale.fractionId),
-                          _buildInfoRow('Quantity', widget.sale.quantity.toString()),
+                          _buildInfoRow(l10n.item, widget.sale.item?.name ?? l10n.unknownItem),
+                          _buildInfoRow(l10n.fraction, widget.sale.fractionId),
+                          _buildInfoRow(l10n.quantityLabel, widget.sale.quantity.toString()),
                         ],
                       ),
                     ),
@@ -98,15 +100,15 @@ class _SaleDetailScreenState extends State<SaleDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Financial Information',
-                            style: TextStyle(
+                          Text(
+                            l10n.financialInformation,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           const SizedBox(height: 16),
-                          _buildInfoRow('Amount', '\$${widget.sale.soldPrice}'),
+                          _buildInfoRow(l10n.amountLabel, '\$${widget.sale.soldPrice}'),
                         ],
                       ),
                     ),

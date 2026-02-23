@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:inventory_frontend/models/item.dart';
 import 'package:inventory_frontend/models/fraction.dart';
 import 'package:inventory_frontend/screens/salesman/sell_item_screen.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ItemDetailScreen extends StatefulWidget {
   final Item item;
@@ -31,8 +32,9 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
         ),
       );
     } catch (e) {
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error navigating to sell screen: ${e.toString()}')),
+        SnackBar(content: Text(l10n.errorNavigatingToSellScreen(e.toString()))),
       );
     } finally {
       if (mounted) {
@@ -45,6 +47,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context)!;
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.item.name),
@@ -62,9 +65,9 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const Text(
-                            'Item Details',
-                            style: TextStyle(
+                          Text(
+                            l10n.itemDetails,
+                            style: const TextStyle(
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                             ),
@@ -72,9 +75,9 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                           const SizedBox(height: 16),
                           Row(
                             children: [
-                              const Text(
-                                'Name:',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                              Text(
+                                '${l10n.name}:',
+                                style: const TextStyle(fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(width: 8),
                               Text(widget.item.name),
@@ -83,12 +86,12 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                           const SizedBox(height: 8),
                           Row(
                             children: [
-                              const Text(
-                                'Category:',
-                                style: TextStyle(fontWeight: FontWeight.bold),
+                              Text(
+                                '${l10n.category}:',
+                                style: const TextStyle(fontWeight: FontWeight.bold),
                               ),
                               const SizedBox(width: 8),
-                              Text(widget.item.category?.name ?? 'No category'),
+                              Text(widget.item.category?.name ?? l10n.noCategory),
                             ],
                           ),
                         ],
@@ -96,17 +99,17 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 24),
-                  const Text(
-                    'Available Fractions',
-                    style: TextStyle(
+                  Text(
+                    l10n.availableFractions,
+                    style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
                   const SizedBox(height: 16),
                   if (widget.item.fractions == null || widget.item.fractions!.isEmpty)
-                    const Center(
-                      child: Text('No fractions available for this item'),
+                    Center(
+                      child: Text(l10n.noFractionsAvailableForItem),
                     )
                   else
                     ListView.builder(
@@ -118,7 +121,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                         return Card(
                           child: ListTile(
                             title: Text(fraction.name),
-                            subtitle: Text('Ratio: ${fraction.ratio}'),
+                            subtitle: Text('${l10n.ratio}: ${fraction.ratio}'),
                             trailing: Text('\$${fraction.sellingPrice}'),
                             onTap: () => _navigateToSellScreen(fraction),
                           ),
@@ -131,7 +134,7 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
       floatingActionButton: FloatingActionButton.extended(
         onPressed: _isLoading ? null : () => _navigateToSellScreen(),
         icon: const Icon(Icons.shopping_cart),
-        label: const Text('Sell This Item'),
+        label: Text(l10n.sellThisItem),
       ),
     );
   }

@@ -238,6 +238,16 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
                   },
                 ),
                 ListTile(
+                  leading: const Icon(Icons.table_chart, color: Colors.teal),
+                  title: Text(l10n.summary),
+                  selected: _selectedIndex == 4,
+                  selectedColor: Colors.teal,
+                  onTap: () {
+                    setState(() => _selectedIndex = 4);
+                    Navigator.pop(context);
+                  },
+                ),
+                ListTile(
                   leading: const Icon(Icons.add_shopping_cart, color: Colors.orange),
                   title: Text(l10n.sellItem),
                   selected: _selectedIndex == 2,
@@ -264,16 +274,6 @@ class _SalesmanDashboardState extends State<SalesmanDashboard> {
                   selectedColor: Colors.purple,
                   onTap: () {
                     setState(() => _selectedIndex = 3);
-                    Navigator.pop(context);
-                  },
-                ),
-                ListTile(
-                  leading: const Icon(Icons.table_chart, color: Colors.teal),
-                  title: Text("Summary"),
-                  selected: _selectedIndex == 4,
-                  selectedColor: Colors.teal,
-                  onTap: () {
-                    setState(() => _selectedIndex = 4);
                     Navigator.pop(context);
                   },
                 ),

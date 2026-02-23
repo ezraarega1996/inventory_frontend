@@ -35,8 +35,9 @@ class _ViewSalesScreenState extends State<ViewSalesScreen> {
       await salesProvider.fetchUserSales();
     } catch (e) {
       if (!mounted) return;
+      final l10n = AppLocalizations.of(context)!;
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading sales: ${e.toString()}')),
+        SnackBar(content: Text(l10n.errorLoadingSales(e.toString()))),
       );
     } finally {
       if (mounted) {
@@ -119,7 +120,7 @@ class _ViewSalesScreenState extends State<ViewSalesScreen> {
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text('${sale.item?.name}(${sale.salesman?.name ?? 'Unknown Salesman'})'),
+                                              Text('${sale.item?.name}(${sale.salesman?.name ?? l10n.unknownSalesman})'),
                                               Text(l10n.quantityWithUnit(
                                                 (sale.quantity * sale.fraction!.ratio / selectedFraction.ratio).toString(),
                                                 selectedFraction.name,
@@ -127,7 +128,7 @@ class _ViewSalesScreenState extends State<ViewSalesScreen> {
                                               Text(l10n.amountWithCurrency(sale.soldPrice.toString())),
                                               if (sale.profit != null)
                                                 Text(
-                                                  'Profit: \$${sale.profit!.toStringAsFixed(2)}',
+                                                  l10n.profitWithAmount('\$${sale.profit!.toStringAsFixed(2)}'),
                                                   style: const TextStyle(fontWeight: FontWeight.w600),
                                                 ),
                                               sale.available_items_count != null
