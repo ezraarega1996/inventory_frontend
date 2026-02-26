@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:inventory_frontend/models/item.dart';
 import 'package:inventory_frontend/providers/item_provider.dart';
-import 'package:inventory_frontend/screens/owner/fraction_management_screen.dart';
+import 'package:inventory_frontend/widgets/fraction_management_dialog.dart';
 import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 
 class ItemDetailScreen extends StatefulWidget {
@@ -85,10 +85,9 @@ class _ItemDetailScreenState extends State<ItemDetailScreen> {
                 ),
                 TextButton.icon(
                   onPressed: () {
-                    Navigator.of(context).push(
-                      MaterialPageRoute(
-                        builder: (_) => FractionManagementScreen(item: item),
-                      ),
+                    showDialog(
+                      context: context,
+                      builder: (_) => FractionManagementDialog(item: item),
                     );
                   },
                   icon: const Icon(Icons.add),

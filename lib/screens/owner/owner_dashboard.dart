@@ -7,6 +7,7 @@ import 'package:inventory_frontend/screens/auth/login_screen.dart';
 import 'package:inventory_frontend/screens/owner/categories_screen.dart';
 import 'package:inventory_frontend/screens/owner/items_screen.dart';
 import 'package:inventory_frontend/screens/owner/sales_screen.dart';
+import 'package:inventory_frontend/screens/auth/change_password_screen.dart';
 import 'package:inventory_frontend/screens/owner/subscription_screen.dart';
 import 'package:inventory_frontend/screens/owner/users_screen.dart';
 import 'package:inventory_frontend/screens/owner/boughts_screen.dart';
@@ -445,6 +446,17 @@ Future<void> _loadDashboardData() async {
                 _selectedIndex = 5;
               });
               Navigator.pop(context);
+            },
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.lock, color: Colors.blue),
+            title: const Text('Change Password'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.of(context).push(
+                MaterialPageRoute(builder: (_) => const ChangePasswordScreen()),
+              );
             },
           ),
           const Divider(),

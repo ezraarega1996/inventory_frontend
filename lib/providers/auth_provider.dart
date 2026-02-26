@@ -155,6 +155,74 @@ class AuthProvider with ChangeNotifier {
       return false;
     }
   }
+
+  Future<bool> sendOTP(String phoneNumber) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    
+    try {
+      final response = await Api.post('auth/send-otp', {
+        'phoneNumber': phoneNumber,
+      });
+      
+      _isLoading = false;
+      notifyListeners();
+      
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> verifyOTP(String phoneNumber, String otp) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    
+    try {
+      final response = await Api.post('auth/verify-otp', {
+        'phoneNumber': phoneNumber,
+        'otp': otp,
+      });
+      
+      _isLoading = false;
+      notifyListeners();
+      
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  Future<bool> changePassword(String currentPassword, String newPassword) async {
+    _isLoading = true;
+    _error = null;
+    notifyListeners();
+    
+    try {
+      final response = await Api.post('auth/change-password', {
+        'currentPassword': currentPassword,
+        'newPassword': newPassword,
+      });
+      
+      _isLoading = false;
+      notifyListeners();
+      
+      return true;
+    } catch (e) {
+      _error = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
   
   Future<void> logout() async {
     await Storage.clearAll();

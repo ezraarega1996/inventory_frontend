@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:inventory_frontend/models/bought.dart';
 import 'package:inventory_frontend/models/item.dart';
 import 'package:inventory_frontend/models/fraction.dart';
@@ -7,9 +8,9 @@ import 'package:inventory_frontend/providers/bought_provider.dart';
 import 'package:inventory_frontend/providers/item_provider.dart';
 import 'package:inventory_frontend/providers/shop_provider.dart';
 import 'package:inventory_frontend/providers/auth_provider.dart';
+import 'package:inventory_frontend/screens/owner/items_screen.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
 import 'package:intl/intl.dart';
-import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:inventory_frontend/widgets/fraction_dropdown.dart';
 
 class BoughtsScreen extends StatefulWidget {
@@ -120,6 +121,25 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
     }
   }
 
+  Future<void> _navigateAndAddItem() async {
+    final result = await Navigator.of(context).push<String?>(
+      MaterialPageRoute(
+        builder: (_) => const ItemsScreen(autoOpenAdd: true),
+      ),
+    );
+    if (result != null && mounted) {
+      // Refresh items list and select the newly created item
+      await context.read<ItemProvider>().fetchItems();
+      setState(() {
+        _selectedItemId = result;
+        _selectedFractionId = null;
+        _fractionNameController.clear();
+        _fractionPurchasePriceController.clear();
+        _fractionSoldPriceController.clear();
+      });
+    }
+  }
+
   void _showAddEditDialog({
     String? id,
     String? itemId,
@@ -194,37 +214,49 @@ class _BoughtsScreenState extends State<BoughtsScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  Consumer<ItemProvider>(
-                    builder: (context, itemProvider, child) {
-                      return DropdownButtonFormField<String>(
-                        value: _selectedItemId,
-                        decoration: InputDecoration(
-                          labelText: l10n.selectItem,
-                          border: const OutlineInputBorder(),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Consumer<ItemProvider>(
+                          builder: (context, itemProvider, child) {
+                            return DropdownButtonFormField<String>(
+                              value: _selectedItemId,
+                              decoration: InputDecoration(
+                                labelText: l10n.selectItem,
+                                border: const OutlineInputBorder(),
+                              ),
+                              items: itemProvider.items.map((item) {
+                                return DropdownMenuItem<String>(
+                                  value: item.id,
+                                  child: Text(item.name),
+                                );
+                              }).toList(),
+                              onChanged: _isSubmitting ? null : (value) {
+                                setDialogState(() {
+                                  _selectedItemId = value;
+                                  _selectedFractionId = null;
+                                  _fractionNameController.clear();
+                                  _fractionPurchasePriceController.clear();
+                                  _fractionSoldPriceController.clear();
+                                });
+                              },
+                              validator: (value) {
+                                if (value == null || value.isEmpty) {
+                                  return l10n.required;
+                                }
+                                return null;
+                              },
+                            );
+                          },
                         ),
-                        items: itemProvider.items.map((item) {
-                          return DropdownMenuItem<String>(
-                            value: item.id,
-                            child: Text(item.name),
-                          );
-                        }).toList(),
-                        onChanged: _isSubmitting ? null : (value) {
-                          setDialogState(() {
-                            _selectedItemId = value;
-                            _selectedFractionId = null;
-                            _fractionNameController.clear();
-                            _fractionPurchasePriceController.clear();
-                            _fractionSoldPriceController.clear();
-                          });
-                        },
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return l10n.required;
-                          }
-                          return null;
-                        },
-                      );
-                    },
+                      ),
+                      const SizedBox(width: 8),
+                      IconButton(
+                        onPressed: _isSubmitting ? null : _navigateAndAddItem,
+                        icon: const Icon(Icons.add),
+                        tooltip: 'Add new item',
+                      ),
+                    ],
                   ),
                   const SizedBox(height: 16),
                   if (_selectedItemId != null)

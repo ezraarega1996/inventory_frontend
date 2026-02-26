@@ -170,6 +170,7 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
                   CustomTextField(
                     controller: _nameController,
                     labelText: l10n.unitName,
+                    hintText: 'e.g., Piece, Box, Bottle, Kilogram',
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return l10n.pleaseEnterName;
@@ -181,6 +182,7 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
                   CustomTextField(
                     controller: _ratioController,
                     labelText: l10n.ratio,
+                    hintText: 'e.g., 1 for single unit, 12 for dozen, 100 for pack of 100',
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -196,6 +198,7 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
                   CustomTextField(
                     controller: _sellingPriceController,
                     labelText: l10n.soldPriceLabel,
+                    hintText: 'Price per unit when selling to customers (e.g., 10.50)',
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) {
@@ -211,6 +214,7 @@ class _FractionManagementScreenState extends State<FractionManagementScreen> {
                   CustomTextField(
                     controller: _purchasePriceController,
                     labelText: l10n.purchasePrice,
+                    hintText: 'Cost per unit when buying from suppliers (e.g., 7.25)',
                     keyboardType: TextInputType.number,
                     validator: (value) {
                       if (value == null || value.isEmpty) {

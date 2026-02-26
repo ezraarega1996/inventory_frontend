@@ -4,6 +4,7 @@ import 'package:flutter_gen/gen_l10n/app_localizations.dart';
 import 'package:inventory_frontend/providers/category_provider.dart';
 import 'package:inventory_frontend/widgets/custom_button.dart';
 import 'package:inventory_frontend/widgets/custom_text_field.dart';
+import 'package:inventory_frontend/screens/owner/items_screen.dart';
 
 class CategoriesScreen extends StatefulWidget {
   const CategoriesScreen({super.key});
@@ -23,6 +24,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
   void initState() {
     super.initState();
     _loadCategories();
+    // Auto-open add dialog if opened from ItemsScreen (route arguments == true)
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final shouldAutoOpen = ModalRoute.of(context)?.settings.arguments == true;
+      if (shouldAutoOpen && mounted) {
+        _showAddEditDialog();
+      }
+    });
   }
   
   @override
@@ -97,6 +105,18 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       SnackBar(content: Text(l10n.success))
                     );
                     await _loadCategories();
+                    // If we were opened from ItemsScreen (check via route settings), return new category ID
+                    final shouldReturnId = ModalRoute.of(context)?.settings.arguments == true;
+                    if (shouldReturnId && mounted) {
+                      final newCategoryId = categoryProvider.categories
+                          .where((c) => c.name.trim() == _nameController.text.trim())
+                          .firstOrNull
+                          ?.id;
+                      if (newCategoryId != null) {
+                        Navigator.of(context).pop(newCategoryId);
+                        return;
+                      }
+                    }
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text(categoryProvider.error ?? l10n.error))
@@ -194,6 +214,13 @@ class _CategoriesScreenState extends State<CategoriesScreen> {
                       final category = categoryProvider.categories[index];
                       return ListTile(
                         title: Text(category.name),
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (_) => ItemsScreen(initialCategoryId: category.id),
+                            ),
+                          );
+                        },
                         trailing: Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
